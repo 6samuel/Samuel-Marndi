@@ -5,7 +5,9 @@ import {
   insertServiceRequestSchema, 
   insertContactSubmissionSchema,
   insertCampaignSchema,
-  insertRecipientSchema
+  insertRecipientSchema,
+  insertAdTrackerSchema,
+  insertAdTrackerHitSchema
 } from "@shared/schema";
 import { ZodError, z } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -917,6 +919,270 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(`Error deleting recipient with ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to delete recipient" });
+    }
+  });
+
+  // Ad Tracking middleware
+  const trackingMiddleware = (req: Request, res: Response, next: Function) => {
+    // Skip for API routes - we only want to track page views
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    
+    // Extract tracking code from query parameters
+    const trackingId = req.query.utm_id as string;
+    if (!trackingId) {
+      return next();
+    }
+    
+    // Store the tracking hit asynchronously (don't wait for completion)
+    (async () => {
+      try {
+        const trackerId = parseInt(trackingId);
+        if (isNaN(trackerId)) return;
+        
+        // Get the tracker to make sure it exists
+        const tracker = await storage.getAdTrackerById(trackerId);
+        if (!tracker || !tracker.active) return;
+        
+        // Create a hit record
+        await storage.createAdTrackerHit({
+          trackerId: trackerId,
+          sourcePlatform: req.query.utm_source as string || 'unknown',
+          sourceUrl: req.headers.referer || null,
+          pageUrl: req.originalUrl,
+          ipAddress: req.ip || null,
+          userAgent: req.headers['user-agent'] || null,
+          deviceType: detectDeviceType(req.headers['user-agent'] || ''),
+          converted: false,
+          conversionType: null,
+          sessionId: req.query.utm_session as string || null,
+          extraData: {}
+        });
+      } catch (error) {
+        console.error('Error recording tracking hit:', error);
+      }
+    })();
+    
+    next();
+  };
+  
+  // Helper function to detect device type from user agent
+  function detectDeviceType(userAgent: string): string | null {
+    if (!userAgent) return null;
+    
+    const ua = userAgent.toLowerCase();
+    if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone') || ua.includes('ipad')) {
+      return 'mobile';
+    } else if (ua.includes('tablet')) {
+      return 'tablet';
+    } else {
+      return 'desktop';
+    }
+  }
+  
+  // Register middleware
+  app.use(trackingMiddleware);
+  
+  // Ad Tracking API routes
+  
+  // Get all trackers
+  app.get(`${apiRoute}/ad-trackers`, isAuthenticated, isAdmin, async (_req, res) => {
+    try {
+      const trackers = await storage.getAdTrackers();
+      res.json(trackers);
+    } catch (error) {
+      console.error("Error fetching ad trackers:", error);
+      res.status(500).json({ message: "Failed to fetch ad trackers" });
+    }
+  });
+  
+  // Get tracker by ID
+  app.get(`${apiRoute}/ad-trackers/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const tracker = await storage.getAdTrackerById(id);
+      if (!tracker) {
+        return res.status(404).json({ message: "Ad tracker not found" });
+      }
+      
+      res.json(tracker);
+    } catch (error) {
+      console.error(`Error fetching ad tracker with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch ad tracker" });
+    }
+  });
+  
+  // Create new tracker
+  app.post(`${apiRoute}/ad-trackers`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertAdTrackerSchema.parse(req.body);
+      const tracker = await storage.createAdTracker(validatedData);
+      
+      res.status(201).json({ 
+        message: "Ad tracker created successfully",
+        tracker 
+      });
+    } catch (error) {
+      handleValidationError(error, res);
+    }
+  });
+  
+  // Update tracker
+  app.patch(`${apiRoute}/ad-trackers/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const tracker = await storage.getAdTrackerById(id);
+      if (!tracker) {
+        return res.status(404).json({ message: "Ad tracker not found" });
+      }
+      
+      const validatedData = insertAdTrackerSchema.partial().parse(req.body);
+      const updatedTracker = await storage.updateAdTracker(id, validatedData);
+      
+      res.json({ 
+        message: "Ad tracker updated successfully",
+        tracker: updatedTracker 
+      });
+    } catch (error) {
+      handleValidationError(error, res);
+    }
+  });
+  
+  // Toggle tracker active status
+  app.patch(`${apiRoute}/ad-trackers/:id/toggle-status`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const tracker = await storage.getAdTrackerById(id);
+      if (!tracker) {
+        return res.status(404).json({ message: "Ad tracker not found" });
+      }
+      
+      const updatedTracker = await storage.updateAdTrackerStatus(id, !tracker.active);
+      
+      res.json({ 
+        message: `Ad tracker ${updatedTracker?.active ? 'activated' : 'deactivated'} successfully`,
+        tracker: updatedTracker 
+      });
+    } catch (error) {
+      console.error(`Error toggling tracker status for ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to toggle tracker status" });
+    }
+  });
+  
+  // Delete tracker
+  app.delete(`${apiRoute}/ad-trackers/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteAdTracker(id);
+      if (!success) {
+        return res.status(404).json({ message: "Ad tracker not found or could not be deleted" });
+      }
+      
+      res.json({ message: "Ad tracker deleted successfully" });
+    } catch (error) {
+      console.error(`Error deleting ad tracker with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete ad tracker" });
+    }
+  });
+  
+  // Get tracker hits
+  app.get(`${apiRoute}/ad-trackers/:id/hits`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const hits = await storage.getAdTrackerHits(id);
+      res.json(hits);
+    } catch (error) {
+      console.error(`Error fetching hits for tracker ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch tracker hits" });
+    }
+  });
+  
+  // Get tracker analytics
+  app.get(`${apiRoute}/ad-trackers/:id/analytics`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const tracker = await storage.getAdTrackerById(id);
+      if (!tracker) {
+        return res.status(404).json({ message: "Ad tracker not found" });
+      }
+      
+      const totalHits = await storage.getAdTrackerHitsCount(id);
+      const conversionRate = await storage.getAdTrackerConversionRate(id);
+      const sourcesBreakdown = await storage.getAdTrackerHitsBySources(id);
+      const deviceTypeBreakdown = await storage.getAdTrackerHitsByDeviceType(id);
+      
+      res.json({
+        trackerId: id,
+        trackerName: tracker.name,
+        platform: tracker.platform,
+        totalHits,
+        conversionRate,
+        sourcesBreakdown,
+        deviceTypeBreakdown
+      });
+    } catch (error) {
+      console.error(`Error fetching analytics for tracker ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch tracker analytics" });
+    }
+  });
+  
+  // Record conversion for a tracker
+  app.post(`${apiRoute}/ad-trackers/:id/conversion`, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const { sessionId, conversionType = 'general' } = req.body;
+      
+      if (!sessionId) {
+        return res.status(400).json({ message: "Session ID is required" });
+      }
+      
+      // Find the tracking hit with the session ID
+      const hits = await storage.getAdTrackerHits(id);
+      const hit = hits.find(h => h.sessionId === sessionId);
+      
+      if (!hit) {
+        return res.status(404).json({ message: "No tracking hit found for the provided session ID" });
+      }
+      
+      // Update the hit with conversion information
+      const updatedHit = await storage.updateAdTrackerHitConversion(hit.id, true, conversionType);
+      
+      res.json({ 
+        message: "Conversion recorded successfully",
+        hit: updatedHit
+      });
+    } catch (error) {
+      console.error(`Error recording conversion for tracker ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to record conversion" });
     }
   });
 

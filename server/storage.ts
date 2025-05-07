@@ -9,7 +9,9 @@ import {
   partnerApplications, PartnerApplication, InsertPartnerApplication,
   campaigns, Campaign, InsertCampaign,
   recipients, Recipient, InsertRecipient,
-  campaignResults, CampaignResult, InsertCampaignResult
+  campaignResults, CampaignResult, InsertCampaignResult,
+  adTrackers, AdTracker, InsertAdTracker,
+  adTrackerHits, AdTrackerHit, InsertAdTrackerHit
 } from "@shared/schema";
 import { sampleData } from "./sample-data";
 
@@ -139,6 +141,8 @@ export class MemStorage implements IStorage {
   private campaigns: Map<number, Campaign>;
   private recipients: Map<number, Recipient>;
   private campaignResults: Map<number, CampaignResult>;
+  private adTrackers: Map<number, AdTracker>;
+  private adTrackerHits: Map<number, AdTrackerHit>;
   
   private userId: number = 1;
   private serviceId: number = 1;
@@ -151,6 +155,8 @@ export class MemStorage implements IStorage {
   private campaignId: number = 1;
   private recipientId: number = 1;
   private campaignResultId: number = 1;
+  private adTrackerId: number = 1;
+  private adTrackerHitId: number = 1;
 
   constructor() {
     this.users = new Map();
@@ -164,6 +170,8 @@ export class MemStorage implements IStorage {
     this.campaigns = new Map();
     this.recipients = new Map();
     this.campaignResults = new Map();
+    this.adTrackers = new Map();
+    this.adTrackerHits = new Map();
     
     // Initialize with sample data
     this.initializeData();
@@ -676,6 +684,142 @@ export class MemStorage implements IStorage {
     
     const clickedCount = results.filter(result => result.clickedAt !== null).length;
     return (clickedCount / results.length) * 100;
+  }
+
+  // Ad Tracking operations
+  async getAdTrackers(): Promise<AdTracker[]> {
+    return Array.from(this.adTrackers.values());
+  }
+
+  async getAdTrackerById(id: number): Promise<AdTracker | undefined> {
+    return this.adTrackers.get(id);
+  }
+
+  async getAdTrackersByPlatform(platform: string): Promise<AdTracker[]> {
+    return Array.from(this.adTrackers.values()).filter(
+      tracker => tracker.platform === platform
+    );
+  }
+
+  async createAdTracker(insertTracker: InsertAdTracker): Promise<AdTracker> {
+    const id = this.adTrackerId++;
+    const createdAt = new Date();
+    const updatedAt = new Date();
+    const tracker: AdTracker = { 
+      ...insertTracker, 
+      id, 
+      createdAt,
+      updatedAt
+    };
+    this.adTrackers.set(id, tracker);
+    return tracker;
+  }
+
+  async updateAdTracker(id: number, trackerData: Partial<InsertAdTracker>): Promise<AdTracker | undefined> {
+    const tracker = this.adTrackers.get(id);
+    if (!tracker) return undefined;
+    
+    const updatedTracker: AdTracker = { 
+      ...tracker, 
+      ...trackerData, 
+      updatedAt: new Date() 
+    };
+    this.adTrackers.set(id, updatedTracker);
+    return updatedTracker;
+  }
+
+  async updateAdTrackerStatus(id: number, active: boolean): Promise<AdTracker | undefined> {
+    const tracker = this.adTrackers.get(id);
+    if (!tracker) return undefined;
+    
+    const updatedTracker: AdTracker = { 
+      ...tracker, 
+      active,
+      updatedAt: new Date()
+    };
+    this.adTrackers.set(id, updatedTracker);
+    return updatedTracker;
+  }
+
+  async deleteAdTracker(id: number): Promise<boolean> {
+    return this.adTrackers.delete(id);
+  }
+  
+  // Ad Tracker Hits operations
+  async getAdTrackerHits(trackerId: number): Promise<AdTrackerHit[]> {
+    return Array.from(this.adTrackerHits.values())
+      .filter(hit => hit.trackerId === trackerId)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }
+
+  async createAdTrackerHit(insertHit: InsertAdTrackerHit): Promise<AdTrackerHit> {
+    const id = this.adTrackerHitId++;
+    const timestamp = new Date();
+    const hit: AdTrackerHit = { 
+      ...insertHit, 
+      id, 
+      timestamp 
+    };
+    this.adTrackerHits.set(id, hit);
+    return hit;
+  }
+
+  async updateAdTrackerHitConversion(id: number, converted: boolean, conversionType?: string): Promise<AdTrackerHit | undefined> {
+    const hit = this.adTrackerHits.get(id);
+    if (!hit) return undefined;
+    
+    const updatedHit: AdTrackerHit = { 
+      ...hit, 
+      converted,
+      conversionType: conversionType || hit.conversionType
+    };
+    this.adTrackerHits.set(id, updatedHit);
+    return updatedHit;
+  }
+
+  async getAdTrackerHitsCount(trackerId: number): Promise<number> {
+    return (await this.getAdTrackerHits(trackerId)).length;
+  }
+
+  async getAdTrackerConversionRate(trackerId: number): Promise<number> {
+    const hits = await this.getAdTrackerHits(trackerId);
+    const totalCount = hits.length;
+    
+    if (totalCount === 0) return 0;
+    
+    const conversionCount = hits.filter(hit => hit.converted).length;
+    
+    return Math.floor((conversionCount / totalCount) * 100);
+  }
+
+  async getAdTrackerHitsBySources(trackerId: number): Promise<Record<string, number>> {
+    const hits = await this.getAdTrackerHits(trackerId);
+    const sourceCounts: Record<string, number> = {};
+    
+    hits.forEach(hit => {
+      const source = hit.sourcePlatform;
+      sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+    });
+    
+    return sourceCounts;
+  }
+
+  async getAdTrackerHitsByDeviceType(trackerId: number): Promise<Record<string, number>> {
+    const hits = await this.getAdTrackerHits(trackerId);
+    const deviceCounts: Record<string, number> = {};
+    
+    hits.forEach(hit => {
+      if (hit.deviceType) {
+        const device = hit.deviceType;
+        deviceCounts[device] = (deviceCounts[device] || 0) + 1;
+      }
+    });
+    
+    return deviceCounts;
+  }
+
+  async deleteAdTrackerHit(id: number): Promise<boolean> {
+    return this.adTrackerHits.delete(id);
   }
 }
 
