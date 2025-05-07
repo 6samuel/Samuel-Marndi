@@ -1,398 +1,561 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Card, 
   CardContent, 
   CardDescription, 
   CardHeader, 
   CardTitle 
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Tabs,
   TabsContent,
   TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import {
-  BarChart,
-  LineChart,
-  DoughnutChart,
-} from "@/components/charts/chart-components";
-import { Loader2, BarChart3, LineChart as LineChartIcon, PieChart, Users, MousePointer, Eye, Radio } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  AdTracker,
-  AdTrackerHit
-} from "@shared/schema";
+  TabsTrigger
+} from '@/components/ui/tabs';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Loader2, TrendingDown, TrendingUp, Activity, Users, BarChart2, PieChart } from 'lucide-react';
+import { LineChart, BarChart, DoughnutChart } from '@/components/charts/chart-components';
+import { useToast } from '@/hooks/use-toast';
 
-// Helper function to format numbers with commas
-const formatNumber = (num: number): string => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
+// Define interfaces for analytics data
+interface OverviewData {
+  totalVisits: number;
+  totalConversions: number;
+  conversionRate: number;
+  previousPeriodVisits: number;
+  previousPeriodConversions: number;
+  bySource: Record<string, number>;
+  byDevice: Record<string, number>;
+  dailyVisits: Array<{ date: string; count: number }>;
+  dailyConversions: Array<{ date: string; count: number }>;
+}
 
-// Helper to calculate percentage change
-const calculatePercentageChange = (current: number, previous: number): number => {
-  if (previous === 0) return 100; // If previous was 0, we count this as 100% increase
-  return Math.round(((current - previous) / previous) * 100);
-};
+interface TrackerData {
+  tracker: {
+    id: number;
+    name: string;
+    platform: string;
+    campaignId: string;
+    conversionGoal: string;
+    active: boolean;
+  };
+  hits: number;
+  conversions: number;
+  conversionRate: number;
+}
 
-// Analytics dashboard component
+interface DashboardData {
+  activeTrackersCount: number;
+  totalTrackersCount: number;
+  last30DaysHitsCount: number;
+  last30DaysConversionsCount: number;
+  conversionRate: number;
+}
+
+interface ConversionData {
+  conversionsBySource: Array<{
+    source: string;
+    totalHits: number;
+    conversions: number;
+    conversionRate: number;
+  }>;
+  conversionsByDevice: Array<{
+    device: string;
+    totalHits: number;
+    conversions: number;
+    conversionRate: number;
+  }>;
+  dailyConversionRates: Array<{
+    date: string;
+    totalHits: number;
+    conversions: number;
+    conversionRate: number;
+  }>;
+}
+
+// Define time period options
+const TIME_RANGES = [
+  { value: '7d', label: 'Last 7 Days' },
+  { value: '30d', label: 'Last 30 Days' },
+  { value: '90d', label: 'Last 90 Days' },
+  { value: '6m', label: 'Last 6 Months' },
+  { value: '1y', label: 'Last Year' }
+];
+
 const AnalyticsDashboard: React.FC = () => {
-  const [timeRange, setTimeRange] = useState<string>("7d");
-  const [selectedTracker, setSelectedTracker] = useState<number | null>(null);
-  
+  const [timeRange, setTimeRange] = useState('30d');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedTrackerId, setSelectedTrackerId] = useState<number | null>(null);
+  const { toast } = useToast();
+
+  // Fetch dashboard data
+  const { data: dashboardData, isLoading: isDashboardLoading } = useQuery<DashboardData>({
+    queryKey: ['/api/analytics/dashboard'],
+    enabled: activeTab === 'dashboard',
+  });
+
+  // Fetch overview data
+  const { data: overviewData, isLoading: isOverviewLoading } = useQuery<OverviewData>({
+    queryKey: ['/api/analytics/overview', { timeRange, trackerId: selectedTrackerId }],
+    enabled: activeTab === 'overview',
+  });
+
+  // Fetch conversion data
+  const { data: conversionData, isLoading: isConversionLoading } = useQuery<ConversionData>({
+    queryKey: ['/api/analytics/conversions', { timeRange, trackerId: selectedTrackerId }],
+    enabled: activeTab === 'conversions',
+  });
+
   // Fetch ad trackers
-  const { data: adTrackers, isLoading: isLoadingTrackers } = useQuery<AdTracker[]>({
+  const { data: adTrackers, isLoading: isTrackersLoading } = useQuery<Array<{ id: number; name: string; platform: string }>>({
     queryKey: ['/api/ad-trackers'],
   });
-  
-  // Fetch analytics overview data
-  const { data: analyticsData, isLoading: isLoadingAnalytics } = useQuery<{
-    totalVisits: number;
-    totalConversions: number;
-    conversionRate: number;
-    previousPeriodVisits: number;
-    previousPeriodConversions: number;
-    bySource: Record<string, number>;
-    byDevice: Record<string, number>;
-    dailyVisits: Array<{ date: string; count: number }>;
-    dailyConversions: Array<{ date: string; count: number }>;
-  }>({
-    queryKey: ['/api/analytics/overview', { timeRange, trackerId: selectedTracker }],
-  });
-  
-  // Fetch tracker hits for the selected tracker
-  const { data: trackerHits, isLoading: isLoadingHits } = useQuery<AdTrackerHit[]>({
-    queryKey: ['/api/ad-trackers', selectedTracker, 'hits'],
-    enabled: selectedTracker !== null,
-  });
-  
-  // Set the first tracker as selected if none is selected yet
-  useEffect(() => {
-    if (adTrackers && adTrackers.length > 0 && selectedTracker === null) {
-      setSelectedTracker(adTrackers[0].id);
-    }
-  }, [adTrackers, selectedTracker]);
-  
-  // If data is loading, show a loading spinner
-  if (isLoadingTrackers || isLoadingAnalytics) {
+
+  // Formats data for charts
+  const formatLineChartData = (visits: Array<{ date: string; count: number }> = [], conversions: Array<{ date: string; count: number }> = []) => {
+    const labels = visits.map(item => {
+      const date = new Date(item.date);
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    });
+
+    const visitData = visits.map(item => item.count);
+    const conversionData = conversions.map(item => item.count);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Visits',
+          data: visitData,
+          borderColor: 'rgb(53, 162, 235)',
+          backgroundColor: 'rgba(53, 162, 235, 0.5)',
+          tension: 0.3,
+        },
+        {
+          label: 'Conversions',
+          data: conversionData,
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          tension: 0.3,
+        }
+      ]
+    };
+  };
+
+  const formatBarChartData = (data: Record<string, number> = {}) => {
+    const entries = Object.entries(data).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    
+    return {
+      labels: entries.map(([key]) => key),
+      datasets: [
+        {
+          label: 'Visits',
+          data: entries.map(([_, value]) => value),
+          backgroundColor: [
+            'rgba(53, 162, 235, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)',
+          ],
+        },
+      ],
+    };
+  };
+
+  const formatDoughnutChartData = (data: Record<string, number> = {}) => {
+    const entries = Object.entries(data);
+    
+    return {
+      labels: entries.map(([key]) => key),
+      datasets: [
+        {
+          data: entries.map(([_, value]) => value),
+          backgroundColor: [
+            'rgba(53, 162, 235, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)',
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+  };
+
+  const formatConversionRatesData = (data: Array<{ date: string; totalHits: number; conversions: number; conversionRate: number }> = []) => {
+    const labels = data.map(item => {
+      const date = new Date(item.date);
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    });
+
+    const conversionRates = data.map(item => item.conversionRate);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Conversion Rate (%)',
+          data: conversionRates,
+          borderColor: 'rgb(255, 99, 132)',
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          tension: 0.3,
+        }
+      ]
+    };
+  };
+
+  const handleTimeRangeChange = (value: string) => {
+    setTimeRange(value);
+  };
+
+  const handleTrackerChange = (value: string) => {
+    setSelectedTrackerId(value === 'all' ? null : parseInt(value));
+  };
+
+  // Calculate stats and trends
+  const getStatTrend = (current: number, previous: number) => {
+    if (previous === 0) return { percentage: 100, isPositive: true };
+    const percentage = ((current - previous) / previous) * 100;
+    return {
+      percentage: Math.abs(Math.round(percentage)),
+      isPositive: percentage >= 0
+    };
+  };
+
+  const visitsTrend = overviewData 
+    ? getStatTrend(overviewData.totalVisits, overviewData.previousPeriodVisits)
+    : { percentage: 0, isPositive: true };
+    
+  const conversionsTrend = overviewData 
+    ? getStatTrend(overviewData.totalConversions, overviewData.previousPeriodConversions)
+    : { percentage: 0, isPositive: true };
+
+  // Render loading state
+  if ((activeTab === 'overview' && isOverviewLoading) || 
+      (activeTab === 'dashboard' && isDashboardLoading) || 
+      (activeTab === 'conversions' && isConversionLoading) || 
+      isTrackersLoading) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Loading analytics data...</p>
       </div>
     );
   }
-  
-  // Extract analytics data or provide defaults
-  const {
-    totalVisits = 0,
-    totalConversions = 0,
-    conversionRate = 0,
-    previousPeriodVisits = 0,
-    previousPeriodConversions = 0,
-    bySource = {},
-    byDevice = {},
-    dailyVisits = [],
-    dailyConversions = [],
-  } = analyticsData || {};
-  
-  // Calculate percentage changes
-  const visitsChange = calculatePercentageChange(totalVisits, previousPeriodVisits);
-  const conversionsChange = calculatePercentageChange(totalConversions, previousPeriodConversions);
-  
-  // Prepare chart data
-  const sourceData = {
-    labels: Object.keys(bySource),
-    datasets: [
-      {
-        label: 'Visits by Source',
-        data: Object.values(bySource),
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.7)', // blue
-          'rgba(16, 185, 129, 0.7)', // green
-          'rgba(249, 115, 22, 0.7)', // orange
-          'rgba(239, 68, 68, 0.7)',  // red
-          'rgba(139, 92, 246, 0.7)', // purple
-        ],
-      },
-    ],
-  };
-  
-  const deviceData = {
-    labels: Object.keys(byDevice),
-    datasets: [
-      {
-        label: 'Visits by Device',
-        data: Object.values(byDevice),
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.7)', // blue
-          'rgba(16, 185, 129, 0.7)', // green
-          'rgba(249, 115, 22, 0.7)', // orange
-        ],
-      },
-    ],
-  };
-  
-  // Daily visits chart data
-  const visitsData = {
-    labels: dailyVisits.map(item => item.date),
-    datasets: [
-      {
-        label: 'Visits',
-        data: dailyVisits.map(item => item.count),
-        borderColor: 'rgba(59, 130, 246, 1)',
-        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-        fill: true,
-        tension: 0.4,
-      },
-    ],
-  };
-  
-  // Daily conversions chart data
-  const conversionsData = {
-    labels: dailyConversions.map(item => item.date),
-    datasets: [
-      {
-        label: 'Conversions',
-        data: dailyConversions.map(item => item.count),
-        borderColor: 'rgba(16, 185, 129, 1)',
-        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-        fill: true,
-        tension: 0.4,
-      },
-    ],
-  };
-  
-  // Conversion rate by source chart data
-  const conversionsBySourceData = {
-    labels: Object.keys(bySource),
-    datasets: [
-      {
-        label: 'Conversion Rate',
-        data: Object.keys(bySource).map(source => {
-          // Calculate conversion rate for each source
-          const sourceHits = trackerHits?.filter(hit => hit.utmSource === source) || [];
-          const sourceConversions = sourceHits.filter(hit => hit.converted).length;
-          return sourceHits.length ? Math.round((sourceConversions / sourceHits.length) * 100) : 0;
-        }),
-        backgroundColor: 'rgba(249, 115, 22, 0.7)',
-      },
-    ],
-  };
-  
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Marketing Analytics</h2>
-        
-        <div className="flex items-center space-x-4">
-          {/* Tracker selection */}
-          <Select 
-            value={selectedTracker?.toString()} 
-            onValueChange={(value) => setSelectedTracker(parseInt(value))}
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select campaign" />
+        <h1 className="text-3xl font-bold">Marketing Analytics</h1>
+        <div className="flex space-x-4">
+          <Select value={timeRange} onValueChange={handleTimeRangeChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select time range" />
             </SelectTrigger>
             <SelectContent>
-              {adTrackers?.map((tracker) => (
-                <SelectItem key={tracker.id} value={tracker.id.toString()}>
-                  {tracker.name}
+              {TIME_RANGES.map(range => (
+                <SelectItem key={range.value} value={range.value}>
+                  {range.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           
-          {/* Time range selection */}
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Time range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-              <SelectItem value="6m">Last 6 months</SelectItem>
-              <SelectItem value="1y">Last year</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button variant="outline">
-            Export Report
-          </Button>
+          {adTrackers && adTrackers.length > 0 && (
+            <Select value={selectedTrackerId?.toString() || 'all'} onValueChange={handleTrackerChange}>
+              <SelectTrigger className="w-[240px]">
+                <SelectValue placeholder="Select campaign" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Campaigns</SelectItem>
+                {adTrackers.map(tracker => (
+                  <SelectItem key={tracker.id} value={tracker.id.toString()}>
+                    {tracker.name} ({tracker.platform})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
-      
-      {/* KPI summary cards */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Visits</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(totalVisits)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              <Badge className={visitsChange >= 0 ? "bg-emerald-500" : "bg-rose-500"}>
-                {visitsChange >= 0 ? "+" : ""}{visitsChange}%
-              </Badge>
-              <span className="ml-1">vs. previous period</span>
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversions</CardTitle>
-            <MousePointer className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(totalConversions)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              <Badge className={conversionsChange >= 0 ? "bg-emerald-500" : "bg-rose-500"}>
-                {conversionsChange >= 0 ? "+" : ""}{conversionsChange}%
-              </Badge>
-              <span className="ml-1">vs. previous period</span>
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{conversionRate.toFixed(2)}%</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Optimal range: 3-5%
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
-            <Radio className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{adTrackers?.filter(t => t.active).length || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Out of {adTrackers?.length || 0} total campaigns
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* Charts and detailed analytics */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
+
+      <Tabs 
+        defaultValue="overview" 
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
+        <TabsList className="grid grid-cols-3 w-[400px]">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="sources">Traffic Sources</TabsTrigger>
-          <TabsTrigger value="devices">Devices</TabsTrigger>
-          <TabsTrigger value="conversions">Conversion Analysis</TabsTrigger>
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="conversions">Conversions</TabsTrigger>
         </TabsList>
-        
+
         {/* Overview tab */}
-        <TabsContent value="overview" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Traffic Overview</CardTitle>
-              <CardDescription>Daily visits over the selected time period</CardDescription>
-            </CardHeader>
-            <CardContent className="h-96">
-              <LineChart data={visitsData} />
-            </CardContent>
-          </Card>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Traffic by Source</CardTitle>
-                <CardDescription>Distribution of visits by referral source</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <DoughnutChart data={sourceData} />
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Traffic by Device</CardTitle>
-                <CardDescription>Distribution of visits by device type</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <DoughnutChart data={deviceData} />
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="overview" className="space-y-6">
+          {overviewData && (
+            <>
+              {/* Summary cards */}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Visits</CardTitle>
+                    <Activity className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{overviewData.totalVisits.toLocaleString()}</div>
+                    <div className="flex items-center pt-1">
+                      {visitsTrend.isPositive ? (
+                        <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
+                      ) : (
+                        <TrendingDown className="mr-1 h-4 w-4 text-red-500" />
+                      )}
+                      <span className={visitsTrend.isPositive ? 'text-green-500' : 'text-red-500'}>
+                        {visitsTrend.percentage}%
+                      </span>
+                      <span className="text-muted-foreground text-xs ml-1">from previous period</span>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Conversions</CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{overviewData.totalConversions.toLocaleString()}</div>
+                    <div className="flex items-center pt-1">
+                      {conversionsTrend.isPositive ? (
+                        <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
+                      ) : (
+                        <TrendingDown className="mr-1 h-4 w-4 text-red-500" />
+                      )}
+                      <span className={conversionsTrend.isPositive ? 'text-green-500' : 'text-red-500'}>
+                        {conversionsTrend.percentage}%
+                      </span>
+                      <span className="text-muted-foreground text-xs ml-1">from previous period</span>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+                    <BarChart2 className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{overviewData.conversionRate.toFixed(2)}%</div>
+                    <p className="text-xs text-muted-foreground pt-1">
+                      {overviewData.totalVisits} visits / {overviewData.totalConversions} conversions
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Charts */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card className="col-span-2">
+                  <CardHeader>
+                    <CardTitle>Visits & Conversions Over Time</CardTitle>
+                    <CardDescription>Daily traffic and conversion trends</CardDescription>
+                  </CardHeader>
+                  <CardContent className="h-[300px]">
+                    <LineChart 
+                      data={formatLineChartData(overviewData.dailyVisits, overviewData.dailyConversions)} 
+                    />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Top Traffic Sources</CardTitle>
+                    <CardDescription>Visits by referral source</CardDescription>
+                  </CardHeader>
+                  <CardContent className="h-[300px]">
+                    <BarChart 
+                      data={formatBarChartData(overviewData.bySource)} 
+                    />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Device Distribution</CardTitle>
+                    <CardDescription>Visits by device type</CardDescription>
+                  </CardHeader>
+                  <CardContent className="h-[300px]">
+                    <DoughnutChart 
+                      data={formatDoughnutChartData(overviewData.byDevice)} 
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </>
+          )}
         </TabsContent>
-        
-        {/* Traffic Sources tab */}
-        <TabsContent value="sources" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Traffic Sources</CardTitle>
-              <CardDescription>Detailed breakdown of traffic by source</CardDescription>
-            </CardHeader>
-            <CardContent className="h-96">
-              <BarChart data={sourceData} />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Source Performance</CardTitle>
-              <CardDescription>Conversion rates by traffic source</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <BarChart data={conversionsBySourceData} />
-            </CardContent>
-          </Card>
+
+        {/* Dashboard tab */}
+        <TabsContent value="dashboard" className="space-y-6">
+          {dashboardData && (
+            <>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Active Trackers</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{dashboardData.activeTrackersCount}</div>
+                    <p className="text-xs text-muted-foreground pt-1">
+                      Out of {dashboardData.totalTrackersCount} total trackers
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">30-Day Visits</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{dashboardData.last30DaysHitsCount.toLocaleString()}</div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">30-Day Conversions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{dashboardData.last30DaysConversionsCount.toLocaleString()}</div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">30-Day Rate</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{dashboardData.conversionRate.toFixed(2)}%</div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Marketing Campaign Performance</CardTitle>
+                  <CardDescription>Status and metrics for all your tracking campaigns</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <Button onClick={() => toast({
+                      title: "Coming soon!",
+                      description: "Campaign comparison dashboard is under development."
+                    })}>
+                      View Campaign Comparison
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </TabsContent>
-        
-        {/* Devices tab */}
-        <TabsContent value="devices" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Device Distribution</CardTitle>
-              <CardDescription>Visits by device type</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <DoughnutChart data={deviceData} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
+
         {/* Conversions tab */}
-        <TabsContent value="conversions" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Conversion Trends</CardTitle>
-              <CardDescription>Daily conversions over time</CardDescription>
-            </CardHeader>
-            <CardContent className="h-96">
-              <LineChart data={conversionsData} />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Conversion Rate by Source</CardTitle>
-              <CardDescription>Effectiveness of different traffic sources</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <BarChart data={conversionsBySourceData} />
-            </CardContent>
-          </Card>
+        <TabsContent value="conversions" className="space-y-6">
+          {conversionData && (
+            <>
+              <Card className="col-span-2">
+                <CardHeader>
+                  <CardTitle>Conversion Rate Trend</CardTitle>
+                  <CardDescription>Daily conversion rate over the selected time period</CardDescription>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <LineChart 
+                    data={formatConversionRatesData(conversionData.dailyConversionRates)} 
+                  />
+                </CardContent>
+              </Card>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Conversion by Source</CardTitle>
+                    <CardDescription>Performance by traffic source</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="py-2 text-left">Source</th>
+                          <th className="py-2 text-right">Visits</th>
+                          <th className="py-2 text-right">Conversions</th>
+                          <th className="py-2 text-right">Rate</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {conversionData.conversionsBySource
+                          .sort((a, b) => b.totalHits - a.totalHits)
+                          .slice(0, 6)
+                          .map((item, index) => (
+                            <tr key={index} className="border-b">
+                              <td className="py-2">{item.source}</td>
+                              <td className="py-2 text-right">{item.totalHits}</td>
+                              <td className="py-2 text-right">{item.conversions}</td>
+                              <td className="py-2 text-right">{item.conversionRate.toFixed(2)}%</td>
+                            </tr>
+                          ))
+                        }
+                      </tbody>
+                    </table>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Conversion by Device</CardTitle>
+                    <CardDescription>Performance by device type</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="py-2 text-left">Device</th>
+                          <th className="py-2 text-right">Visits</th>
+                          <th className="py-2 text-right">Conversions</th>
+                          <th className="py-2 text-right">Rate</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {conversionData.conversionsByDevice
+                          .sort((a, b) => b.totalHits - a.totalHits)
+                          .map((item, index) => (
+                            <tr key={index} className="border-b">
+                              <td className="py-2">{item.device || "Unknown"}</td>
+                              <td className="py-2 text-right">{item.totalHits}</td>
+                              <td className="py-2 text-right">{item.conversions}</td>
+                              <td className="py-2 text-right">{item.conversionRate.toFixed(2)}%</td>
+                            </tr>
+                          ))
+                        }
+                      </tbody>
+                    </table>
+                  </CardContent>
+                </Card>
+              </div>
+            </>
+          )}
         </TabsContent>
       </Tabs>
     </div>

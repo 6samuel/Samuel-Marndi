@@ -13,7 +13,8 @@ import {
   LogOut,
   Menu,
   X,
-  Quote
+  Quote,
+  BarChart
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -71,6 +72,11 @@ export default function AdminLayout({ children, title, description }: AdminLayou
       title: "Ad Trackers",
       href: "/admin/ad-trackers",
       icon: <ChartLine className="h-5 w-5" />,
+    },
+    {
+      title: "Analytics",
+      href: "/admin/analytics",
+      icon: <BarChart className="h-5 w-5" />,
     },
     {
       title: "Settings",
