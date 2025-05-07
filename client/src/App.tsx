@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { HelmetProvider } from "react-helmet-async";
+import TrackingScripts from "@/components/tracking/tracking-scripts";
 
 // Pages
 import NotFound from "@/pages/not-found";
@@ -91,6 +92,7 @@ function App() {
           <ThemeProvider defaultTheme="light" storageKey="sm-theme">
             <TooltipProvider>
               <Toaster />
+              <TrackingScripts />
               <Router />
             </TooltipProvider>
           </ThemeProvider>

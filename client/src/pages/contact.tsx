@@ -1,9 +1,10 @@
-import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
 import { FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
 import ContactForm from "@/components/forms/contact-form";
+import { SEO } from "@/lib/seo-utils";
+import ConversionTracker from "@/components/tracking/conversion-tracker";
 
 const Contact = () => {
   const containerVariants = {
@@ -28,18 +29,21 @@ const Contact = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Contact | Samuel Marndi</title>
-        <meta 
-          name="description" 
-          content="Get in touch with Samuel Marndi for professional web development, digital marketing, and UI/UX design services. Request a quote or consultation today."
-        />
-        <meta property="og:title" content="Contact | Samuel Marndi" />
-        <meta 
-          property="og:description" 
-          content="Get in touch with Samuel Marndi for professional web development, digital marketing, and UI/UX design services. Request a quote or consultation today."
-        />
-      </Helmet>
+      <SEO 
+        title="Contact | Samuel Marndi"
+        description="Get in touch with Samuel Marndi for professional web development, digital marketing, and UI/UX design services. Request a quote or consultation today."
+        canonical="/contact"
+        ogImage="/images/og-contact.jpg"
+        ogType="website"
+      />
+      
+      {/* Conversion tracking for marketing campaigns */}
+      <ConversionTracker 
+        trackingId="UA-XXXXXXXX-X" // Replace with actual Google Analytics ID
+        pixelId="XXXXXXXXXX" // Replace with actual Facebook Pixel ID
+        uetTagId="XXXXXXXX" // Replace with actual Microsoft UET Tag ID
+        adsTrackerId={1} // ID for internal tracking system
+      />
 
       <div className="pt-16 pb-24">
         {/* Hero Section */}

@@ -1,6 +1,8 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import path from "path";
+import fs from "fs";
 import { 
   insertServiceRequestSchema, 
   insertContactSubmissionSchema,
@@ -997,6 +999,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register middleware
   app.use(trackingMiddleware);
   
+  // Sitemap and SEO endpoints
+  app.post(`${apiRoute}/sitemap/generate`, isAuthenticated, isAdmin, async (_req, res) => {
+    try {
+      const result = await generateSitemap();
+      if (result.success) {
+        res.json({ 
+          message: "Sitemap generated successfully", 
+          path: result.path 
+        });
+      } else {
+        res.status(500).json({ 
+          message: "Failed to generate sitemap", 
+          error: result.error 
+        });
+      }
+    } catch (error) {
+      console.error("Error generating sitemap:", error);
+      res.status(500).json({ message: "Failed to generate sitemap" });
+    }
+  });
+
+  // Manually get sitemaps and robots.txt statuses
+  app.get(`${apiRoute}/seo/status`, isAuthenticated, isAdmin, (_req, res) => {
+    try {
+      const publicDir = path.resolve(process.cwd(), 'public');
+      const sitemapPath = path.join(publicDir, 'sitemap.xml');
+      const robotsPath = path.join(publicDir, 'robots.txt');
+      
+      const sitemapExists = fs.existsSync(sitemapPath);
+      const robotsExists = fs.existsSync(robotsPath);
+      
+      let sitemapStats = null;
+      let robotsStats = null;
+      
+      if (sitemapExists) {
+        sitemapStats = fs.statSync(sitemapPath);
+      }
+      
+      if (robotsExists) {
+        robotsStats = fs.statSync(robotsPath);
+      }
+      
+      res.json({
+        sitemap: {
+          exists: sitemapExists,
+          lastModified: sitemapExists ? sitemapStats?.mtime : null,
+          size: sitemapExists ? sitemapStats?.size : null,
+          url: '/sitemap.xml'
+        },
+        robots: {
+          exists: robotsExists,
+          lastModified: robotsExists ? robotsStats?.mtime : null,
+          size: robotsExists ? robotsStats?.size : null,
+          url: '/robots.txt'
+        }
+      });
+    } catch (error) {
+      console.error("Error getting SEO status:", error);
+      res.status(500).json({ message: "Failed to get SEO status" });
+    }
+  });
+
   // Ad Tracking API routes
   
   // Get all trackers
