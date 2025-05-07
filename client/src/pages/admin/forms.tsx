@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminLayout from "@/components/layouts/admin-layout";
-import { ContactSubmission, ServiceRequest } from "@shared/schema";
+import { ContactSubmission, ServiceRequest, PartnerApplication } from "@shared/schema";
 import { format } from "date-fns";
 import { getQueryFn } from "@/lib/queryClient";
 
@@ -40,7 +40,19 @@ export default function AdminForms() {
     retry: 1
   });
   
-  // Removed unnecessary refetch as queries will run automatically when enabled
+  // Fetch partner applications using our centralized queryFn
+  const { 
+    data: partnerApplications = [], 
+    isLoading: isLoadingPartners,
+    refetch: refetchPartners
+  } = useQuery<PartnerApplication[]>({
+    queryKey: ["/api/partner-applications"],
+    queryFn: getQueryFn(),
+    enabled: !!user, // Only run query if user is logged in
+    staleTime: 60 * 1000, // 1 minute
+    refetchOnWindowFocus: false,
+    retry: 1
+  });
 
   return (
     <>
@@ -66,6 +78,14 @@ export default function AdminForms() {
                 {serviceRequests.length > 0 && (
                   <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
                     {serviceRequests.filter(r => r.status === 'pending').length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="partner">
+                Partner Applications
+                {partnerApplications.length > 0 && (
+                  <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                    {partnerApplications.filter(p => p.status === 'new').length}
                   </span>
                 )}
               </TabsTrigger>
@@ -174,6 +194,62 @@ export default function AdminForms() {
                 ) : (
                   <div className="p-6 text-center">
                     No service requests found.
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="partner" className="pt-4">
+              <div className="border rounded-lg shadow overflow-hidden">
+                {isLoadingPartners ? (
+                  <div className="p-6 text-center">Loading partner applications...</div>
+                ) : partnerApplications.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-muted">
+                          <th className="px-4 py-3 text-left">Company</th>
+                          <th className="px-4 py-3 text-left">Contact Name</th>
+                          <th className="px-4 py-3 text-left">Email</th>
+                          <th className="px-4 py-3 text-left">Business Type</th>
+                          <th className="px-4 py-3 text-left">Date</th>
+                          <th className="px-4 py-3 text-center">Status</th>
+                          <th className="px-4 py-3 text-center">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {partnerApplications.map((application) => (
+                          <tr key={application.id} className="hover:bg-muted/50">
+                            <td className="px-4 py-3">{application.companyName}</td>
+                            <td className="px-4 py-3">{application.contactName}</td>
+                            <td className="px-4 py-3">{application.email}</td>
+                            <td className="px-4 py-3">{application.businessType}</td>
+                            <td className="px-4 py-3">
+                              {format(new Date(application.submittedAt), 'MMM d, yyyy')}
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <span className={`px-2 py-1 text-xs rounded-full ${
+                                application.status === 'new' 
+                                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' 
+                                  : application.status === 'reviewing' 
+                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                  : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                              }`}>
+                                {application.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              {/* View/Reply/Delete buttons would go here */}
+                              <span className="text-sm text-gray-500">View / Reply / Delete</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="p-6 text-center">
+                    No partner applications found.
                   </div>
                 )}
               </div>
