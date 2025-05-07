@@ -706,4 +706,41 @@ export class DatabaseStorage implements IStorage {
       .where(eq(adTrackerHits.id, id));
     return result.rowCount !== null && result.rowCount > 0;
   }
+
+  async getTrackingSettings(): Promise<TrackingSettings> {
+    // First try to get existing settings
+    const existingSettings = await db.select().from(trackingSettings).limit(1);
+    
+    if (existingSettings.length > 0) {
+      return existingSettings[0];
+    }
+    
+    // If no settings exist, create default settings
+    const [newSettings] = await db
+      .insert(trackingSettings)
+      .values({
+        googleAnalyticsId: null,
+        facebookPixelId: null,
+        microsoftAdsId: null,
+        linkedInInsightId: null,
+        googleTagManagerId: null
+      })
+      .returning();
+      
+    return newSettings;
+  }
+  
+  async updateTrackingSettings(settingsData: Partial<InsertTrackingSettings>): Promise<TrackingSettings> {
+    // First get the existing settings
+    const currentSettings = await this.getTrackingSettings();
+    
+    // Update the settings
+    const [updatedSettings] = await db
+      .update(trackingSettings)
+      .set(settingsData)
+      .where(eq(trackingSettings.id, currentSettings.id))
+      .returning();
+      
+    return updatedSettings;
+  }
 }
