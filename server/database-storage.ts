@@ -30,7 +30,15 @@ export class DatabaseStorage implements IStorage {
 
   // Services operations
   async getServices(): Promise<Service[]> {
-    return await db.select().from(services).orderBy(services.displayOrder);
+    try {
+      console.log('Fetching services from database...');
+      const result = await db.select().from(services).orderBy(services.displayOrder);
+      console.log('Services fetched successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Error in getServices:', error);
+      throw error;
+    }
   }
 
   async getServiceById(id: number): Promise<Service | undefined> {
