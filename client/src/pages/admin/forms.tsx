@@ -6,71 +6,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminLayout from "@/components/layouts/admin-layout";
 import { ContactSubmission, ServiceRequest } from "@shared/schema";
 import { format } from "date-fns";
+import { getQueryFn } from "@/lib/queryClient";
 
 export default function AdminForms() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("contact");
 
-  // Fetch contact submissions
+  // Fetch contact submissions using our centralized queryFn
   const { 
     data: contactSubmissions = [], 
     isLoading: isLoadingContacts,
     refetch: refetchContacts
   } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"],
-    queryFn: async () => {
-      try {
-        const response = await fetch("/api/contact-submissions", {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch contact submissions: ${response.statusText}`);
-        }
-        
-        return await response.json();
-      } catch (error) {
-        console.error("Error fetching contact submissions:", error);
-        return [];
-      }
-    },
+    queryFn: getQueryFn(),
     enabled: !!user, // Only run query if user is logged in
     staleTime: 60 * 1000, // 1 minute
     refetchOnWindowFocus: false,
     retry: 1
   });
 
-  // Fetch service requests
+  // Fetch service requests using our centralized queryFn
   const { 
     data: serviceRequests = [], 
     isLoading: isLoadingRequests,
     refetch: refetchRequests
   } = useQuery<ServiceRequest[]>({
     queryKey: ["/api/service-requests"],
-    queryFn: async () => {
-      try {
-        const response = await fetch("/api/service-requests", {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch service requests: ${response.statusText}`);
-        }
-        
-        return await response.json();
-      } catch (error) {
-        console.error("Error fetching service requests:", error);
-        return [];
-      }
-    },
+    queryFn: getQueryFn(),
     enabled: !!user, // Only run query if user is logged in
     staleTime: 60 * 1000, // 1 minute
     refetchOnWindowFocus: false,
