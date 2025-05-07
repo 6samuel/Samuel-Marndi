@@ -21,9 +21,10 @@ import { Logo } from "@/components/ui/logo";
 
 interface AdminLayoutProps {
   children: ReactNode;
+  title?: string;
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const [location] = useLocation();
   const { user, logoutMutation } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
