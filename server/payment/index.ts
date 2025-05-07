@@ -14,6 +14,7 @@ import {
   getRazorpayStatus,
   initRazorpay
 } from './razorpay';
+import { upiHandler } from './upi';
 
 // Initialize all payment gateways
 export const initPaymentGateways = () => {
@@ -35,6 +36,10 @@ export const getPaymentGatewaysStatus = (req: Request, res: Response) => {
     stripe: getStripeStatus(),
     paypal: getPayPalStatus(),
     razorpay: getRazorpayStatus(),
+    upi: {
+      available: true, // UPI is always available as it doesn't require API keys
+      upiId: upiHandler.upiId
+    }
   });
 };
 
@@ -58,5 +63,8 @@ export {
   getRazorpayStatus,
   createRazorpayOrder,
   verifyRazorpayPayment,
-  getRazorpayPaymentDetails
+  getRazorpayPaymentDetails,
+  
+  // UPI
+  upiHandler
 };
