@@ -1228,6 +1228,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Tracking Settings API endpoints
+  app.get(`${apiRoute}/settings/tracking`, isAuthenticated, isAdmin, async (_req, res) => {
+    try {
+      const settings = await storage.getTrackingSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error('Error getting tracking settings:', error);
+      res.status(500).json({ message: 'Failed to get tracking settings' });
+    }
+  });
+  
+  app.put(`${apiRoute}/settings/tracking`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const settingsData = req.body;
+      const updatedSettings = await storage.updateTrackingSettings(settingsData);
+      res.json(updatedSettings);
+    } catch (error) {
+      console.error('Error updating tracking settings:', error);
+      res.status(500).json({ message: 'Failed to update tracking settings' });
+    }
+  });
+  
   // Record conversion for a tracker
   app.post(`${apiRoute}/ad-trackers/:id/conversion`, async (req, res) => {
     try {
