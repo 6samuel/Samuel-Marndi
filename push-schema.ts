@@ -17,6 +17,92 @@ async function main() {
   const db = drizzle(pool, { schema });
   
   try {
+    // Create marketing_goals table for tracking marketing targets
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS marketing_goals (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        target INTEGER NOT NULL,
+        current INTEGER DEFAULT 0,
+        period TEXT NOT NULL,
+        start_date TIMESTAMP WITH TIME ZONE,
+        end_date TIMESTAMP WITH TIME ZONE,
+        tracker_id INTEGER REFERENCES ad_trackers(id) ON DELETE SET NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    // Create marketing_activities table for tracking campaigns and activities
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS marketing_activities (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        description TEXT,
+        start_date TIMESTAMP WITH TIME ZONE NOT NULL,
+        end_date TIMESTAMP WITH TIME ZONE,
+        status TEXT NOT NULL,
+        notes TEXT,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    // Create ab_tests table for A/B testing
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS ab_tests (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        type TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'draft',
+        tracker_id INTEGER REFERENCES ad_trackers(id) ON DELETE SET NULL,
+        page_url TEXT NOT NULL,
+        start_date TIMESTAMP WITH TIME ZONE,
+        end_date TIMESTAMP WITH TIME ZONE,
+        conversion_metric TEXT NOT NULL,
+        target_sample_size INTEGER DEFAULT 1000,
+        minimum_confidence INTEGER DEFAULT 95,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    // Create ab_test_variants table for A/B test variations
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS ab_test_variants (
+        id SERIAL PRIMARY KEY,
+        test_id INTEGER NOT NULL REFERENCES ab_tests(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        description TEXT,
+        is_control BOOLEAN DEFAULT FALSE,
+        content TEXT,
+        custom_properties JSONB,
+        impressions INTEGER DEFAULT 0,
+        conversions INTEGER DEFAULT 0,
+        conversion_rate INTEGER DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    // Create ab_test_hits table for tracking A/B test interactions
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS ab_test_hits (
+        id SERIAL PRIMARY KEY,
+        variant_id INTEGER NOT NULL REFERENCES ab_test_variants(id) ON DELETE CASCADE,
+        session_id TEXT NOT NULL,
+        ip_address TEXT,
+        user_agent TEXT,
+        device_type TEXT,
+        converted BOOLEAN DEFAULT FALSE,
+        timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+    `);
+
     // Create the partner_applications table directly if it doesn't exist
     await pool.query(`
       CREATE TABLE IF NOT EXISTS partner_applications (
