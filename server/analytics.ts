@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from './db';
 import { adTrackerHits, adTrackers } from '@shared/schema';
-import { eq, and, gte, sql, desc, count } from 'drizzle-orm';
+import { eq, and, gte, lt, sql, desc } from 'drizzle-orm';
 
 // Helper function to get start date based on time range
 const getStartDateFromRange = (range: string): Date => {
@@ -65,7 +65,7 @@ export const getAnalyticsOverview = async (req: Request, res: Response) => {
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, startDate),
+        gte(adTrackerHits.timestamp, startDate),
         trackerId ? eq(adTrackerHits.trackerId, trackerId) : sql`1=1`
       )
     );
@@ -78,25 +78,25 @@ export const getAnalyticsOverview = async (req: Request, res: Response) => {
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, previousPeriodStartDate),
-        adTrackerHits.createdAt < startDate,
+        gte(adTrackerHits.timestamp, previousPeriodStartDate),
+        lt(adTrackerHits.timestamp, startDate),
         trackerId ? eq(adTrackerHits.trackerId, trackerId) : sql`1=1`
       )
     );
     
-    // Query by source
-    let bySourceQuery = db.select({
-      source: adTrackerHits.utmSource,
+    // Query by source platform
+    let bySourcePlatformQuery = db.select({
+      sourcePlatform: adTrackerHits.sourcePlatform,
       count: sql<number>`count(*)`,
     })
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, startDate),
+        gte(adTrackerHits.timestamp, startDate),
         trackerId ? eq(adTrackerHits.trackerId, trackerId) : sql`1=1`
       )
     )
-    .groupBy(adTrackerHits.utmSource)
+    .groupBy(adTrackerHits.sourcePlatform)
     .orderBy(desc(sql<number>`count(*)`));
     
     // Query by device
@@ -107,7 +107,7 @@ export const getAnalyticsOverview = async (req: Request, res: Response) => {
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, startDate),
+        gte(adTrackerHits.timestamp, startDate),
         trackerId ? eq(adTrackerHits.trackerId, trackerId) : sql`1=1`
       )
     )
@@ -116,47 +116,47 @@ export const getAnalyticsOverview = async (req: Request, res: Response) => {
     
     // Query daily visits
     let dailyVisitsQuery = db.select({
-      date: sql<string>`date_trunc('day', ${adTrackerHits.createdAt})::date::text`,
+      date: sql<string>`date_trunc('day', ${adTrackerHits.timestamp})::date::text`,
       count: sql<number>`count(*)`,
     })
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, startDate),
+        gte(adTrackerHits.timestamp, startDate),
         trackerId ? eq(adTrackerHits.trackerId, trackerId) : sql`1=1`
       )
     )
-    .groupBy(sql`date_trunc('day', ${adTrackerHits.createdAt})::date::text`)
-    .orderBy(sql`date_trunc('day', ${adTrackerHits.createdAt})::date::text`);
+    .groupBy(sql`date_trunc('day', ${adTrackerHits.timestamp})::date::text`)
+    .orderBy(sql`date_trunc('day', ${adTrackerHits.timestamp})::date::text`);
     
     // Query daily conversions
     let dailyConversionsQuery = db.select({
-      date: sql<string>`date_trunc('day', ${adTrackerHits.createdAt})::date::text`,
+      date: sql<string>`date_trunc('day', ${adTrackerHits.timestamp})::date::text`,
       count: sql<number>`count(*)`,
     })
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, startDate),
+        gte(adTrackerHits.timestamp, startDate),
         eq(adTrackerHits.converted, true),
         trackerId ? eq(adTrackerHits.trackerId, trackerId) : sql`1=1`
       )
     )
-    .groupBy(sql`date_trunc('day', ${adTrackerHits.createdAt})::date::text`)
-    .orderBy(sql`date_trunc('day', ${adTrackerHits.createdAt})::date::text`);
+    .groupBy(sql`date_trunc('day', ${adTrackerHits.timestamp})::date::text`)
+    .orderBy(sql`date_trunc('day', ${adTrackerHits.timestamp})::date::text`);
     
     // Execute all queries in parallel
     const [
       currentPeriodResults, 
       previousPeriodResults, 
-      bySourceResults, 
+      bySourcePlatformResults, 
       byDeviceResults,
       dailyVisitsResults,
       dailyConversionsResults
     ] = await Promise.all([
       currentPeriodQuery,
       previousPeriodQuery,
-      bySourceQuery,
+      bySourcePlatformQuery,
       byDeviceQuery,
       dailyVisitsQuery,
       dailyConversionsQuery
@@ -168,8 +168,8 @@ export const getAnalyticsOverview = async (req: Request, res: Response) => {
     
     // Convert source results to object
     const bySource: Record<string, number> = {};
-    bySourceResults.forEach(item => {
-      bySource[item.source || 'direct'] = item.count;
+    bySourcePlatformResults.forEach(item => {
+      bySource[item.sourcePlatform || 'direct'] = item.count;
     });
     
     // Convert device results to object
@@ -224,7 +224,7 @@ export const getTrackerAnalytics = async (req: Request, res: Response) => {
     .where(
       and(
         eq(adTrackerHits.trackerId, trackerId),
-        gte(adTrackerHits.createdAt, startDate)
+        gte(adTrackerHits.timestamp, startDate)
       )
     );
     
@@ -237,7 +237,7 @@ export const getTrackerAnalytics = async (req: Request, res: Response) => {
       and(
         eq(adTrackerHits.trackerId, trackerId),
         eq(adTrackerHits.converted, true),
-        gte(adTrackerHits.createdAt, startDate)
+        gte(adTrackerHits.timestamp, startDate)
       )
     );
     
@@ -287,7 +287,7 @@ export const getAnalyticsDashboardData = async (req: Request, res: Response) => 
       count: sql<number>`count(*)`,
     })
     .from(adTrackerHits)
-    .where(gte(adTrackerHits.createdAt, getStartDateFromRange('30d')));
+    .where(gte(adTrackerHits.timestamp, getStartDateFromRange('30d')));
     
     // Get total conversions in the last 30 days
     const last30DaysConversionsCountQuery = db.select({
@@ -296,7 +296,7 @@ export const getAnalyticsDashboardData = async (req: Request, res: Response) => 
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, getStartDateFromRange('30d')),
+        gte(adTrackerHits.timestamp, getStartDateFromRange('30d')),
         eq(adTrackerHits.converted, true)
       )
     );
@@ -349,18 +349,18 @@ export const getConversionAnalytics = async (req: Request, res: Response) => {
     
     // Get conversion rates by source
     const conversionsBySourceQuery = db.select({
-      source: adTrackerHits.utmSource,
+      sourcePlatform: adTrackerHits.sourcePlatform,
       totalHits: sql<number>`count(*)`,
       conversions: sql<number>`count(case when ${adTrackerHits.converted} = true then 1 end)`,
     })
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, startDate),
+        gte(adTrackerHits.timestamp, startDate),
         trackerId ? eq(adTrackerHits.trackerId, trackerId) : sql`1=1`
       )
     )
-    .groupBy(adTrackerHits.utmSource)
+    .groupBy(adTrackerHits.sourcePlatform)
     .orderBy(desc(sql<number>`count(*)`));
     
     // Get conversion rates by device
@@ -372,7 +372,7 @@ export const getConversionAnalytics = async (req: Request, res: Response) => {
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, startDate),
+        gte(adTrackerHits.timestamp, startDate),
         trackerId ? eq(adTrackerHits.trackerId, trackerId) : sql`1=1`
       )
     )
@@ -381,19 +381,19 @@ export const getConversionAnalytics = async (req: Request, res: Response) => {
     
     // Get daily conversion rates
     const dailyConversionRatesQuery = db.select({
-      date: sql<string>`date_trunc('day', ${adTrackerHits.createdAt})::date::text`,
+      date: sql<string>`date_trunc('day', ${adTrackerHits.timestamp})::date::text`,
       totalHits: sql<number>`count(*)`,
       conversions: sql<number>`count(case when ${adTrackerHits.converted} = true then 1 end)`,
     })
     .from(adTrackerHits)
     .where(
       and(
-        gte(adTrackerHits.createdAt, startDate),
+        gte(adTrackerHits.timestamp, startDate),
         trackerId ? eq(adTrackerHits.trackerId, trackerId) : sql`1=1`
       )
     )
-    .groupBy(sql`date_trunc('day', ${adTrackerHits.createdAt})::date::text`)
-    .orderBy(sql`date_trunc('day', ${adTrackerHits.createdAt})::date::text`);
+    .groupBy(sql`date_trunc('day', ${adTrackerHits.timestamp})::date::text`)
+    .orderBy(sql`date_trunc('day', ${adTrackerHits.timestamp})::date::text`);
     
     // Execute queries in parallel
     const [
@@ -408,7 +408,7 @@ export const getConversionAnalytics = async (req: Request, res: Response) => {
     
     // Process data for response
     const conversionsBySource = conversionsBySourceResults.map(item => ({
-      source: item.source || 'direct',
+      source: item.sourcePlatform || 'direct',
       totalHits: item.totalHits,
       conversions: item.conversions,
       conversionRate: item.totalHits > 0 ? (item.conversions / item.totalHits) * 100 : 0,
