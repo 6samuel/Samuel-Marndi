@@ -7,7 +7,8 @@ import {
   testimonials, Testimonial, InsertTestimonial,
   blogPosts, BlogPost, InsertBlogPost,
   contactSubmissions, ContactSubmission, InsertContactSubmission,
-  serviceRequests, ServiceRequest, InsertServiceRequest
+  serviceRequests, ServiceRequest, InsertServiceRequest,
+  partnerApplications, PartnerApplication, InsertPartnerApplication
 } from "@shared/schema";
 import { IStorage } from "./storage";
 
@@ -299,6 +300,49 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(serviceRequests)
       .where(eq(serviceRequests.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Partner applications operations
+  async getPartnerApplications(): Promise<PartnerApplication[]> {
+    return await db.select()
+      .from(partnerApplications)
+      .orderBy(desc(partnerApplications.submittedAt));
+  }
+
+  async getPartnerApplicationById(id: number): Promise<PartnerApplication | undefined> {
+    const [application] = await db
+      .select()
+      .from(partnerApplications)
+      .where(eq(partnerApplications.id, id));
+    return application;
+  }
+
+  async createPartnerApplication(insertApplication: InsertPartnerApplication): Promise<PartnerApplication> {
+    const [application] = await db
+      .insert(partnerApplications)
+      .values({
+        ...insertApplication,
+        submittedAt: new Date(),
+        status: "new"
+      })
+      .returning();
+    return application;
+  }
+
+  async updatePartnerApplicationStatus(id: number, status: string): Promise<PartnerApplication | undefined> {
+    const [application] = await db
+      .update(partnerApplications)
+      .set({ status })
+      .where(eq(partnerApplications.id, id))
+      .returning();
+    return application;
+  }
+
+  async deletePartnerApplication(id: number): Promise<boolean> {
+    const result = await db
+      .delete(partnerApplications)
+      .where(eq(partnerApplications.id, id));
     return result.rowCount > 0;
   }
 }
