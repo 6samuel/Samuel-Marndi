@@ -4,13 +4,13 @@ interface ApiRequestOptions {
   on401?: 'returnNull' | 'throw';
 }
 
+// Updated configuration for TanStack Query v5
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
       staleTime: 60 * 1000, // 1 minute
-      cacheTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });

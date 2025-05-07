@@ -4,39 +4,21 @@ import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import AdminLayout from "@/components/layouts/admin-layout";
 import { Service } from "@shared/schema";
+import { getQueryFn } from "@/lib/queryClient";
 
 export default function AdminServices() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch services
-  const { data: services = [] } = useQuery<Service[]>({
+  // Fetch services using the centralized queryFn
+  const { data: services = [], isLoading: queryIsLoading } = useQuery<Service[]>({
     queryKey: ["/api/services"],
-    queryFn: async () => {
-      try {
-        const response = await fetch("/api/services", {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch services: ${response.statusText}`);
-        }
-        
-        return await response.json();
-      } catch (error) {
-        console.error("Error fetching services:", error);
-        return [];
-      } finally {
-        setIsLoading(false);
-      }
-    },
+    queryFn: getQueryFn(),
+    enabled: !!user, // Only run query if user is logged in
     staleTime: 60 * 1000, // 1 minute
     refetchOnWindowFocus: false,
-    retry: 1
+    retry: 1,
+    onSettled: () => setIsLoading(false)
   });
 
   return (
