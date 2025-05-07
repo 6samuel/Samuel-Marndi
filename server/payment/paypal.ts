@@ -90,10 +90,10 @@ export const createOrder = async (req: Request, res: Response) => {
     const collect = {
       body: {
         intent: intent,
-        purchase_units: [
+        purchaseUnits: [
           {
             amount: {
-              currency_code: currency,
+              currencyCode: currency,
               value: amount.toString(),
             },
           },

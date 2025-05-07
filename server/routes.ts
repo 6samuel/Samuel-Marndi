@@ -25,6 +25,20 @@ import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 // Import sitemap generator functions
 import { generateSitemap, generateRobotsTxt } from './sitemap-generator';
 
+// Import payment gateway handlers
+import {
+  initPaymentGateways,
+  getPaymentGatewaysStatus,
+  createPaymentIntent,
+  handleWebhook as handleStripeWebhook,
+  createOrder as createPaypalOrder,
+  captureOrder as capturePaypalOrder,
+  setupClient as setupPaypalClient,
+  createOrder as createRazorpayOrder,
+  verifyPayment as verifyRazorpayPayment,
+  getPaymentDetails as getRazorpayPaymentDetails
+} from './payment';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
   setupAuth(app);
