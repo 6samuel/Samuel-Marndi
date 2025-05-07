@@ -8,7 +8,9 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: false,
+      retry: 1,
+      staleTime: 60 * 1000, // 1 minute
+      cacheTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
@@ -50,6 +52,9 @@ export function getQueryFn(options: ApiRequestOptions = {}) {
     const endpoint = queryKey[0];
     
     try {
+      // Add a small delay to prevent overwhelming the server with concurrent requests
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+      
       const response = await fetch(endpoint, {
         method: 'GET',
         headers: {
@@ -63,7 +68,7 @@ export function getQueryFn(options: ApiRequestOptions = {}) {
         if (on401 === 'returnNull') {
           return null;
         }
-        throw new Error('Unauthorized');
+        throw new Error('Unauthorized - Please log in');
       }
       
       if (!response.ok) {
@@ -78,9 +83,15 @@ export function getQueryFn(options: ApiRequestOptions = {}) {
         throw new Error(errorMessage || `Failed to fetch data from ${endpoint}`);
       }
       
-      return await response.json();
+      // Cache the successful response
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error(`Query error when fetching ${endpoint}:`, error);
+      // If it's a network error, provide a more helpful message
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error(`Network error: Could not connect to the server. Please check your connection.`);
+      }
       throw error;
     }
   };

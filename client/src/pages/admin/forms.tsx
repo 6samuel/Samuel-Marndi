@@ -40,6 +40,8 @@ export default function AdminForms() {
     },
     enabled: !!user, // Only run query if user is logged in
     staleTime: 60 * 1000, // 1 minute
+    refetchOnWindowFocus: false,
+    retry: 1
   });
 
   // Fetch service requests
@@ -71,13 +73,11 @@ export default function AdminForms() {
     },
     enabled: !!user, // Only run query if user is logged in
     staleTime: 60 * 1000, // 1 minute
+    refetchOnWindowFocus: false,
+    retry: 1
   });
   
-  // Fetch data on component mount
-  useEffect(() => {
-    refetchContacts();
-    refetchRequests();
-  }, [refetchContacts, refetchRequests]);
+  // Removed unnecessary refetch as queries will run automatically when enabled
 
   return (
     <>

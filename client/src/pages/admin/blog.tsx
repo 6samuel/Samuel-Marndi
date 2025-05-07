@@ -31,11 +31,13 @@ export default function AdminBlog() {
       } catch (error) {
         console.error("Error fetching blog posts:", error);
         return [];
+      } finally {
+        setIsLoading(false);
       }
     },
     staleTime: 60 * 1000, // 1 minute
-    onSuccess: () => setIsLoading(false),
-    onError: () => setIsLoading(false)
+    refetchOnWindowFocus: false,
+    retry: 1
   });
 
   return (
