@@ -18,6 +18,27 @@ export default function AdminForms() {
     refetch: refetchContacts
   } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/contact-submissions", {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch contact submissions: ${response.statusText}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching contact submissions:", error);
+        return [];
+      }
+    },
+    enabled: !!user, // Only run query if user is logged in
     staleTime: 60 * 1000, // 1 minute
   });
 
@@ -28,6 +49,27 @@ export default function AdminForms() {
     refetch: refetchRequests
   } = useQuery<ServiceRequest[]>({
     queryKey: ["/api/service-requests"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/service-requests", {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch service requests: ${response.statusText}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching service requests:", error);
+        return [];
+      }
+    },
+    enabled: !!user, // Only run query if user is logged in
     staleTime: 60 * 1000, // 1 minute
   });
   

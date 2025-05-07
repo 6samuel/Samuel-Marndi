@@ -51,10 +51,15 @@ export function getQueryFn(options: ApiRequestOptions = {}) {
     
     try {
       const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         credentials: 'include',
       });
       
       if (response.status === 401) {
+        console.log(`401 Unauthorized when fetching ${endpoint}`);
         if (on401 === 'returnNull') {
           return null;
         }
@@ -62,16 +67,20 @@ export function getQueryFn(options: ApiRequestOptions = {}) {
       }
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({
-          message: response.statusText,
-        }));
+        let errorMessage = response.statusText;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          // JSON parse error, use status text
+        }
         
-        throw new Error(errorData.message || `Failed to fetch data from ${endpoint}`);
+        throw new Error(errorMessage || `Failed to fetch data from ${endpoint}`);
       }
       
       return await response.json();
     } catch (error) {
-      console.error('Query error:', error);
+      console.error(`Query error when fetching ${endpoint}:`, error);
       throw error;
     }
   };
