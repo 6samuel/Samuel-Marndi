@@ -239,7 +239,109 @@ export default function AdminServices() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-3xl font-bold tracking-tight">Services</h2>
-            {/* Add Service button would go here */}
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" /> Add Service
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Service</DialogTitle>
+                  <DialogDescription>
+                    Create a new service to showcase your offerings.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        placeholder="e.g. Web Development"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="slug">Slug</Label>
+                      <Input
+                        id="slug"
+                        name="slug"
+                        value={formData.slug}
+                        onChange={handleInputChange}
+                        placeholder="e.g. web-development"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="shortDescription">Short Description</Label>
+                    <Input
+                      id="shortDescription"
+                      name="shortDescription"
+                      value={formData.shortDescription}
+                      onChange={handleInputChange}
+                      placeholder="Brief description (for cards and listings)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullDescription">Full Description</Label>
+                    <Textarea
+                      id="fullDescription"
+                      name="fullDescription"
+                      value={formData.fullDescription}
+                      onChange={handleInputChange}
+                      placeholder="Detailed description of the service"
+                      rows={5}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="iconName">Icon Name</Label>
+                      <Input
+                        id="iconName"
+                        name="iconName"
+                        value={formData.iconName}
+                        onChange={handleInputChange}
+                        placeholder="e.g. Code"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="imageUrl">Image URL</Label>
+                      <Input
+                        id="imageUrl"
+                        name="imageUrl"
+                        value={formData.imageUrl}
+                        onChange={handleInputChange}
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="featured"
+                      checked={formData.featured}
+                      onCheckedChange={handleCheckboxChange}
+                    />
+                    <Label htmlFor="featured">Featured Service</Label>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="button" 
+                    onClick={() => createMutation.mutate(formData)}
+                    disabled={createMutation.isPending}
+                  >
+                    {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create Service
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
           
           <div className="border rounded-lg shadow overflow-hidden">
@@ -253,11 +355,12 @@ export default function AdminServices() {
                       <th className="px-4 py-3 text-left">Title</th>
                       <th className="px-4 py-3 text-left">Slug</th>
                       <th className="px-4 py-3 text-center">Featured</th>
+                      <th className="px-4 py-3 text-center">Order</th>
                       <th className="px-4 py-3 text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {services.map((service) => (
+                    {services.map((service, index) => (
                       <tr key={service.id} className="hover:bg-muted/50">
                         <td className="px-4 py-3">{service.title}</td>
                         <td className="px-4 py-3">{service.slug}</td>
@@ -265,8 +368,49 @@ export default function AdminServices() {
                           {service.featured ? "Yes" : "No"}
                         </td>
                         <td className="px-4 py-3 text-center">
-                          {/* Edit/Delete buttons would go here */}
-                          <span className="text-sm text-gray-500">Edit / Delete</span>
+                          <div className="flex items-center justify-center space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => reorderMutation.mutate({ id: service.id, direction: 'up' })}
+                              disabled={index === 0 || reorderMutation.isPending}
+                            >
+                              <ArrowUp className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => reorderMutation.mutate({ id: service.id, direction: 'down' })}
+                              disabled={index === services.length - 1 || reorderMutation.isPending}
+                            >
+                              <ArrowDown className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEdit(service)}>
+                                <Edit className="mr-2 h-4 w-4" /> Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDuplicate(service)}>
+                                <Copy className="mr-2 h-4 w-4" /> Duplicate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleDelete(service)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </td>
                       </tr>
                     ))}
@@ -279,6 +423,127 @@ export default function AdminServices() {
               </div>
             )}
           </div>
+          
+          {/* Edit Service Dialog */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Edit Service</DialogTitle>
+                <DialogDescription>
+                  Make changes to the service details.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-title">Title</Label>
+                    <Input
+                      id="edit-title"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-slug">Slug</Label>
+                    <Input
+                      id="edit-slug"
+                      name="slug"
+                      value={formData.slug}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-shortDescription">Short Description</Label>
+                  <Input
+                    id="edit-shortDescription"
+                    name="shortDescription"
+                    value={formData.shortDescription}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-fullDescription">Full Description</Label>
+                  <Textarea
+                    id="edit-fullDescription"
+                    name="fullDescription"
+                    value={formData.fullDescription}
+                    onChange={handleInputChange}
+                    rows={5}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-iconName">Icon Name</Label>
+                    <Input
+                      id="edit-iconName"
+                      name="iconName"
+                      value={formData.iconName}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-imageUrl">Image URL</Label>
+                    <Input
+                      id="edit-imageUrl"
+                      name="imageUrl"
+                      value={formData.imageUrl}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="edit-featured"
+                    checked={formData.featured}
+                    onCheckedChange={handleCheckboxChange}
+                  />
+                  <Label htmlFor="edit-featured">Featured Service</Label>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="button" 
+                  onClick={() => updateMutation.mutate({ 
+                    id: selectedService?.id || 0, 
+                    data: formData 
+                  })}
+                  disabled={updateMutation.isPending}
+                >
+                  {updateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Changes
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          {/* Delete Confirmation Dialog */}
+          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the service "{selectedService?.title}". 
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={() => deleteMutation.mutate(selectedService?.id || 0)}
+                  className="bg-red-600 hover:bg-red-700"
+                  disabled={deleteMutation.isPending}
+                >
+                  {deleteMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </AdminLayout>
     </>
