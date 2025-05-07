@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/sheet";
 import { 
   Menu, Code, BarChart2, Palette, Search, ShoppingCart, Smartphone, 
-  Sun, Moon, Phone, Mail, Linkedin, Twitter, Github, Facebook
+  Sun, Moon, Phone, Mail, Linkedin, Twitter, Github, Facebook,
+  CreditCard, ChevronDown
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
@@ -144,6 +145,12 @@ const SiteHeader = () => {
               {/* Action Buttons (Desktop) */}
               {!isMobile && (
                 <div className="flex items-center space-x-2">
+                  <Link href="/payment" className="mr-2">
+                    <Button variant="outline" size="sm" className="flex items-center gap-1">
+                      <CreditCard className="h-4 w-4" />
+                      <span>Payment</span>
+                    </Button>
+                  </Link>
                   <Link href="/contact">
                     <Button>Get a Quote</Button>
                   </Link>
@@ -166,7 +173,7 @@ const SiteHeader = () => {
                       <SheetTitle className="text-left">Menu</SheetTitle>
                     </SheetHeader>
                     <nav className="flex flex-col space-y-4">
-                      {navItems.map((item) => (
+                      {mobileNavItems.map((item) => (
                         <Link
                           key={item.name}
                           href={item.href}
@@ -234,13 +241,21 @@ const SiteHeader = () => {
                         </Link>
                       </div>
                     </div>
-                    <div className="mt-8 flex space-x-2">
-                      <Link href="/contact" onClick={handleLinkClick} className="flex-1">
-                        <Button className="w-full">Get a Quote</Button>
+                    <div className="mt-8 space-y-2">
+                      <Link href="/payment" onClick={handleLinkClick} className="w-full">
+                        <Button variant="outline" className="w-full flex items-center justify-center gap-1">
+                          <CreditCard className="h-4 w-4" />
+                          <span>Make a Payment</span>
+                        </Button>
                       </Link>
-                      <Link href="/hire" onClick={handleLinkClick} className="flex-1">
-                        <Button variant="default" className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">Hire Me</Button>
-                      </Link>
+                      <div className="flex space-x-2">
+                        <Link href="/contact" onClick={handleLinkClick} className="flex-1">
+                          <Button className="w-full">Get a Quote</Button>
+                        </Link>
+                        <Link href="/hire" onClick={handleLinkClick} className="flex-1">
+                          <Button variant="default" className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">Hire Me</Button>
+                        </Link>
+                      </div>
                     </div>
                   </SheetContent>
                 </Sheet>
