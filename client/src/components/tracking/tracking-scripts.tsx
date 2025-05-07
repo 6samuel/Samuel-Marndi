@@ -2,16 +2,16 @@ import React, { useEffect } from "react";
 import { useLocation } from "wouter";
 
 // Google Analytics 4 Measurement ID
-const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || "G-MEASUREMENT_ID"; // Replace in production
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || "G-MEASUREMENT_ID"; // Replace in production
 
 // Facebook Pixel ID
-const FB_PIXEL_ID = process.env.FB_PIXEL_ID || "PIXEL_ID"; // Replace in production
+const FB_PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID || "PIXEL_ID"; // Replace in production
 
 // Microsoft Advertising (Bing) UET Tag ID
-const MS_ADVERTISING_TAG_ID = process.env.MS_ADVERTISING_TAG_ID || "TAG_ID"; // Replace in production
+const MS_ADVERTISING_TAG_ID = import.meta.env.VITE_MS_ADVERTISING_TAG_ID || "TAG_ID"; // Replace in production
 
 // LinkedIn Insight Tag ID
-const LINKEDIN_INSIGHT_TAG_ID = process.env.LINKEDIN_INSIGHT_TAG_ID || "TAG_ID"; // Replace in production
+const LINKEDIN_INSIGHT_TAG_ID = import.meta.env.VITE_LINKEDIN_INSIGHT_TAG_ID || "TAG_ID"; // Replace in production
 
 interface TrackingScriptsProps {
   // Add any props if needed
@@ -200,8 +200,8 @@ export const trackConversion = {
 // Extend Window interface to include tracking tools
 declare global {
   interface Window {
-    gtag: (command: string, ...args: any[]) => void;
-    fbq: (command: string, ...args: any[]) => void;
+    gtag: (...args: any[]) => void;
+    fbq: (...args: any[]) => void;
     uetq: any;
     lintrk: any;
     dataLayer: any[];

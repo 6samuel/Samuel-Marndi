@@ -5,6 +5,8 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { trackConversion } from "@/components/tracking/tracking-scripts";
+import { useConversionTracking } from "@/components/tracking/conversion-tracker";
 import {
   Form,
   FormControl,
@@ -40,6 +42,8 @@ type FormValues = z.infer<typeof formSchema>;
 const ContactForm = () => {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
+  // Get conversion tracking function
+  const { trackConversionEvent } = useConversionTracking(1); // Assuming tracker ID 1 for contact form
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -58,10 +62,39 @@ const ContactForm = () => {
     mutationFn: (values: FormValues) =>
       apiRequest("POST", "/api/contact", values),
     onSuccess: () => {
+      // Send success toast notification
       toast({
         title: "Message sent!",
         description: "Thank you for your message. I'll get back to you soon.",
       });
+      
+      // Track form submission as conversion in all platforms
+      trackConversionEvent(
+        'contact_form_submission', 
+        undefined, 
+        'USD',
+        'lead',
+        {
+          category: 'lead_generation',
+          service_interest: form.getValues().serviceInterest || 'general',
+          lead_source: form.getValues().source || 'website'
+        }
+      );
+      
+      // Track in Google Analytics
+      trackConversion.googleAnalytics(
+        'generate_lead', 
+        'conversion', 
+        'contact_form', 
+      );
+
+      // Track in Facebook Pixel
+      trackConversion.facebookPixel('Lead', {
+        content_category: 'contact',
+        content_name: form.getValues().serviceInterest || 'general',
+      });
+      
+      // Reset form and show success message
       form.reset();
       setSubmitted(true);
     },
