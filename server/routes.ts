@@ -1318,6 +1318,385 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiRoute}/analytics/conversions`, isAuthenticated, isAdmin, async (req, res) => {
     await getConversionAnalytics(req, res);
   });
+  
+  // Marketing Goals routes
+  app.get(`${apiRoute}/goals`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const goals = await storage.getMarketingGoals();
+      res.json(goals || []);
+    } catch (error) {
+      console.error("Error fetching marketing goals:", error);
+      res.status(500).json({ message: "Failed to fetch marketing goals" });
+    }
+  });
+  
+  app.get(`${apiRoute}/goals/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const goal = await storage.getMarketingGoalById(id);
+      if (!goal) {
+        return res.status(404).json({ message: "Goal not found" });
+      }
+      
+      res.json(goal);
+    } catch (error) {
+      console.error(`Error fetching goal with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch goal" });
+    }
+  });
+  
+  app.post(`${apiRoute}/goals`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const goal = await storage.createMarketingGoal(req.body);
+      res.status(201).json(goal);
+    } catch (error) {
+      console.error("Error creating marketing goal:", error);
+      res.status(500).json({ message: "Failed to create marketing goal" });
+    }
+  });
+  
+  app.put(`${apiRoute}/goals/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const goal = await storage.updateMarketingGoal(id, req.body);
+      if (!goal) {
+        return res.status(404).json({ message: "Goal not found" });
+      }
+      
+      res.json(goal);
+    } catch (error) {
+      console.error(`Error updating goal with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update goal" });
+    }
+  });
+  
+  app.delete(`${apiRoute}/goals/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteMarketingGoal(id);
+      if (!success) {
+        return res.status(404).json({ message: "Goal not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error(`Error deleting goal with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete goal" });
+    }
+  });
+  
+  // Marketing Activities routes
+  app.get(`${apiRoute}/marketing-activities`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const activities = await storage.getMarketingActivities();
+      res.json(activities || []);
+    } catch (error) {
+      console.error("Error fetching marketing activities:", error);
+      res.status(500).json({ message: "Failed to fetch marketing activities" });
+    }
+  });
+  
+  app.get(`${apiRoute}/marketing-activities/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const activity = await storage.getMarketingActivityById(id);
+      if (!activity) {
+        return res.status(404).json({ message: "Activity not found" });
+      }
+      
+      res.json(activity);
+    } catch (error) {
+      console.error(`Error fetching activity with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch activity" });
+    }
+  });
+  
+  app.post(`${apiRoute}/marketing-activities`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const activity = await storage.createMarketingActivity(req.body);
+      res.status(201).json(activity);
+    } catch (error) {
+      console.error("Error creating marketing activity:", error);
+      res.status(500).json({ message: "Failed to create marketing activity" });
+    }
+  });
+  
+  app.put(`${apiRoute}/marketing-activities/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const activity = await storage.updateMarketingActivity(id, req.body);
+      if (!activity) {
+        return res.status(404).json({ message: "Activity not found" });
+      }
+      
+      res.json(activity);
+    } catch (error) {
+      console.error(`Error updating activity with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update activity" });
+    }
+  });
+  
+  app.delete(`${apiRoute}/marketing-activities/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteMarketingActivity(id);
+      if (!success) {
+        return res.status(404).json({ message: "Activity not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error(`Error deleting activity with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete activity" });
+    }
+  });
+  
+  // A/B Testing routes
+  app.get(`${apiRoute}/ab-tests`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const tests = await storage.getABTests();
+      res.json(tests || []);
+    } catch (error) {
+      console.error("Error fetching A/B tests:", error);
+      res.status(500).json({ message: "Failed to fetch A/B tests" });
+    }
+  });
+  
+  app.get(`${apiRoute}/ab-tests/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const test = await storage.getABTestById(id);
+      if (!test) {
+        return res.status(404).json({ message: "Test not found" });
+      }
+      
+      res.json(test);
+    } catch (error) {
+      console.error(`Error fetching test with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch test" });
+    }
+  });
+  
+  app.post(`${apiRoute}/ab-tests`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const test = await storage.createABTest(req.body);
+      res.status(201).json(test);
+    } catch (error) {
+      console.error("Error creating A/B test:", error);
+      res.status(500).json({ message: "Failed to create A/B test" });
+    }
+  });
+  
+  app.put(`${apiRoute}/ab-tests/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const test = await storage.updateABTest(id, req.body);
+      if (!test) {
+        return res.status(404).json({ message: "Test not found" });
+      }
+      
+      res.json(test);
+    } catch (error) {
+      console.error(`Error updating test with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update test" });
+    }
+  });
+  
+  app.patch(`${apiRoute}/ab-tests/:id/status`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const { status } = req.body;
+      if (!status || typeof status !== 'string') {
+        return res.status(400).json({ message: "Status is required" });
+      }
+      
+      const test = await storage.updateABTestStatus(id, status);
+      if (!test) {
+        return res.status(404).json({ message: "Test not found" });
+      }
+      
+      res.json(test);
+    } catch (error) {
+      console.error(`Error updating status for test with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update test status" });
+    }
+  });
+  
+  app.delete(`${apiRoute}/ab-tests/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteABTest(id);
+      if (!success) {
+        return res.status(404).json({ message: "Test not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error(`Error deleting test with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete test" });
+    }
+  });
+  
+  // A/B Test Variants routes
+  app.get(`${apiRoute}/ab-tests/:testId/variants`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const testId = parseInt(req.params.testId);
+      if (isNaN(testId)) {
+        return res.status(400).json({ message: "Invalid test ID format" });
+      }
+      
+      const variants = await storage.getABTestVariants(testId);
+      res.json(variants || []);
+    } catch (error) {
+      console.error(`Error fetching variants for test ID ${req.params.testId}:`, error);
+      res.status(500).json({ message: "Failed to fetch test variants" });
+    }
+  });
+  
+  app.post(`${apiRoute}/ab-tests/:testId/variants`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const testId = parseInt(req.params.testId);
+      if (isNaN(testId)) {
+        return res.status(400).json({ message: "Invalid test ID format" });
+      }
+      
+      const variant = await storage.createABTestVariant({ ...req.body, testId });
+      res.status(201).json(variant);
+    } catch (error) {
+      console.error("Error creating test variant:", error);
+      res.status(500).json({ message: "Failed to create test variant" });
+    }
+  });
+  
+  app.put(`${apiRoute}/ab-tests/:testId/variants/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const testId = parseInt(req.params.testId);
+      const id = parseInt(req.params.id);
+      if (isNaN(testId) || isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const variant = await storage.updateABTestVariant(id, testId, req.body);
+      if (!variant) {
+        return res.status(404).json({ message: "Variant not found" });
+      }
+      
+      res.json(variant);
+    } catch (error) {
+      console.error(`Error updating variant with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update variant" });
+    }
+  });
+  
+  app.delete(`${apiRoute}/ab-tests/:testId/variants/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const testId = parseInt(req.params.testId);
+      const id = parseInt(req.params.id);
+      if (isNaN(testId) || isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteABTestVariant(id, testId);
+      if (!success) {
+        return res.status(404).json({ message: "Variant not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error(`Error deleting variant with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete variant" });
+    }
+  });
+  
+  // A/B Test tracking and results routes
+  app.post(`${apiRoute}/ab-tests/variants/:variantId/impression`, async (req, res) => {
+    try {
+      const variantId = parseInt(req.params.variantId);
+      if (isNaN(variantId)) {
+        return res.status(400).json({ message: "Invalid variant ID format" });
+      }
+      
+      const hit = await storage.recordABTestImpression(variantId, req.body);
+      res.status(201).json(hit);
+    } catch (error) {
+      console.error("Error recording A/B test impression:", error);
+      res.status(500).json({ message: "Failed to record impression" });
+    }
+  });
+  
+  app.post(`${apiRoute}/ab-tests/variants/:variantId/conversion`, async (req, res) => {
+    try {
+      const variantId = parseInt(req.params.variantId);
+      if (isNaN(variantId)) {
+        return res.status(400).json({ message: "Invalid variant ID format" });
+      }
+      
+      const hit = await storage.recordABTestConversion(variantId, req.body.sessionId);
+      if (!hit) {
+        return res.status(404).json({ message: "No matching impression found for this session" });
+      }
+      
+      res.json(hit);
+    } catch (error) {
+      console.error("Error recording A/B test conversion:", error);
+      res.status(500).json({ message: "Failed to record conversion" });
+    }
+  });
+  
+  app.get(`${apiRoute}/ab-tests/:testId/results`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const testId = parseInt(req.params.testId);
+      if (isNaN(testId)) {
+        return res.status(400).json({ message: "Invalid test ID format" });
+      }
+      
+      const results = await storage.getABTestResults(testId);
+      res.json(results);
+    } catch (error) {
+      console.error(`Error fetching results for test ID ${req.params.testId}:`, error);
+      res.status(500).json({ message: "Failed to fetch test results" });
+    }
+  });
 
   // Initialize all payment gateways
   const paymentGateways = initPaymentGateways();
