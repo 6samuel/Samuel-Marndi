@@ -30,6 +30,27 @@ const ServiceIcon = ({ name }: { name: string }) => {
 const ServicesOverview = () => {
   const { data: services, isLoading, error } = useQuery<Service[]>({
     queryKey: ['/api/services/featured'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/services/featured', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch featured services: ${response.statusText}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching featured services:", error);
+        throw error;
+      }
+    },
+    refetchOnWindowFocus: false,
+    retry: 2
   });
 
   const containerVariants = {

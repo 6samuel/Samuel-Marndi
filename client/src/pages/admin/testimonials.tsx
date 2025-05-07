@@ -1,42 +1,35 @@
-import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import AdminLayout from "@/components/layouts/admin-layout";
 import { Testimonial } from "@shared/schema";
+import { Loader2 } from "lucide-react";
 
 export default function AdminTestimonials() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch testimonials with improved approach
-  const { data: testimonialData } = useQuery({
+  // Fetch testimonials with React Query handling loading state
+  const { data: testimonialData, isLoading } = useQuery({
     queryKey: ["/api/testimonials"],
     queryFn: async () => {
-      try {
-        const response = await fetch("/api/testimonials", {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch testimonials: ${response.statusText}`);
-        }
-        
-        return await response.json() as Testimonial[];
-      } catch (error) {
-        console.error("Error fetching testimonials:", error);
-        throw error;
-      } finally {
-        setIsLoading(false);
+      const response = await fetch("/api/testimonials", {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch testimonials: ${response.statusText}`);
       }
+      
+      return await response.json() as Testimonial[];
     },
     enabled: !!user,
-    refetchOnWindowFocus: false,
-    retry: 1
+    refetchOnWindowFocus: true,
+    retry: 2,
+    staleTime: 1000 // 1 second, to prevent redundant requests
   });
   
   // Safely access testimonial data

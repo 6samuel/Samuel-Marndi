@@ -4,13 +4,38 @@ interface ApiRequestOptions {
   on401?: 'returnNull' | 'throw';
 }
 
-// Updated configuration for TanStack Query v5
+// Enhanced configuration for TanStack Query v5
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 60 * 1000, // 1 minute
+      refetchOnWindowFocus: true,
+      retry: 2,
+      staleTime: 30 * 1000, // 30 seconds
+      gcTime: 5 * 60 * 1000, // 5 minutes
+      // Default query function that will be used if no queryFn is provided
+      queryFn: async ({ queryKey }: { queryKey: any }) => {
+        const endpoint = queryKey[0];
+        
+        try {
+          const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+          });
+          
+          if (!response.ok) {
+            const errorMessage = `Error ${response.status}: ${response.statusText}`;
+            throw new Error(errorMessage);
+          }
+          
+          return await response.json();
+        } catch (error) {
+          console.error(`Query error for ${endpoint}:`, error);
+          throw error;
+        }
+      }
     },
   },
 });

@@ -9,6 +9,27 @@ import { Badge } from "@/components/ui/badge";
 const PortfolioPreview = () => {
   const { data: portfolioItems, isLoading, error } = useQuery<PortfolioItem[]>({
     queryKey: ['/api/portfolio/featured'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/portfolio/featured', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch featured portfolio items: ${response.statusText}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching featured portfolio items:", error);
+        throw error;
+      }
+    },
+    refetchOnWindowFocus: false,
+    retry: 2
   });
 
   const containerVariants = {

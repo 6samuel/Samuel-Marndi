@@ -1,42 +1,35 @@
-import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import AdminLayout from "@/components/layouts/admin-layout";
 import { PortfolioItem } from "@shared/schema";
+import { Loader2 } from "lucide-react";
 
 export default function AdminPortfolio() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch portfolio items
-  const { data: portfolioData } = useQuery({
+  // Fetch portfolio items with React Query handling the loading state
+  const { data: portfolioData, isLoading } = useQuery({
     queryKey: ["/api/portfolio-items"],
     queryFn: async () => {
-      try {
-        const response = await fetch("/api/portfolio-items", {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch portfolio items: ${response.statusText}`);
-        }
-        
-        return await response.json() as PortfolioItem[];
-      } catch (error) {
-        console.error("Error fetching portfolio items:", error);
-        throw error;
-      } finally {
-        setIsLoading(false);
+      const response = await fetch("/api/portfolio-items", {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch portfolio items: ${response.statusText}`);
       }
+      
+      return await response.json() as PortfolioItem[];
     },
     enabled: !!user,
-    refetchOnWindowFocus: false,
-    retry: 1
+    refetchOnWindowFocus: true,
+    retry: 2,
+    staleTime: 1000 // 1 second, to prevent redundant requests
   });
   
   // Safely access portfolio data
