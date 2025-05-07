@@ -28,6 +28,7 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminServices from "@/pages/admin/services";
 import AdminPortfolio from "@/pages/admin/portfolio";
 import AdminBlog from "@/pages/admin/blog";
+import AdminTestimonials from "@/pages/admin/testimonials";
 import AdminForms from "@/pages/admin/forms";
 import AdminCampaigns from "@/pages/admin/campaigns";
 import AdminTracking from "@/pages/admin/tracking";
@@ -48,6 +49,7 @@ function Router() {
         <ProtectedRoute path="/admin/services" component={AdminServices} adminOnly />
         <ProtectedRoute path="/admin/portfolio" component={AdminPortfolio} adminOnly />
         <ProtectedRoute path="/admin/blog" component={AdminBlog} adminOnly />
+        <ProtectedRoute path="/admin/testimonials" component={AdminTestimonials} adminOnly />
         <ProtectedRoute path="/admin/forms" component={AdminForms} adminOnly />
         <ProtectedRoute path="/admin/campaigns" component={AdminCampaigns} adminOnly />
         <ProtectedRoute path="/admin/tracking" component={AdminTracking} adminOnly />

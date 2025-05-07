@@ -52,6 +52,11 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       icon: <FileText className="h-5 w-5" />,
     },
     {
+      title: "Testimonials",
+      href: "/admin/testimonials",
+      icon: <Quote className="h-5 w-5" />,
+    },
+    {
       title: "Forms",
       href: "/admin/forms",
       icon: <Mail className="h-5 w-5" />,
