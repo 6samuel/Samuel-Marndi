@@ -5,8 +5,14 @@ import {
   insertServiceRequestSchema, 
   insertContactSubmissionSchema 
 } from "@shared/schema";
-import { ZodError } from "zod";
+import { ZodError, z } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { 
+  sendContactNotification, 
+  sendServiceRequestNotification,
+  sendPartnerApplicationNotification,
+  sendHireRequestNotification
+} from "./email-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API base prefix
@@ -183,6 +189,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertContactSubmissionSchema.parse(req.body);
       const submission = await storage.createContactSubmission(validatedData);
+      
+      // Send email notification
+      await sendContactNotification(validatedData);
+      
       res.status(201).json({ 
         message: "Contact form submission received",
         id: submission.id 
@@ -197,9 +207,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertServiceRequestSchema.parse(req.body);
       const request = await storage.createServiceRequest(validatedData);
+      
+      // Send email notification
+      await sendServiceRequestNotification(validatedData);
+      
       res.status(201).json({ 
         message: "Service request received",
         id: request.id 
+      });
+    } catch (error) {
+      handleValidationError(error, res);
+    }
+  });
+  
+  // Partner application submission endpoint
+  const partnerFormSchema = z.object({
+    companyName: z.string().min(2, "Company name must be at least 2 characters"),
+    contactName: z.string().min(2, "Contact name must be at least 2 characters"),
+    email: z.string().email("Please enter a valid email address"),
+    phone: z.string().optional(),
+    website: z.string().url("Please enter a valid URL").optional(),
+    businessType: z.string().min(2, "Please specify your business type"),
+    services: z.string().min(5, "Please describe the services you're interested in"),
+    expectations: z.string().min(5, "Please describe your expectations from the partnership"),
+  });
+  
+  app.post(`${apiRoute}/partner-applications`, async (req, res) => {
+    try {
+      const validatedData = partnerFormSchema.parse(req.body);
+      
+      // Send email notification
+      await sendPartnerApplicationNotification(validatedData);
+      
+      res.status(201).json({ 
+        message: "Partnership application received",
+        success: true 
+      });
+    } catch (error) {
+      handleValidationError(error, res);
+    }
+  });
+  
+  // Hire request submission endpoint
+  const hireFormSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Please enter a valid email address"),
+    phone: z.string().optional(),
+    company: z.string().optional(),
+    projectType: z.string().min(1, "Please select a project type"),
+    engagementType: z.string().min(1, "Please select an engagement type"),
+    servicesNeeded: z.string().min(5, "Please describe the services needed"),
+    budget: z.string().optional(),
+    timeframe: z.string().optional(),
+    additionalInfo: z.string().optional(),
+  });
+  
+  app.post(`${apiRoute}/hire-requests`, async (req, res) => {
+    try {
+      const validatedData = hireFormSchema.parse(req.body);
+      
+      // Send email notification
+      await sendHireRequestNotification(validatedData);
+      
+      res.status(201).json({ 
+        message: "Hire request received",
+        success: true 
       });
     } catch (error) {
       handleValidationError(error, res);

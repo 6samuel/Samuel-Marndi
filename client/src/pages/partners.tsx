@@ -68,11 +68,8 @@ const Partners = () => {
   // Form submission handler
   const mutation = useMutation({
     mutationFn: (data: PartnerFormValues) =>
-      apiRequest("/api/partner-applications", {
+      apiRequest<{ success: boolean }>("/api/partner-applications", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
