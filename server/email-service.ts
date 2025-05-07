@@ -133,19 +133,20 @@ export async function sendServiceRequestNotification(request: InsertServiceReque
 
 // Reply to contact submissions
 export async function sendContactReply(
-  submission: { id: number; name: string; email: string },
+  email: string,
+  name: string,
   subject: string,
   message: string
 ): Promise<boolean> {
   const html = `
-    <h2>Hello ${submission.name},</h2>
-    <p>${message}</p>
+    <h2>Hello ${name},</h2>
+    <p>${message.replace(/\n/g, '<br/>')}</p>
     <p>Best regards,</p>
     <p>Samuel Marndi</p>
-    <p><small>This is in response to your contact form submission.</small></p>
+    <p><small>This is in response to your earlier submission.</small></p>
   `;
 
-  return sendEmail(submission.email, subject, html);
+  return sendEmail(email, subject, html);
 }
 
 // Send email campaign to a list of recipients

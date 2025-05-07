@@ -488,8 +488,33 @@ export default function AdminForms() {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              {/* View/Reply/Delete buttons would go here */}
-                              <span className="text-sm text-gray-500">View / Reply / Delete</span>
+                              <div className="flex items-center justify-center gap-2">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => handleView('service', request.id)}
+                                  title="View details"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => handleReply('service', request.id)}
+                                  title="Reply to request"
+                                >
+                                  <Reply className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => handleDelete('service', request.id)}
+                                  title="Delete request"
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-100"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -544,8 +569,33 @@ export default function AdminForms() {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              {/* View/Reply/Delete buttons would go here */}
-                              <span className="text-sm text-gray-500">View / Reply / Delete</span>
+                              <div className="flex items-center justify-center gap-2">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => handleView('partner', application.id)}
+                                  title="View details"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => handleReply('partner', application.id)}
+                                  title="Reply to application"
+                                >
+                                  <Reply className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => handleDelete('partner', application.id)}
+                                  title="Delete application"
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-100"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -560,6 +610,306 @@ export default function AdminForms() {
               </div>
             </TabsContent>
           </Tabs>
+          
+          {/* View Submission Dialog */}
+          <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+            <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  {activeTab === 'contact' ? 'Contact Form Submission Details' : 
+                   activeTab === 'service' ? 'Service Request Details' : 
+                   'Partner Application Details'}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                {activeTab === 'contact' && selectedContact && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Name</h4>
+                        <p>{selectedContact.name}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Email</h4>
+                        <p>{selectedContact.email}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Phone</h4>
+                        <p>{selectedContact.phone || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Subject</h4>
+                        <p>{selectedContact.subject || 'Not provided'}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Service Interest</h4>
+                      <p>{selectedContact.serviceInterest || 'Not specified'}</p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Source</h4>
+                      <p>{selectedContact.source || 'Website'}</p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Message</h4>
+                      <div className="p-3 bg-muted rounded-md whitespace-pre-wrap">
+                        {selectedContact.message}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Submitted On</h4>
+                      <p>{format(new Date(selectedContact.submittedAt), 'MMMM d, yyyy h:mm a')}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {activeTab === 'service' && selectedRequest && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Name</h4>
+                        <p>{selectedRequest.name}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Email</h4>
+                        <p>{selectedRequest.email}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Phone</h4>
+                        <p>{selectedRequest.phone || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Company</h4>
+                        <p>{selectedRequest.company || 'Not provided'}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Service ID</h4>
+                      <p>{selectedRequest.serviceId}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Budget</h4>
+                        <p>{selectedRequest.budget || 'Not specified'}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Timeline</h4>
+                        <p>{selectedRequest.timeline || 'Not specified'}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Project Description</h4>
+                      <div className="p-3 bg-muted rounded-md whitespace-pre-wrap">
+                        {selectedRequest.projectDescription}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Submitted On</h4>
+                      <p>{format(new Date(selectedRequest.submittedAt), 'MMMM d, yyyy h:mm a')}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {activeTab === 'partner' && selectedApplication && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Company Name</h4>
+                        <p>{selectedApplication.companyName}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Contact Name</h4>
+                        <p>{selectedApplication.contactName}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Email</h4>
+                        <p>{selectedApplication.email}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Phone</h4>
+                        <p>{selectedApplication.phone || 'Not provided'}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Business Type</h4>
+                        <p>{selectedApplication.businessType}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold mb-1">Website</h4>
+                        <p>{selectedApplication.website || 'Not provided'}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Services</h4>
+                      <p>{selectedApplication.services}</p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Expectations</h4>
+                      <div className="p-3 bg-muted rounded-md whitespace-pre-wrap">
+                        {selectedApplication.expectations}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-semibold mb-1">Submitted On</h4>
+                      <p>{format(new Date(selectedApplication.submittedAt), 'MMMM d, yyyy h:mm a')}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <DialogFooter>
+                <Button onClick={() => setIsViewDialogOpen(false)}>Close</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          {/* Reply Dialog */}
+          <Dialog open={isReplyDialogOpen} onOpenChange={setIsReplyDialogOpen}>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Send Reply</DialogTitle>
+                <DialogDescription>
+                  Send a response to the {
+                    activeTab === 'contact' ? 'contact form submission' : 
+                    activeTab === 'service' ? 'service request' : 
+                    'partner application'
+                  }.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reply-to">To</Label>
+                  <Input 
+                    id="reply-to" 
+                    readOnly 
+                    value={
+                      activeTab === 'contact' && selectedContact ? selectedContact.email :
+                      activeTab === 'service' && selectedRequest ? selectedRequest.email :
+                      activeTab === 'partner' && selectedApplication ? selectedApplication.email : ''
+                    } 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input 
+                    id="subject" 
+                    name="subject"
+                    value={replyForm.subject}
+                    onChange={handleReplyInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    value={replyForm.message}
+                    onChange={handleReplyInputChange}
+                    rows={10}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsReplyDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => {
+                    if (activeTab === 'contact' && selectedContact) {
+                      replyMutation.mutate({
+                        type: activeTab,
+                        id: selectedContact.id,
+                        email: selectedContact.email,
+                        name: selectedContact.name,
+                        subject: replyForm.subject,
+                        message: replyForm.message
+                      });
+                    } else if (activeTab === 'service' && selectedRequest) {
+                      replyMutation.mutate({
+                        type: activeTab,
+                        id: selectedRequest.id,
+                        email: selectedRequest.email,
+                        name: selectedRequest.name,
+                        subject: replyForm.subject,
+                        message: replyForm.message
+                      });
+                    } else if (activeTab === 'partner' && selectedApplication) {
+                      replyMutation.mutate({
+                        type: activeTab,
+                        id: selectedApplication.id,
+                        email: selectedApplication.email,
+                        name: selectedApplication.contactName,
+                        subject: replyForm.subject,
+                        message: replyForm.message
+                      });
+                    }
+                  }}
+                  disabled={replyMutation.isPending}
+                >
+                  {replyMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Send Reply
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          {/* Delete Confirmation Dialog */}
+          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {activeTab === 'contact' 
+                    ? "This will permanently delete this contact form submission." 
+                    : activeTab === 'service'
+                    ? "This will permanently delete this service request."
+                    : "This will permanently delete this partner application."
+                  }
+                  {" "}This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    if (activeTab === 'contact' && selectedContact) {
+                      deleteSubmissionMutation.mutate({ type: activeTab, id: selectedContact.id });
+                    } else if (activeTab === 'service' && selectedRequest) {
+                      deleteSubmissionMutation.mutate({ type: activeTab, id: selectedRequest.id });
+                    } else if (activeTab === 'partner' && selectedApplication) {
+                      deleteSubmissionMutation.mutate({ type: activeTab, id: selectedApplication.id });
+                    }
+                  }}
+                  className="bg-red-600 hover:bg-red-700"
+                  disabled={deleteSubmissionMutation.isPending}
+                >
+                  {deleteSubmissionMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </AdminLayout>
     </>

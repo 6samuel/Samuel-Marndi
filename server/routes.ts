@@ -421,6 +421,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update service request status" });
     }
   });
+  
+  // Update partner application status
+  app.patch(`${apiRoute}/partner-applications/:id/status`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const { status } = req.body;
+      if (!status || typeof status !== 'string') {
+        return res.status(400).json({ message: "Status is required" });
+      }
+      
+      const updatedApplication = await storage.updatePartnerApplicationStatus(id, status);
+      if (!updatedApplication) {
+        return res.status(404).json({ message: "Partner application not found" });
+      }
+      
+      res.json(updatedApplication);
+    } catch (error) {
+      console.error(`Error updating partner application status with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update partner application status" });
+    }
+  });
+  
+  // Delete contact submission
+  app.delete(`${apiRoute}/contact-submissions/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteContactSubmission(id);
+      if (!success) {
+        return res.status(404).json({ message: "Contact submission not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      console.error(`Error deleting contact submission with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete contact submission" });
+    }
+  });
+  
+  // Delete service request
+  app.delete(`${apiRoute}/service-requests/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteServiceRequest(id);
+      if (!success) {
+        return res.status(404).json({ message: "Service request not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      console.error(`Error deleting service request with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete service request" });
+    }
+  });
+  
+  // Delete partner application
+  app.delete(`${apiRoute}/partner-applications/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deletePartnerApplication(id);
+      if (!success) {
+        return res.status(404).json({ message: "Partner application not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      console.error(`Error deleting partner application with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete partner application" });
+    }
+  });
+  
+  // Send reply to form submissions
+  app.post(`${apiRoute}/send-reply`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { type, id, email, name, subject, message } = req.body;
+      
+      if (!type || !id || !email || !name || !subject || !message) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
+      // Check if the submission exists
+      let exists = false;
+      
+      if (type === 'contact') {
+        const submission = await storage.getContactSubmissionById(id);
+        exists = !!submission;
+        
+        // Send reply email using the contactReply function
+        if (exists) {
+          const success = await sendContactReply(email, name, subject, message);
+          if (!success) {
+            return res.status(500).json({ message: "Failed to send email reply" });
+          }
+        }
+      } else if (type === 'service') {
+        const request = await storage.getServiceRequestById(id);
+        exists = !!request;
+        
+        // Send reply email using the service request notification function
+        if (exists) {
+          const success = await sendContactReply(email, name, subject, message);
+          if (!success) {
+            return res.status(500).json({ message: "Failed to send email reply" });
+          }
+        }
+      } else if (type === 'partner') {
+        const application = await storage.getPartnerApplicationById(id);
+        exists = !!application;
+        
+        // Send reply email using the partner application notification function
+        if (exists) {
+          const success = await sendContactReply(email, name, subject, message);
+          if (!success) {
+            return res.status(500).json({ message: "Failed to send email reply" });
+          }
+        }
+      } else {
+        return res.status(400).json({ message: "Invalid type" });
+      }
+      
+      if (!exists) {
+        return res.status(404).json({ message: `${type} with ID ${id} not found` });
+      }
+      
+      res.json({ message: "Reply sent successfully" });
+    } catch (error) {
+      console.error("Error sending reply:", error);
+      res.status(500).json({ message: "Failed to send reply" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
