@@ -8,6 +8,7 @@ import { PageTitle } from '@/components/ui/page-title';
 import SimplePaymentForm from '@/components/payment/simple-payment-form';
 import AdvancedPaymentForm from '@/components/payment/advanced-payment-form';
 import PaymentGatewayStatus from '@/components/payment/payment-gateway-status';
+import UpiPayment from '@/components/payment/upi-payment';
 
 export default function PaymentPage() {
   // Fetch payment gateway status to check which ones are available
@@ -45,11 +46,15 @@ export default function PaymentPage() {
               isLoading={isStatusLoading} 
             />
             
-            <Tabs defaultValue="simple" className="mt-6">
-              <TabsList className="grid w-full grid-cols-2">
+            <Tabs defaultValue="upi" className="mt-6">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="upi">UPI Payment</TabsTrigger>
                 <TabsTrigger value="simple">Simple Payment</TabsTrigger>
-                <TabsTrigger value="advanced">Advanced Calculator</TabsTrigger>
+                <TabsTrigger value="advanced">Calculator</TabsTrigger>
               </TabsList>
+              <TabsContent value="upi" className="mt-4">
+                <UpiPayment upiId="8280320550@axisb" />
+              </TabsContent>
               <TabsContent value="simple" className="mt-4">
                 <SimplePaymentForm gatewayStatus={gatewayStatus} />
               </TabsContent>
