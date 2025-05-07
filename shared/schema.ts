@@ -249,3 +249,50 @@ export type InsertCampaign = z.infer<typeof insertCampaignSchema>;
 
 export type CampaignResult = typeof campaignResults.$inferSelect;
 export type InsertCampaignResult = z.infer<typeof insertCampaignResultSchema>;
+
+// Ad Tracking
+export const adTrackers = pgTable("ad_trackers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  platform: text("platform").notNull(), // google, facebook, bing, etc.
+  campaignId: text("campaign_id").notNull(),
+  parameters: jsonb("parameters"), // UTM parameters and other tracking data
+  conversionGoal: text("conversion_goal").notNull(), // form_submission, service_request, etc.
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertAdTrackerSchema = createInsertSchema(adTrackers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Ad Tracking Hits
+export const adTrackerHits = pgTable("ad_tracker_hits", {
+  id: serial("id").primaryKey(),
+  trackerId: integer("tracker_id").notNull(),
+  sourcePlatform: text("source_platform").notNull(),
+  sourceUrl: text("source_url"),
+  pageUrl: text("page_url").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  deviceType: text("device_type"),
+  converted: boolean("converted").default(false),
+  conversionType: text("conversion_type"),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+  sessionId: text("session_id"),
+  extraData: jsonb("extra_data"),
+});
+
+export const insertAdTrackerHitSchema = createInsertSchema(adTrackerHits).omit({
+  id: true,
+  timestamp: true,
+});
+
+export type AdTracker = typeof adTrackers.$inferSelect;
+export type InsertAdTracker = z.infer<typeof insertAdTrackerSchema>;
+
+export type AdTrackerHit = typeof adTrackerHits.$inferSelect;
+export type InsertAdTrackerHit = z.infer<typeof insertAdTrackerHitSchema>;

@@ -106,6 +106,25 @@ export interface IStorage {
   getCampaignResultsCount(campaignId: number): Promise<number>;
   getCampaignOpenRate(campaignId: number): Promise<number>;
   getCampaignClickRate(campaignId: number): Promise<number>;
+  
+  // Ad Tracking operations
+  getAdTrackers(): Promise<AdTracker[]>;
+  getAdTrackerById(id: number): Promise<AdTracker | undefined>;
+  getAdTrackersByPlatform(platform: string): Promise<AdTracker[]>;
+  createAdTracker(tracker: InsertAdTracker): Promise<AdTracker>;
+  updateAdTracker(id: number, tracker: Partial<InsertAdTracker>): Promise<AdTracker | undefined>;
+  updateAdTrackerStatus(id: number, active: boolean): Promise<AdTracker | undefined>;
+  deleteAdTracker(id: number): Promise<boolean>;
+  
+  // Ad Tracker Hits operations
+  getAdTrackerHits(trackerId: number): Promise<AdTrackerHit[]>;
+  createAdTrackerHit(hit: InsertAdTrackerHit): Promise<AdTrackerHit>;
+  updateAdTrackerHitConversion(id: number, converted: boolean, conversionType?: string): Promise<AdTrackerHit | undefined>;
+  getAdTrackerHitsCount(trackerId: number): Promise<number>;
+  getAdTrackerConversionRate(trackerId: number): Promise<number>;
+  getAdTrackerHitsBySources(trackerId: number): Promise<Record<string, number>>;
+  getAdTrackerHitsByDeviceType(trackerId: number): Promise<Record<string, number>>;
+  deleteAdTrackerHit(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
