@@ -29,8 +29,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { 
   Sheet, 
-  SheetContent, 
-  SheetTrigger 
+  SheetContent,
+  SheetTrigger,
+  SheetClose
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -183,12 +184,14 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         <div className="relative z-10 flex h-16 bg-background shrink-0 border-b shadow-sm">
           <div className="flex justify-between flex-1 px-4 md:px-6">
             <div className="flex items-center md:hidden">
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="w-5 h-5" aria-hidden="true" />
-                  <span className="sr-only">Open sidebar</span>
-                </Button>
-              </SheetTrigger>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsMobileMenuOpen(true)}
+              >
+                <Menu className="w-5 h-5" aria-hidden="true" />
+                <span className="sr-only">Open sidebar</span>
+              </Button>
             </div>
             <div className="flex items-center justify-center md:justify-start">
               <h2 className="text-xl font-semibold text-foreground">{title}</h2>
