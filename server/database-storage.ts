@@ -173,22 +173,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getBlogPostsByCategory(category: string): Promise<BlogPost[]> {
-    // Note: This is a simplified approach since we're storing categories as an array
+    // Simplified for now - we'll fetch all and filter in JS
     // In a more sophisticated implementation, we'd use another table for categories with many-to-many relationship
-    // We'll use a simpler approach for arrays until we have more sophisticated query needs
-    return await db.select()
-      .from(blogPosts)
-      .where(blogPosts.categories.includes([category]))
-      .orderBy(desc(blogPosts.publishDate));
+    const posts = await db.select().from(blogPosts).orderBy(desc(blogPosts.publishDate));
+    return posts.filter(post => 
+      post.categories && post.categories.includes(category)
+    );
   }
 
   async getBlogPostsByTag(tag: string): Promise<BlogPost[]> {
     // Similar to categories, this is a simplified approach
-    const sql = SQL`${blogPosts.tags} ? ${tag}`;
-    return await db.select()
-      .from(blogPosts)
-      .where(sql)
-      .orderBy(desc(blogPosts.publishDate));
+    const posts = await db.select().from(blogPosts).orderBy(desc(blogPosts.publishDate));
+    return posts.filter(post => 
+      post.tags && post.tags.includes(tag)
+    );
   }
 
   async createBlogPost(insertPost: InsertBlogPost): Promise<BlogPost> {

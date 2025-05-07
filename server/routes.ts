@@ -13,6 +13,7 @@ import {
   sendPartnerApplicationNotification,
   sendHireRequestNotification
 } from "./email-service";
+import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API base prefix
