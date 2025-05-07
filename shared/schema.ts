@@ -320,3 +320,126 @@ export const insertTrackingSettingsSchema = createInsertSchema(trackingSettings)
 
 export type TrackingSettings = typeof trackingSettings.$inferSelect;
 export type InsertTrackingSettings = z.infer<typeof insertTrackingSettingsSchema>;
+
+// Marketing goals table
+export const marketingGoals = pgTable("marketing_goals", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // visits, conversions, rate, custom
+  target: integer("target").notNull(),
+  current: integer("current").default(0),
+  period: text("period").notNull(), // daily, weekly, monthly, quarterly, yearly, custom
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  trackerId: integer("tracker_id").references(() => adTrackers.id, { onDelete: "set null" }),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertMarketingGoalSchema = createInsertSchema(marketingGoals).omit({
+  id: true,
+  current: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Marketing activities table
+export const marketingActivities = pgTable("marketing_activities", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // campaign, social, email, content, other
+  description: text("description"),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  status: text("status").notNull(), // planned, in_progress, completed, cancelled
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertMarketingActivitySchema = createInsertSchema(marketingActivities).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// A/B Testing tables
+export const abTests = pgTable("ab_tests", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  type: text("type").notNull(), // landing, cta, headline, image, content, layout, color, custom
+  status: text("status").default("draft").notNull(), // draft, running, paused, completed
+  trackerId: integer("tracker_id").references(() => adTrackers.id, { onDelete: "set null" }),
+  pageUrl: text("page_url").notNull(),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  conversionMetric: text("conversion_metric").notNull(), // clicks, forms, signups, purchases, custom
+  targetSampleSize: integer("target_sample_size").default(1000),
+  minimumConfidence: integer("minimum_confidence").default(95),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertAbTestSchema = createInsertSchema(abTests).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const abTestVariants = pgTable("ab_test_variants", {
+  id: serial("id").primaryKey(),
+  testId: integer("test_id").notNull().references(() => abTests.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  description: text("description"),
+  isControl: boolean("is_control").default(false),
+  content: text("content"),
+  customProperties: jsonb("custom_properties"),
+  impressions: integer("impressions").default(0),
+  conversions: integer("conversions").default(0),
+  conversionRate: integer("conversion_rate").default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertAbTestVariantSchema = createInsertSchema(abTestVariants).omit({
+  id: true,
+  impressions: true,
+  conversions: true,
+  conversionRate: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const abTestHits = pgTable("ab_test_hits", {
+  id: serial("id").primaryKey(),
+  variantId: integer("variant_id").notNull().references(() => abTestVariants.id, { onDelete: "cascade" }),
+  sessionId: text("session_id").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  deviceType: text("device_type"),
+  converted: boolean("converted").default(false),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+});
+
+export const insertAbTestHitSchema = createInsertSchema(abTestHits).omit({
+  id: true,
+  timestamp: true,
+});
+
+// Type exports for new tables
+export type MarketingGoal = typeof marketingGoals.$inferSelect;
+export type InsertMarketingGoal = z.infer<typeof insertMarketingGoalSchema>;
+
+export type MarketingActivity = typeof marketingActivities.$inferSelect;
+export type InsertMarketingActivity = z.infer<typeof insertMarketingActivitySchema>;
+
+export type ABTest = typeof abTests.$inferSelect;
+export type InsertABTest = z.infer<typeof insertAbTestSchema>;
+
+export type ABTestVariant = typeof abTestVariants.$inferSelect;
+export type InsertABTestVariant = z.infer<typeof insertAbTestVariantSchema>;
+
+export type ABTestHit = typeof abTestHits.$inferSelect;
+export type InsertABTestHit = z.infer<typeof insertAbTestHitSchema>;
