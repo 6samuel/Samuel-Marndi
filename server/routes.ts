@@ -251,15 +251,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = partnerFormSchema.parse(req.body);
       
+      // Store in database
+      const partnerApplication = await storage.createPartnerApplication(validatedData);
+      
       // Send email notification
       await sendPartnerApplicationNotification(validatedData);
       
       res.status(201).json({ 
         message: "Partnership application received",
-        success: true 
+        success: true,
+        partnerApplication
       });
     } catch (error) {
       handleValidationError(error, res);
+    }
+  });
+  
+  // Get all partner applications (admin only)
+  app.get(`${apiRoute}/partner-applications`, isAdmin, async (req, res) => {
+    try {
+      const applications = await storage.getPartnerApplications();
+      res.json(applications);
+    } catch (error) {
+      console.error('Error getting partner applications:', error);
+      res.status(500).json({ error: 'Failed to retrieve partner applications' });
     }
   });
   

@@ -5,7 +5,8 @@ import {
   testimonials, Testimonial, InsertTestimonial,
   blogPosts, BlogPost, InsertBlogPost,
   contactSubmissions, ContactSubmission, InsertContactSubmission,
-  serviceRequests, ServiceRequest, InsertServiceRequest
+  serviceRequests, ServiceRequest, InsertServiceRequest,
+  partnerApplications, PartnerApplication, InsertPartnerApplication
 } from "@shared/schema";
 import { sampleData } from "./sample-data";
 
@@ -67,6 +68,13 @@ export interface IStorage {
   createServiceRequest(request: InsertServiceRequest): Promise<ServiceRequest>;
   updateServiceRequestStatus(id: number, status: string): Promise<ServiceRequest | undefined>;
   deleteServiceRequest(id: number): Promise<boolean>;
+  
+  // Partner applications operations
+  getPartnerApplications(): Promise<PartnerApplication[]>;
+  getPartnerApplicationById(id: number): Promise<PartnerApplication | undefined>;
+  createPartnerApplication(application: InsertPartnerApplication): Promise<PartnerApplication>;
+  updatePartnerApplicationStatus(id: number, status: string): Promise<PartnerApplication | undefined>;
+  deletePartnerApplication(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -77,6 +85,7 @@ export class MemStorage implements IStorage {
   private blogPosts: Map<number, BlogPost>;
   private contactSubmissions: Map<number, ContactSubmission>;
   private serviceRequests: Map<number, ServiceRequest>;
+  private partnerApplications: Map<number, PartnerApplication>;
   
   private userId: number = 1;
   private serviceId: number = 1;
@@ -85,6 +94,7 @@ export class MemStorage implements IStorage {
   private blogPostId: number = 1;
   private contactSubmissionId: number = 1;
   private serviceRequestId: number = 1;
+  private partnerApplicationId: number = 1;
 
   constructor() {
     this.users = new Map();
