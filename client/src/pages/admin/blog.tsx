@@ -12,9 +12,30 @@ export default function AdminBlog() {
 
   // Fetch blog posts
   const { data: blogPosts = [] } = useQuery<BlogPost[]>({
-    queryKey: ["/api/posts"],
+    queryKey: ["/api/blog"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/blog", {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch blog posts: ${response.statusText}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching blog posts:", error);
+        return [];
+      }
+    },
     staleTime: 60 * 1000, // 1 minute
-    onSettled: () => setIsLoading(false)
+    onSuccess: () => setIsLoading(false),
+    onError: () => setIsLoading(false)
   });
 
   return (

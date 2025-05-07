@@ -33,7 +33,8 @@ export default function AdminServices() {
       }
     },
     staleTime: 60 * 1000, // 1 minute
-    onSettled: () => setIsLoading(false)
+    onSuccess: () => setIsLoading(false),
+    onError: () => setIsLoading(false)
   });
 
   return (
