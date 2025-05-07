@@ -70,6 +70,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Portfolio endpoints
+  app.get(`${apiRoute}/portfolio-items`, async (_req, res) => {
+    try {
+      const portfolioItems = await storage.getPortfolioItems();
+      res.json(portfolioItems);
+    } catch (error) {
+      console.error("Error fetching portfolio items:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio items" });
+    }
+  });
+  
+  // For backwards compatibility
   app.get(`${apiRoute}/portfolio`, async (_req, res) => {
     try {
       const portfolioItems = await storage.getPortfolioItems();
