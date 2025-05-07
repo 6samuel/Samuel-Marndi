@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Code, BarChart2, Palette } from "lucide-react";
+import { ArrowRight, Code, BarChart2, Palette, Brain, Smartphone, Link2 } from "lucide-react";
 
 const HeroSection = () => {
   const [currentWord, setCurrentWord] = useState(0);
-  const words = ["Websites", "Brands", "Experiences", "Solutions"];
-  const colors = ["#3b82f6", "#10b981", "#6366f1", "#f97316"];
+  const words = ["Websites", "Apps", "AI Solutions", "E-commerce", "Experiences"];
+  const colors = ["#3b82f6", "#10b981", "#6366f1", "#f97316", "#8b5cf6"];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -92,7 +92,8 @@ const HeroSection = () => {
               variants={itemVariants}
             >
               Hi, I'm Samuel Marndi. I help businesses establish a powerful online presence through 
-              custom web development and strategic digital marketing solutions.
+              fast, reliable, and cutting-edge web development, AI integration, mobile apps, and strategic 
+              digital marketing solutions for all project sizes and budgets.
             </motion.p>
             
             <motion.div 
@@ -185,6 +186,33 @@ const HeroSection = () => {
                     <Palette className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <span className="font-medium">UI/UX Design</span>
+                </div>
+              </div>
+              
+              <div className="absolute top-1/3 -translate-y-1/2 -left-8 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20 hidden md:block">
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
+                    <Brain className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <span className="font-medium">AI Integration</span>
+                </div>
+              </div>
+              
+              <div className="absolute bottom-1/3 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20 hidden md:block">
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full">
+                    <Smartphone className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <span className="font-medium">Mobile Apps</span>
+                </div>
+              </div>
+              
+              <div className="absolute top-2/3 right-1/2 translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20 hidden md:block">
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="p-2 bg-sky-100 dark:bg-sky-900 rounded-full">
+                    <Link2 className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                  </div>
+                  <span className="font-medium">API Integration</span>
                 </div>
               </div>
             </div>
