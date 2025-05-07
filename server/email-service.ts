@@ -1,203 +1,262 @@
-import { MailService } from '@sendgrid/mail';
-import { InsertContactSubmission, InsertServiceRequest } from '../shared/schema';
+import nodemailer from 'nodemailer';
+import twilio from 'twilio';
+import type { InsertContactSubmission, InsertServiceRequest } from '@shared/schema';
 
-// Initialize SendGrid client
-const mailService = new MailService();
+// Brevo (formerly Sendinblue) SMTP configuration - has generous free tier (300 emails/day)
+// You can also use other services like Gmail or Zoho Mail by changing these settings
+const createTransporter = () => {
+  // Default config for Brevo SMTP
+  const host = process.env.EMAIL_HOST || 'smtp-relay.brevo.com';
+  const port = parseInt(process.env.EMAIL_PORT || '587');
+  const user = process.env.EMAIL_USER || '';
+  const pass = process.env.EMAIL_PASS || '';
 
-// Check if SendGrid API key is set
-if (process.env.SENDGRID_API_KEY) {
-  mailService.setApiKey(process.env.SENDGRID_API_KEY);
-} else {
-  console.warn('SENDGRID_API_KEY not set. Email notifications will not be sent.');
+  if (!user || !pass) {
+    console.warn('Email credentials not set. Email notifications will not work.');
+    // Return a dummy transporter for development
+    return {
+      sendMail: async () => {
+        console.log('Email would be sent here if credentials were configured');
+        return true;
+      }
+    };
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    auth: { user, pass },
+    secure: false, // true for 465, false for other ports
+  });
+};
+
+const transporter = createTransporter();
+
+// Initialize Twilio
+const getTwilioClient = () => {
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+    console.warn('Twilio credentials not set. SMS functionality will not work.');
+    return null;
+  }
+  return twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+};
+
+// Admin email address
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'samuelmarandi6@gmail.com';
+const ADMIN_PHONE = process.env.ADMIN_PHONE || '+918280320550';
+const SITE_NAME = 'Samuel Marndi - Web Developer & Digital Marketer';
+
+// Send email using Brevo/Sendinblue SMTP
+export async function sendEmail(
+  to: string, 
+  subject: string, 
+  html: string, 
+  text?: string
+): Promise<boolean> {
+  try {
+    await transporter.sendMail({
+      from: `${SITE_NAME} <noreply@samuelmarndi.in>`,
+      to,
+      subject,
+      html,
+      text: text || ''
+    });
+    return true;
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    return false;
+  }
 }
 
-// Recipient email address (Samuel's email)
-const RECIPIENT_EMAIL = 'samuelmarandi6@gmail.com';
-const SENDER_EMAIL = 'noreply@samuelmarndi.in'; // Replace with your actual domain
+// Send SMS using Twilio
+export async function sendSMS(to: string, message: string): Promise<boolean> {
+  try {
+    const client = getTwilioClient();
+    if (!client) return false;
+    
+    await client.messages.create({
+      body: message,
+      from: process.env.TWILIO_PHONE_NUMBER || '',
+      to
+    });
+    return true;
+  } catch (error) {
+    console.error('Failed to send SMS:', error);
+    return false;
+  }
+}
 
-// Function to send contact form submission notification
+// Send notification to admin when contact form submitted
 export async function sendContactNotification(submission: InsertContactSubmission): Promise<boolean> {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('SENDGRID_API_KEY not set. Email notification not sent for contact submission.');
-    return false;
-  }
+  const subject = `New Contact Form Submission: ${submission.subject || 'No Subject'}`;
+  const html = `
+    <h2>New Contact Form Submission</h2>
+    <p><strong>Name:</strong> ${submission.name}</p>
+    <p><strong>Email:</strong> ${submission.email}</p>
+    <p><strong>Phone:</strong> ${submission.phone || 'Not provided'}</p>
+    <p><strong>Service Interest:</strong> ${submission.serviceInterest || 'Not specified'}</p>
+    <p><strong>Source:</strong> ${submission.source || 'Website'}</p>
+    <p><strong>Subject:</strong> ${submission.subject || 'No subject'}</p>
+    <p><strong>Message:</strong></p>
+    <p>${submission.message}</p>
+  `;
 
-  try {
-    const phoneInfo = submission.phone ? `Phone: ${submission.phone}` : 'Phone: Not provided';
-    
-    await mailService.send({
-      to: RECIPIENT_EMAIL,
-      from: SENDER_EMAIL,
-      subject: `New Contact Form Submission: ${submission.subject || 'General Inquiry'}`,
-      html: `
-        <h2>You have a new contact form submission</h2>
-        <p><strong>Name:</strong> ${submission.name}</p>
-        <p><strong>Email:</strong> ${submission.email}</p>
-        <p><strong>${phoneInfo}</strong></p>
-        <p><strong>Subject:</strong> ${submission.subject || 'Not specified'}</p>
-        <p><strong>Service Interest:</strong> ${submission.serviceInterest || 'Not specified'}</p>
-        <p><strong>Source:</strong> ${submission.source || 'Direct website visit'}</p>
-        <h3>Message:</h3>
-        <p>${submission.message.replace(/\n/g, '<br>')}</p>
-        <hr>
-        <p><em>This is an automated notification from your website.</em></p>
-      `,
-    });
-    
-    console.log('Contact form submission notification email sent successfully');
-    return true;
-  } catch (error) {
-    console.error('Failed to send contact form notification email:', error);
-    return false;
-  }
+  // Also send SMS notification
+  const smsText = `New contact from ${submission.name}. Subject: ${submission.subject || 'None'}. Please check your dashboard.`;
+  sendSMS(ADMIN_PHONE, smsText).catch(console.error);
+
+  return sendEmail(ADMIN_EMAIL, subject, html);
 }
 
-// Function to send service request notification
+// Send notification to admin when service request submitted
 export async function sendServiceRequestNotification(request: InsertServiceRequest): Promise<boolean> {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('SENDGRID_API_KEY not set. Email notification not sent for service request.');
-    return false;
-  }
+  const subject = `New Service Request: ${request.projectDescription.substring(0, 30)}...`;
+  const html = `
+    <h2>New Service Request Submission</h2>
+    <p><strong>Name:</strong> ${request.name}</p>
+    <p><strong>Email:</strong> ${request.email}</p>
+    <p><strong>Phone:</strong> ${request.phone || 'Not provided'}</p>
+    <p><strong>Company:</strong> ${request.company || 'Not provided'}</p>
+    <p><strong>Service ID:</strong> ${request.serviceId}</p>
+    <p><strong>Budget:</strong> ${request.budget || 'Not specified'}</p>
+    <p><strong>Timeline:</strong> ${request.timeline || 'Not specified'}</p>
+    <p><strong>Project Description:</strong></p>
+    <p>${request.projectDescription}</p>
+  `;
 
-  try {
-    const phoneInfo = request.phone ? `Phone: ${request.phone}` : 'Phone: Not provided';
-    const companyInfo = request.company ? `Company: ${request.company}` : 'Company: Not provided';
-    const budgetInfo = request.budget ? `Budget: ${request.budget}` : 'Budget: Not specified';
-    const timelineInfo = request.timeline ? `Timeline: ${request.timeline}` : 'Timeline: Not specified';
-    
-    await mailService.send({
-      to: RECIPIENT_EMAIL,
-      from: SENDER_EMAIL,
-      subject: `New Service Request: Service ID #${request.serviceId}`,
-      html: `
-        <h2>You have a new service request</h2>
-        <p><strong>Name:</strong> ${request.name}</p>
-        <p><strong>Email:</strong> ${request.email}</p>
-        <p><strong>${phoneInfo}</strong></p>
-        <p><strong>${companyInfo}</strong></p>
-        <p><strong>Service ID:</strong> ${request.serviceId}</p>
-        <p><strong>${budgetInfo}</strong></p>
-        <p><strong>${timelineInfo}</strong></p>
-        <h3>Project Description:</h3>
-        <p>${request.projectDescription.replace(/\n/g, '<br>')}</p>
-        <hr>
-        <p><em>This is an automated notification from your website.</em></p>
-      `,
-    });
-    
-    console.log('Service request notification email sent successfully');
-    return true;
-  } catch (error) {
-    console.error('Failed to send service request notification email:', error);
-    return false;
-  }
+  // Also send SMS notification
+  const smsText = `New service request from ${request.name}. Please check your dashboard.`;
+  sendSMS(ADMIN_PHONE, smsText).catch(console.error);
+
+  return sendEmail(ADMIN_EMAIL, subject, html);
 }
 
-// Function to send partner application notification
-export async function sendPartnerApplicationNotification(
-  partnerData: {
-    companyName: string;
-    contactName: string;
-    email: string;
-    phone?: string;
-    website?: string;
-    businessType: string;
-    services: string;
-    expectations: string;
-  }
+// Reply to contact submissions
+export async function sendContactReply(
+  submission: { id: number; name: string; email: string },
+  subject: string,
+  message: string
 ): Promise<boolean> {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('SENDGRID_API_KEY not set. Email notification not sent for partner application.');
-    return false;
-  }
+  const html = `
+    <h2>Hello ${submission.name},</h2>
+    <p>${message}</p>
+    <p>Best regards,</p>
+    <p>Samuel Marndi</p>
+    <p><small>This is in response to your contact form submission.</small></p>
+  `;
 
-  try {
-    const phoneInfo = partnerData.phone ? `Phone: ${partnerData.phone}` : 'Phone: Not provided';
-    const websiteInfo = partnerData.website ? `Website: ${partnerData.website}` : 'Website: Not provided';
-    
-    await mailService.send({
-      to: RECIPIENT_EMAIL,
-      from: SENDER_EMAIL,
-      subject: `New Partnership Application: ${partnerData.companyName}`,
-      html: `
-        <h2>You have a new partnership application</h2>
-        <p><strong>Company Name:</strong> ${partnerData.companyName}</p>
-        <p><strong>Contact Name:</strong> ${partnerData.contactName}</p>
-        <p><strong>Email:</strong> ${partnerData.email}</p>
-        <p><strong>${phoneInfo}</strong></p>
-        <p><strong>${websiteInfo}</strong></p>
-        <p><strong>Business Type:</strong> ${partnerData.businessType}</p>
-        <h3>Services Interested In:</h3>
-        <p>${partnerData.services.replace(/\n/g, '<br>')}</p>
-        <h3>Partnership Expectations:</h3>
-        <p>${partnerData.expectations.replace(/\n/g, '<br>')}</p>
-        <hr>
-        <p><em>This is an automated notification from your website.</em></p>
-      `,
-    });
-    
-    console.log('Partner application notification email sent successfully');
-    return true;
-  } catch (error) {
-    console.error('Failed to send partner application notification email:', error);
-    return false;
-  }
+  return sendEmail(submission.email, subject, html);
 }
 
-// Function to send hire request notification
-export async function sendHireRequestNotification(
-  hireData: {
-    name: string;
-    email: string;
-    phone?: string;
-    company?: string;
-    projectType: string;
-    engagementType: string;
-    servicesNeeded: string;
-    budget?: string;
-    timeframe?: string;
-    additionalInfo?: string;
-  }
-): Promise<boolean> {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('SENDGRID_API_KEY not set. Email notification not sent for hire request.');
-    return false;
+// Send email campaign to a list of recipients
+export async function sendCampaignEmail(
+  recipients: { email: string; name: string }[],
+  subject: string,
+  campaignHtml: string
+): Promise<{ success: number; failed: number }> {
+  let successCount = 0;
+  let failedCount = 0;
+
+  // Process in batches to avoid rate limits
+  const batchSize = 10;
+  for (let i = 0; i < recipients.length; i += batchSize) {
+    const batch = recipients.slice(i, i + batchSize);
+    
+    const results = await Promise.all(
+      batch.map(recipient => {
+        const personalized = campaignHtml.replace(/{{name}}/g, recipient.name);
+        return sendEmail(recipient.email, subject, personalized);
+      })
+    );
+    
+    successCount += results.filter(Boolean).length;
+    failedCount += results.filter(result => !result).length;
+    
+    // Pause between batches to avoid hitting rate limits
+    if (i + batchSize < recipients.length) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
   }
 
-  try {
-    const phoneInfo = hireData.phone ? `Phone: ${hireData.phone}` : 'Phone: Not provided';
-    const companyInfo = hireData.company ? `Company: ${hireData.company}` : 'Company: Not provided';
-    const budgetInfo = hireData.budget ? `Budget: ${hireData.budget}` : 'Budget: Not specified';
-    const timeframeInfo = hireData.timeframe ? `Timeframe: ${hireData.timeframe}` : 'Timeframe: Not specified';
-    const additionalInfo = hireData.additionalInfo ? 
-      `<h3>Additional Information:</h3><p>${hireData.additionalInfo.replace(/\n/g, '<br>')}</p>` : '';
+  return { success: successCount, failed: failedCount };
+}
+
+// Send a bulk SMS campaign
+export async function sendCampaignSMS(
+  recipients: { phone: string; name: string }[],
+  messageTemplate: string
+): Promise<{ success: number; failed: number }> {
+  let successCount = 0;
+  let failedCount = 0;
+  
+  const client = getTwilioClient();
+  if (!client) return { success: 0, failed: recipients.length };
+
+  // Process in batches to avoid rate limits
+  const batchSize = 5;
+  for (let i = 0; i < recipients.length; i += batchSize) {
+    const batch = recipients.slice(i, i + batchSize);
     
-    await mailService.send({
-      to: RECIPIENT_EMAIL,
-      from: SENDER_EMAIL,
-      subject: `New Hire Request: ${hireData.engagementType} - ${hireData.projectType}`,
-      html: `
-        <h2>You have a new hire request</h2>
-        <p><strong>Name:</strong> ${hireData.name}</p>
-        <p><strong>Email:</strong> ${hireData.email}</p>
-        <p><strong>${phoneInfo}</strong></p>
-        <p><strong>${companyInfo}</strong></p>
-        <p><strong>Project Type:</strong> ${hireData.projectType}</p>
-        <p><strong>Engagement Type:</strong> ${hireData.engagementType}</p>
-        <p><strong>${budgetInfo}</strong></p>
-        <p><strong>${timeframeInfo}</strong></p>
-        <h3>Services Needed:</h3>
-        <p>${hireData.servicesNeeded.replace(/\n/g, '<br>')}</p>
-        ${additionalInfo}
-        <hr>
-        <p><em>This is an automated notification from your website.</em></p>
-      `,
-    });
+    const results = await Promise.all(
+      batch.map(recipient => {
+        const personalized = messageTemplate.replace(/{{name}}/g, recipient.name);
+        return sendSMS(recipient.phone, personalized);
+      })
+    );
     
-    console.log('Hire request notification email sent successfully');
-    return true;
-  } catch (error) {
-    console.error('Failed to send hire request notification email:', error);
-    return false;
+    successCount += results.filter(Boolean).length;
+    failedCount += results.filter(result => !result).length;
+    
+    // Pause between batches to avoid hitting rate limits
+    if (i + batchSize < recipients.length) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   }
+
+  return { success: successCount, failed: failedCount };
+}
+
+// Send notification for partner application submissions
+export async function sendPartnerApplicationNotification(application: any): Promise<boolean> {
+  const subject = `New Partner Application from ${application.name}`;
+  const html = `
+    <h2>New Partner Application</h2>
+    <p><strong>Name:</strong> ${application.name}</p>
+    <p><strong>Email:</strong> ${application.email}</p>
+    <p><strong>Phone:</strong> ${application.phone || 'Not provided'}</p>
+    <p><strong>Company:</strong> ${application.company || 'Not provided'}</p>
+    <p><strong>Website:</strong> ${application.website || 'Not provided'}</p>
+    <p><strong>Partnership Type:</strong> ${application.partnershipType || 'Not specified'}</p>
+    <p><strong>Message:</strong></p>
+    <p>${application.message}</p>
+  `;
+
+  // Also send SMS notification
+  const smsText = `New partner application from ${application.name}. Please check your dashboard.`;
+  sendSMS(ADMIN_PHONE, smsText).catch(console.error);
+
+  return sendEmail(ADMIN_EMAIL, subject, html);
+}
+
+// Send notification for hire/job requests
+export async function sendHireRequestNotification(request: any): Promise<boolean> {
+  const subject = `New Hire Request from ${request.name}`;
+  const html = `
+    <h2>New Hire/Job Request</h2>
+    <p><strong>Name:</strong> ${request.name}</p>
+    <p><strong>Email:</strong> ${request.email}</p>
+    <p><strong>Phone:</strong> ${request.phone || 'Not provided'}</p>
+    <p><strong>Company:</strong> ${request.company || 'Not provided'}</p>
+    <p><strong>Position:</strong> ${request.position || 'Not specified'}</p>
+    <p><strong>Budget:</strong> ${request.budget || 'Not specified'}</p>
+    <p><strong>Timeline:</strong> ${request.timeline || 'Not specified'}</p>
+    <p><strong>Project Details:</strong></p>
+    <p>${request.details}</p>
+  `;
+
+  // Also send SMS notification
+  const smsText = `New hire request from ${request.name}. Please check your dashboard.`;
+  sendSMS(ADMIN_PHONE, smsText).catch(console.error);
+
+  return sendEmail(ADMIN_EMAIL, subject, html);
 }
