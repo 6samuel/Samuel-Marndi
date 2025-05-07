@@ -1,13 +1,20 @@
-import { useState } from "react";
-import { useAuth } from "@/hooks/use-auth";
-import { Redirect, Link } from "wouter";
+import { useState, useEffect } from "react";
+import { useAuth, LoginData } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Helmet } from "react-helmet-async";
 
-// UI Components
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -20,17 +27,22 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 
 const loginSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-export default function AdminLoginPage() {
+export default function AdminLogin() {
   const { user, loginMutation } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [location, navigate] = useLocation();
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      navigate("/admin/dashboard");
+    }
+  }, [user, navigate]);
 
-  const form = useForm<LoginFormValues>({
+  const form = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       username: "",
@@ -38,125 +50,105 @@ export default function AdminLoginPage() {
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setIsSubmitting(true);
-    try {
-      await loginMutation.mutateAsync(data);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // If user is already authenticated and is an admin, redirect to admin dashboard
-  if (user && user.role === "admin") {
-    return <Redirect to="/admin/dashboard" />;
-  }
-
-  // If user is authenticated but not an admin, redirect to home
-  if (user && user.role !== "admin") {
-    return <Redirect to="/" />;
+  function onSubmit(data: LoginData) {
+    loginMutation.mutate(data);
   }
 
   return (
     <>
       <Helmet>
         <title>Admin Login | Samuel Marndi</title>
-        <meta name="description" content="Admin panel login for Samuel Marndi's freelance services website" />
+        <meta name="description" content="Secure admin panel login for Samuel Marndi's website management." />
       </Helmet>
-      <div className="flex min-h-screen bg-background">
-        <div className="flex flex-col justify-center w-full px-4 sm:w-1/2 sm:px-6 lg:px-8 xl:px-12">
-          <div className="w-full max-w-md mx-auto space-y-6">
-            <div className="space-y-2 text-center">
-              <h1 className="text-3xl font-bold tracking-tight">Admin Login</h1>
-              <p className="text-muted-foreground">
-                Enter your credentials to access the admin dashboard
-              </p>
-            </div>
-
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username</FormLabel>
-                      <FormControl>
-                        <Input placeholder="admin" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Logging in...
-                    </>
-                  ) : (
-                    "Login"
-                  )}
-                </Button>
-              </form>
-            </Form>
-
-            <div className="mt-4 text-center">
-              <Link
-                to="/"
-                className="text-sm text-muted-foreground hover:text-primary"
-              >
-                ← Back to website
-              </Link>
-            </div>
+      
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <img 
+              src="/logo.png" 
+              alt="Samuel Marndi Logo" 
+              className="h-16 w-auto mx-auto mb-4" 
+            />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Admin Dashboard
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Sign in to manage your website
+            </p>
           </div>
-        </div>
-
-        <div className="hidden sm:block sm:w-1/2 bg-gradient-to-br from-primary/10 to-secondary/10">
-          <div className="flex flex-col items-center justify-center h-full p-8">
-            <div className="w-full max-w-md px-8 py-12 space-y-4 bg-background/80 backdrop-blur-sm rounded-xl">
-              <h2 className="text-2xl font-bold text-center">Admin Dashboard</h2>
-              <p className="text-center text-muted-foreground">
-                Manage your website content, forms, and track marketing performance
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">Sign In</CardTitle>
+              <CardDescription>
+                Enter your credentials to access the admin area
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter your username" 
+                            type="text" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter your password" 
+                            type="password" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={loginMutation.isPending}
+                  >
+                    {loginMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing in...
+                      </>
+                    ) : (
+                      "Sign In"
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+            <CardFooter className="flex flex-col">
+              <p className="text-xs text-gray-500 text-center mt-2">
+                This is a secured area. Unauthorized access will be monitored and logged.
               </p>
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="p-4 space-y-2 rounded-lg bg-accent/50">
-                  <h3 className="font-medium">Forms</h3>
-                  <p className="text-sm text-muted-foreground">Manage contact form submissions</p>
-                </div>
-                <div className="p-4 space-y-2 rounded-lg bg-accent/50">
-                  <h3 className="font-medium">Content</h3>
-                  <p className="text-sm text-muted-foreground">Edit services, portfolio, and blog</p>
-                </div>
-                <div className="p-4 space-y-2 rounded-lg bg-accent/50">
-                  <h3 className="font-medium">Marketing</h3>
-                  <p className="text-sm text-muted-foreground">Track ad campaigns and conversions</p>
-                </div>
-                <div className="p-4 space-y-2 rounded-lg bg-accent/50">
-                  <h3 className="font-medium">Email</h3>
-                  <p className="text-sm text-muted-foreground">Send campaigns and newsletters</p>
-                </div>
-              </div>
-            </div>
+            </CardFooter>
+          </Card>
+          
+          <div className="text-center mt-6">
+            <Button variant="ghost" onClick={() => navigate("/")}>
+              Return to Website
+            </Button>
           </div>
         </div>
       </div>
