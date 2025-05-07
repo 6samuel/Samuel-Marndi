@@ -11,7 +11,9 @@ import {
   partnerApplications, PartnerApplication, InsertPartnerApplication,
   campaigns, Campaign, InsertCampaign,
   recipients, Recipient, InsertRecipient,
-  campaignResults, CampaignResult, InsertCampaignResult
+  campaignResults, CampaignResult, InsertCampaignResult,
+  adTrackers, AdTracker, InsertAdTracker,
+  adTrackerHits, AdTrackerHit, InsertAdTrackerHit
 } from "@shared/schema";
 import { IStorage } from "./storage";
 
@@ -561,5 +563,147 @@ export class DatabaseStorage implements IStorage {
     
     const clickedCount = results.filter(r => r.clickedAt !== null).length;
     return Math.round((clickedCount / results.length) * 100);
+  }
+
+  // Ad Tracking operations
+  async getAdTrackers(): Promise<AdTracker[]> {
+    return await db.select()
+      .from(adTrackers)
+      .orderBy(desc(adTrackers.createdAt));
+  }
+
+  async getAdTrackerById(id: number): Promise<AdTracker | undefined> {
+    const [tracker] = await db
+      .select()
+      .from(adTrackers)
+      .where(eq(adTrackers.id, id));
+    return tracker;
+  }
+
+  async getAdTrackersByPlatform(platform: string): Promise<AdTracker[]> {
+    return await db
+      .select()
+      .from(adTrackers)
+      .where(eq(adTrackers.platform, platform))
+      .orderBy(desc(adTrackers.createdAt));
+  }
+
+  async createAdTracker(insertTracker: InsertAdTracker): Promise<AdTracker> {
+    const [tracker] = await db
+      .insert(adTrackers)
+      .values({
+        ...insertTracker,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return tracker;
+  }
+
+  async updateAdTracker(id: number, trackerData: Partial<InsertAdTracker>): Promise<AdTracker | undefined> {
+    const [tracker] = await db
+      .update(adTrackers)
+      .set({
+        ...trackerData,
+        updatedAt: new Date()
+      })
+      .where(eq(adTrackers.id, id))
+      .returning();
+    return tracker;
+  }
+
+  async updateAdTrackerStatus(id: number, active: boolean): Promise<AdTracker | undefined> {
+    const [tracker] = await db
+      .update(adTrackers)
+      .set({
+        active,
+        updatedAt: new Date()
+      })
+      .where(eq(adTrackers.id, id))
+      .returning();
+    return tracker;
+  }
+
+  async deleteAdTracker(id: number): Promise<boolean> {
+    const result = await db
+      .delete(adTrackers)
+      .where(eq(adTrackers.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+  
+  // Ad Tracker Hits operations
+  async getAdTrackerHits(trackerId: number): Promise<AdTrackerHit[]> {
+    return await db
+      .select()
+      .from(adTrackerHits)
+      .where(eq(adTrackerHits.trackerId, trackerId))
+      .orderBy(desc(adTrackerHits.timestamp));
+  }
+
+  async createAdTrackerHit(insertHit: InsertAdTrackerHit): Promise<AdTrackerHit> {
+    const [hit] = await db
+      .insert(adTrackerHits)
+      .values({
+        ...insertHit,
+        timestamp: new Date()
+      })
+      .returning();
+    return hit;
+  }
+
+  async updateAdTrackerHitConversion(id: number, converted: boolean, conversionType?: string): Promise<AdTrackerHit | undefined> {
+    const [hit] = await db
+      .update(adTrackerHits)
+      .set({
+        converted,
+        conversionType: conversionType || null
+      })
+      .where(eq(adTrackerHits.id, id))
+      .returning();
+    return hit;
+  }
+
+  async getAdTrackerHitsCount(trackerId: number): Promise<number> {
+    const hits = await this.getAdTrackerHits(trackerId);
+    return hits.length;
+  }
+
+  async getAdTrackerConversionRate(trackerId: number): Promise<number> {
+    const hits = await this.getAdTrackerHits(trackerId);
+    if (hits.length === 0) return 0;
+    
+    const conversionCount = hits.filter(hit => hit.converted).length;
+    return Math.floor((conversionCount / hits.length) * 100);
+  }
+
+  async getAdTrackerHitsBySources(trackerId: number): Promise<Record<string, number>> {
+    const hits = await this.getAdTrackerHits(trackerId);
+    const sourceCounts: Record<string, number> = {};
+    
+    hits.forEach(hit => {
+      const source = hit.sourcePlatform;
+      sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+    });
+    
+    return sourceCounts;
+  }
+
+  async getAdTrackerHitsByDeviceType(trackerId: number): Promise<Record<string, number>> {
+    const hits = await this.getAdTrackerHits(trackerId);
+    const deviceCounts: Record<string, number> = {};
+    
+    hits.forEach(hit => {
+      const deviceType = hit.deviceType || 'unknown';
+      deviceCounts[deviceType] = (deviceCounts[deviceType] || 0) + 1;
+    });
+    
+    return deviceCounts;
+  }
+
+  async deleteAdTrackerHit(id: number): Promise<boolean> {
+    const result = await db
+      .delete(adTrackerHits)
+      .where(eq(adTrackerHits.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
   }
 }
