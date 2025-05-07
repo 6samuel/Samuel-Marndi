@@ -99,7 +99,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex items-center justify-between px-4 py-4 border-b dark:border-gray-700">
             <Link href="/admin/dashboard" className="flex items-center">
               <img
-                src="/logo.png"
+                src="/images/logo-text.png"
                 alt="Samuel Marndi Logo"
                 className="h-8 w-auto"
               />
@@ -188,7 +188,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
             <div className="flex items-center space-x-2 lg:hidden">
               <img
-                src="/logo.png"
+                src="/images/logo-text.png"
                 alt="Samuel Marndi Logo"
                 className="h-8 w-auto"
               />
