@@ -4,6 +4,11 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/lib/protected-route";
+import { HelmetProvider } from "react-helmet-async";
+
+// Pages
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import About from "@/pages/about";
@@ -18,6 +23,8 @@ import BlogPost from "@/pages/blog-post";
 import Contact from "@/pages/contact";
 import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
+
+// Layout components
 import SiteHeader from "@/components/layouts/site-header";
 import SiteFooter from "@/components/layouts/site-footer";
 import WhatsAppButton from "@/components/ui/whatsapp-button";
@@ -27,12 +34,8 @@ function Router() {
     <div className="flex flex-col min-h-screen">
       <Switch>
         {/* Admin routes - without the header/footer */}
-        <Route path="/admin/login">
-          <AdminLogin />
-        </Route>
-        <Route path="/admin/dashboard">
-          <AdminDashboard />
-        </Route>
+        <Route path="/admin/login" component={AdminLogin} />
+        <ProtectedRoute path="/admin/dashboard" component={AdminDashboard} adminOnly />
         
         {/* Regular site routes - with header/footer */}
         <Route>
@@ -64,12 +67,16 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="sm-theme">
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ThemeProvider>
+      <HelmetProvider>
+        <AuthProvider>
+          <ThemeProvider defaultTheme="light" storageKey="sm-theme">
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </HelmetProvider>
     </QueryClientProvider>
   );
 }
