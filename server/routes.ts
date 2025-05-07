@@ -3,7 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
   insertServiceRequestSchema, 
-  insertContactSubmissionSchema 
+  insertContactSubmissionSchema,
+  insertCampaignSchema,
+  insertRecipientSchema
 } from "@shared/schema";
 import { ZodError, z } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -564,6 +566,357 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error sending reply:", error);
       res.status(500).json({ message: "Failed to send reply" });
+    }
+  });
+
+  // Campaign Management API endpoints
+  // All campaign endpoints are protected with admin authentication
+  
+  // Get all campaigns
+  app.get(`${apiRoute}/campaigns`, isAuthenticated, isAdmin, async (_req, res) => {
+    try {
+      const campaigns = await storage.getCampaigns();
+      res.json(campaigns);
+    } catch (error) {
+      console.error("Error fetching campaigns:", error);
+      res.status(500).json({ message: "Failed to fetch campaigns" });
+    }
+  });
+
+  // Get campaigns by type (email or SMS)
+  app.get(`${apiRoute}/campaigns/type/:type`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { type } = req.params;
+      if (!type || (type !== 'email' && type !== 'sms')) {
+        return res.status(400).json({ message: "Invalid campaign type. Must be 'email' or 'sms'" });
+      }
+      
+      const campaigns = await storage.getCampaignsByType(type);
+      res.json(campaigns);
+    } catch (error) {
+      console.error(`Error fetching ${req.params.type} campaigns:`, error);
+      res.status(500).json({ message: `Failed to fetch ${req.params.type} campaigns` });
+    }
+  });
+
+  // Get campaign by ID
+  app.get(`${apiRoute}/campaigns/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const campaign = await storage.getCampaignById(id);
+      if (!campaign) {
+        return res.status(404).json({ message: "Campaign not found" });
+      }
+      
+      res.json(campaign);
+    } catch (error) {
+      console.error(`Error fetching campaign with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch campaign" });
+    }
+  });
+
+  // Create new campaign
+  app.post(`${apiRoute}/campaigns`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertCampaignSchema.parse(req.body);
+      const campaign = await storage.createCampaign(validatedData);
+      
+      res.status(201).json({
+        message: "Campaign created successfully",
+        campaign
+      });
+    } catch (error) {
+      handleValidationError(error, res);
+    }
+  });
+
+  // Update campaign
+  app.patch(`${apiRoute}/campaigns/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const campaign = await storage.getCampaignById(id);
+      if (!campaign) {
+        return res.status(404).json({ message: "Campaign not found" });
+      }
+      
+      // Only allow updating certain fields based on status
+      if (campaign.status !== 'draft' && campaign.status !== 'scheduled') {
+        return res.status(400).json({ 
+          message: "Cannot update campaign that has already been sent or is in progress" 
+        });
+      }
+      
+      const validatedData = insertCampaignSchema.partial().parse(req.body);
+      const updatedCampaign = await storage.updateCampaign(id, validatedData);
+      
+      res.json({
+        message: "Campaign updated successfully",
+        campaign: updatedCampaign
+      });
+    } catch (error) {
+      handleValidationError(error, res);
+    }
+  });
+
+  // Update campaign status
+  app.patch(`${apiRoute}/campaigns/:id/status`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const { status } = req.body;
+      if (!status || typeof status !== 'string') {
+        return res.status(400).json({ message: "Status is required" });
+      }
+      
+      // Validate status value
+      const validStatuses = ['draft', 'scheduled', 'sending', 'sent', 'cancelled'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ 
+          message: `Invalid status. Must be one of: ${validStatuses.join(', ')}` 
+        });
+      }
+      
+      const updatedCampaign = await storage.updateCampaignStatus(id, status);
+      if (!updatedCampaign) {
+        return res.status(404).json({ message: "Campaign not found" });
+      }
+      
+      res.json({
+        message: "Campaign status updated successfully",
+        campaign: updatedCampaign
+      });
+    } catch (error) {
+      console.error(`Error updating campaign status with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update campaign status" });
+    }
+  });
+
+  // Delete campaign
+  app.delete(`${apiRoute}/campaigns/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const campaign = await storage.getCampaignById(id);
+      if (!campaign) {
+        return res.status(404).json({ message: "Campaign not found" });
+      }
+      
+      // Only allow deleting campaigns that are in draft or scheduled status
+      if (campaign.status !== 'draft' && campaign.status !== 'scheduled') {
+        return res.status(400).json({ 
+          message: "Cannot delete campaign that has already been sent or is in progress" 
+        });
+      }
+      
+      const success = await storage.deleteCampaign(id);
+      if (!success) {
+        return res.status(500).json({ message: "Failed to delete campaign" });
+      }
+      
+      res.json({ message: "Campaign deleted successfully" });
+    } catch (error) {
+      console.error(`Error deleting campaign with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete campaign" });
+    }
+  });
+
+  // Get campaign results
+  app.get(`${apiRoute}/campaigns/:id/results`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const results = await storage.getCampaignResults(id);
+      
+      // Get analytics
+      const totalCount = await storage.getCampaignResultsCount(id);
+      const openRate = await storage.getCampaignOpenRate(id);
+      const clickRate = await storage.getCampaignClickRate(id);
+      
+      res.json({
+        results,
+        analytics: {
+          totalCount,
+          openRate,
+          clickRate
+        }
+      });
+    } catch (error) {
+      console.error(`Error fetching campaign results for ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch campaign results" });
+    }
+  });
+
+  // Recipient Management API endpoints
+
+  // Get all recipients
+  app.get(`${apiRoute}/recipients`, isAuthenticated, isAdmin, async (_req, res) => {
+    try {
+      const recipients = await storage.getRecipients();
+      res.json(recipients);
+    } catch (error) {
+      console.error("Error fetching recipients:", error);
+      res.status(500).json({ message: "Failed to fetch recipients" });
+    }
+  });
+
+  // Get active recipients (not unsubscribed)
+  app.get(`${apiRoute}/recipients/active`, isAuthenticated, isAdmin, async (_req, res) => {
+    try {
+      const recipients = await storage.getActiveRecipients();
+      res.json(recipients);
+    } catch (error) {
+      console.error("Error fetching active recipients:", error);
+      res.status(500).json({ message: "Failed to fetch active recipients" });
+    }
+  });
+
+  // Get recipients by tag
+  app.get(`${apiRoute}/recipients/tag/:tag`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const recipients = await storage.getRecipientsByTag(req.params.tag);
+      res.json(recipients);
+    } catch (error) {
+      console.error(`Error fetching recipients with tag ${req.params.tag}:`, error);
+      res.status(500).json({ message: "Failed to fetch recipients by tag" });
+    }
+  });
+
+  // Get recipient by ID
+  app.get(`${apiRoute}/recipients/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const recipient = await storage.getRecipientById(id);
+      if (!recipient) {
+        return res.status(404).json({ message: "Recipient not found" });
+      }
+      
+      res.json(recipient);
+    } catch (error) {
+      console.error(`Error fetching recipient with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch recipient" });
+    }
+  });
+
+  // Create new recipient
+  app.post(`${apiRoute}/recipients`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertRecipientSchema.parse(req.body);
+      
+      // Check if recipient with this email already exists
+      const existingRecipient = await storage.getRecipientByEmail(validatedData.email);
+      if (existingRecipient) {
+        return res.status(400).json({ message: "A recipient with this email already exists" });
+      }
+      
+      const recipient = await storage.createRecipient(validatedData);
+      
+      res.status(201).json({
+        message: "Recipient added successfully",
+        recipient
+      });
+    } catch (error) {
+      handleValidationError(error, res);
+    }
+  });
+
+  // Update recipient
+  app.patch(`${apiRoute}/recipients/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const validatedData = insertRecipientSchema.partial().parse(req.body);
+      
+      // If email is being updated, check it doesn't conflict
+      if (validatedData.email) {
+        const existingRecipient = await storage.getRecipientByEmail(validatedData.email);
+        if (existingRecipient && existingRecipient.id !== id) {
+          return res.status(400).json({ message: "A recipient with this email already exists" });
+        }
+      }
+      
+      const updatedRecipient = await storage.updateRecipient(id, validatedData);
+      if (!updatedRecipient) {
+        return res.status(404).json({ message: "Recipient not found" });
+      }
+      
+      res.json({
+        message: "Recipient updated successfully",
+        recipient: updatedRecipient
+      });
+    } catch (error) {
+      handleValidationError(error, res);
+    }
+  });
+
+  // Update recipient unsubscribe status
+  app.patch(`${apiRoute}/recipients/:id/unsubscribe`, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const { unsubscribed } = req.body;
+      if (typeof unsubscribed !== 'boolean') {
+        return res.status(400).json({ message: "Unsubscribed status must be a boolean" });
+      }
+      
+      const updatedRecipient = await storage.updateUnsubscribeStatus(id, unsubscribed);
+      if (!updatedRecipient) {
+        return res.status(404).json({ message: "Recipient not found" });
+      }
+      
+      res.json({
+        message: unsubscribed ? "Successfully unsubscribed" : "Successfully resubscribed",
+        recipient: updatedRecipient
+      });
+    } catch (error) {
+      console.error(`Error updating unsubscribe status for recipient ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update unsubscribe status" });
+    }
+  });
+
+  // Delete recipient
+  app.delete(`${apiRoute}/recipients/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteRecipient(id);
+      if (!success) {
+        return res.status(404).json({ message: "Recipient not found or could not be deleted" });
+      }
+      
+      res.json({ message: "Recipient deleted successfully" });
+    } catch (error) {
+      console.error(`Error deleting recipient with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to delete recipient" });
     }
   });
 

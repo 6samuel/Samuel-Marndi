@@ -117,6 +117,9 @@ export class MemStorage implements IStorage {
   private contactSubmissions: Map<number, ContactSubmission>;
   private serviceRequests: Map<number, ServiceRequest>;
   private partnerApplications: Map<number, PartnerApplication>;
+  private campaigns: Map<number, Campaign>;
+  private recipients: Map<number, Recipient>;
+  private campaignResults: Map<number, CampaignResult>;
   
   private userId: number = 1;
   private serviceId: number = 1;
@@ -126,6 +129,9 @@ export class MemStorage implements IStorage {
   private contactSubmissionId: number = 1;
   private serviceRequestId: number = 1;
   private partnerApplicationId: number = 1;
+  private campaignId: number = 1;
+  private recipientId: number = 1;
+  private campaignResultId: number = 1;
 
   constructor() {
     this.users = new Map();
@@ -136,6 +142,9 @@ export class MemStorage implements IStorage {
     this.contactSubmissions = new Map();
     this.serviceRequests = new Map();
     this.partnerApplications = new Map();
+    this.campaigns = new Map();
+    this.recipients = new Map();
+    this.campaignResults = new Map();
     
     // Initialize with sample data
     this.initializeData();
@@ -461,6 +470,193 @@ export class MemStorage implements IStorage {
 
   async deletePartnerApplication(id: number): Promise<boolean> {
     return this.partnerApplications.delete(id);
+  }
+  
+  // Campaign operations
+  async getCampaigns(): Promise<Campaign[]> {
+    return Array.from(this.campaigns.values())
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getCampaignsByType(type: string): Promise<Campaign[]> {
+    return Array.from(this.campaigns.values())
+      .filter(campaign => campaign.type === type)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getCampaignById(id: number): Promise<Campaign | undefined> {
+    return this.campaigns.get(id);
+  }
+
+  async createCampaign(insertCampaign: InsertCampaign): Promise<Campaign> {
+    const id = this.campaignId++;
+    const createdAt = new Date();
+    const campaign: Campaign = { 
+      ...insertCampaign, 
+      id, 
+      createdAt, 
+      status: insertCampaign.status || 'draft',
+      sendDate: insertCampaign.sendDate || null,
+      sentCount: 0,
+      openCount: 0,
+      clickCount: 0 
+    };
+    this.campaigns.set(id, campaign);
+    return campaign;
+  }
+
+  async updateCampaign(id: number, campaignData: Partial<InsertCampaign>): Promise<Campaign | undefined> {
+    const campaign = this.campaigns.get(id);
+    if (!campaign) return undefined;
+    
+    const updatedCampaign: Campaign = { ...campaign, ...campaignData };
+    this.campaigns.set(id, updatedCampaign);
+    return updatedCampaign;
+  }
+
+  async updateCampaignStatus(id: number, status: string): Promise<Campaign | undefined> {
+    const campaign = this.campaigns.get(id);
+    if (!campaign) return undefined;
+    
+    const updatedCampaign: Campaign = { ...campaign, status };
+    this.campaigns.set(id, updatedCampaign);
+    return updatedCampaign;
+  }
+
+  async deleteCampaign(id: number): Promise<boolean> {
+    return this.campaigns.delete(id);
+  }
+
+  // Recipient operations
+  async getRecipients(): Promise<Recipient[]> {
+    return Array.from(this.recipients.values())
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getActiveRecipients(): Promise<Recipient[]> {
+    return Array.from(this.recipients.values())
+      .filter(recipient => !recipient.unsubscribed)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getRecipientsByTag(tag: string): Promise<Recipient[]> {
+    return Array.from(this.recipients.values())
+      .filter(recipient => recipient.tags?.includes(tag))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getRecipientById(id: number): Promise<Recipient | undefined> {
+    return this.recipients.get(id);
+  }
+
+  async getRecipientByEmail(email: string): Promise<Recipient | undefined> {
+    return Array.from(this.recipients.values()).find(
+      (recipient) => recipient.email === email
+    );
+  }
+
+  async createRecipient(insertRecipient: InsertRecipient): Promise<Recipient> {
+    const id = this.recipientId++;
+    const createdAt = new Date();
+    const recipient: Recipient = { 
+      ...insertRecipient, 
+      id, 
+      createdAt,
+      unsubscribed: false
+    };
+    this.recipients.set(id, recipient);
+    return recipient;
+  }
+
+  async updateRecipient(id: number, recipientData: Partial<InsertRecipient>): Promise<Recipient | undefined> {
+    const recipient = this.recipients.get(id);
+    if (!recipient) return undefined;
+    
+    const updatedRecipient: Recipient = { ...recipient, ...recipientData };
+    this.recipients.set(id, updatedRecipient);
+    return updatedRecipient;
+  }
+
+  async updateUnsubscribeStatus(id: number, unsubscribed: boolean): Promise<Recipient | undefined> {
+    const recipient = this.recipients.get(id);
+    if (!recipient) return undefined;
+    
+    const updatedRecipient: Recipient = { ...recipient, unsubscribed };
+    this.recipients.set(id, updatedRecipient);
+    return updatedRecipient;
+  }
+
+  async deleteRecipient(id: number): Promise<boolean> {
+    return this.recipients.delete(id);
+  }
+
+  // Campaign results operations
+  async getCampaignResults(campaignId: number): Promise<CampaignResult[]> {
+    return Array.from(this.campaignResults.values())
+      .filter(result => result.campaignId === campaignId)
+      .sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime());
+  }
+
+  async createCampaignResult(insertResult: InsertCampaignResult): Promise<CampaignResult> {
+    const id = this.campaignResultId++;
+    const sentAt = new Date();
+    const result: CampaignResult = { 
+      ...insertResult, 
+      id, 
+      sentAt,
+      openedAt: null,
+      clickedAt: null 
+    };
+    this.campaignResults.set(id, result);
+    return result;
+  }
+
+  async updateCampaignResultStatus(id: number, status: string): Promise<CampaignResult | undefined> {
+    const result = this.campaignResults.get(id);
+    if (!result) return undefined;
+    
+    let updatedResult: CampaignResult;
+    
+    if (status === 'opened' && !result.openedAt) {
+      updatedResult = { ...result, openedAt: new Date() };
+    } else if (status === 'clicked' && !result.clickedAt) {
+      updatedResult = { 
+        ...result, 
+        clickedAt: new Date(),
+        openedAt: result.openedAt || new Date() // If opened for the first time via click
+      };
+    } else {
+      updatedResult = result;
+    }
+    
+    this.campaignResults.set(id, updatedResult);
+    return updatedResult;
+  }
+
+  async getCampaignResultsCount(campaignId: number): Promise<number> {
+    return Array.from(this.campaignResults.values())
+      .filter(result => result.campaignId === campaignId)
+      .length;
+  }
+
+  async getCampaignOpenRate(campaignId: number): Promise<number> {
+    const results = Array.from(this.campaignResults.values())
+      .filter(result => result.campaignId === campaignId);
+    
+    if (results.length === 0) return 0;
+    
+    const openedCount = results.filter(result => result.openedAt !== null).length;
+    return (openedCount / results.length) * 100;
+  }
+
+  async getCampaignClickRate(campaignId: number): Promise<number> {
+    const results = Array.from(this.campaignResults.values())
+      .filter(result => result.campaignId === campaignId);
+    
+    if (results.length === 0) return 0;
+    
+    const clickedCount = results.filter(result => result.clickedAt !== null).length;
+    return (clickedCount / results.length) * 100;
   }
 }
 
