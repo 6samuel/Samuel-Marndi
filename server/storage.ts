@@ -132,6 +132,39 @@ export interface IStorage {
   // Tracking Settings operations
   getTrackingSettings(): Promise<TrackingSettings>;
   updateTrackingSettings(settings: Partial<InsertTrackingSettings>): Promise<TrackingSettings>;
+  
+  // Marketing Goals operations
+  getMarketingGoals(): Promise<any[]>;
+  getMarketingGoalById(id: number): Promise<any | undefined>;
+  createMarketingGoal(goal: any): Promise<any>;
+  updateMarketingGoal(id: number, goal: any): Promise<any | undefined>;
+  deleteMarketingGoal(id: number): Promise<boolean>;
+  
+  // Marketing Activities operations
+  getMarketingActivities(): Promise<any[]>;
+  getMarketingActivityById(id: number): Promise<any | undefined>;
+  createMarketingActivity(activity: any): Promise<any>;
+  updateMarketingActivity(id: number, activity: any): Promise<any | undefined>;
+  deleteMarketingActivity(id: number): Promise<boolean>;
+  
+  // A/B Testing operations
+  getABTests(): Promise<any[]>;
+  getABTestById(id: number): Promise<any | undefined>;
+  createABTest(test: any): Promise<any>;
+  updateABTest(id: number, test: any): Promise<any | undefined>;
+  updateABTestStatus(id: number, status: string): Promise<any | undefined>;
+  deleteABTest(id: number): Promise<boolean>;
+  
+  // A/B Test Variants operations
+  getABTestVariants(testId: number): Promise<any[]>;
+  createABTestVariant(variant: any): Promise<any>;
+  updateABTestVariant(id: number, testId: number, variant: any): Promise<any | undefined>;
+  deleteABTestVariant(id: number, testId: number): Promise<boolean>;
+  
+  // A/B Test Tracking operations
+  recordABTestImpression(variantId: number, data: any): Promise<any>;
+  recordABTestConversion(variantId: number, sessionId: string): Promise<any | undefined>;
+  getABTestResults(testId: number): Promise<any>;
 }
 
 export class MemStorage implements IStorage {
@@ -851,7 +884,137 @@ export class MemStorage implements IStorage {
       facebookPixelId: settingsData.facebookPixelId || null,
       microsoftAdsId: settingsData.microsoftAdsId || null,
       linkedInInsightId: settingsData.linkedInInsightId || null,
-      googleTagManagerId: settingsData.googleTagManagerId || null
+      googleTagManagerId: settingsData.googleTagManagerId || null,
+      tiktokPixelId: settingsData.tiktokPixelId || null,
+      twitterPixelId: settingsData.twitterPixelId || null,
+      snapchatPixelId: settingsData.snapchatPixelId || null,
+      hotjarId: settingsData.hotjarId || null,
+      clarityId: settingsData.clarityId || null
+    };
+  }
+  
+  // Marketing Goals operations
+  async getMarketingGoals(): Promise<any[]> {
+    return [];
+  }
+  
+  async getMarketingGoalById(id: number): Promise<any | undefined> {
+    return undefined;
+  }
+  
+  async createMarketingGoal(goal: any): Promise<any> {
+    return { id: 1, ...goal, createdAt: new Date(), updatedAt: new Date() };
+  }
+  
+  async updateMarketingGoal(id: number, goal: any): Promise<any | undefined> {
+    return { id, ...goal, updatedAt: new Date() };
+  }
+  
+  async deleteMarketingGoal(id: number): Promise<boolean> {
+    return true;
+  }
+  
+  // Marketing Activities operations
+  async getMarketingActivities(): Promise<any[]> {
+    return [];
+  }
+  
+  async getMarketingActivityById(id: number): Promise<any | undefined> {
+    return undefined;
+  }
+  
+  async createMarketingActivity(activity: any): Promise<any> {
+    return { id: 1, ...activity, createdAt: new Date(), updatedAt: new Date() };
+  }
+  
+  async updateMarketingActivity(id: number, activity: any): Promise<any | undefined> {
+    return { id, ...activity, updatedAt: new Date() };
+  }
+  
+  async deleteMarketingActivity(id: number): Promise<boolean> {
+    return true;
+  }
+  
+  // A/B Testing operations
+  async getABTests(): Promise<any[]> {
+    return [];
+  }
+  
+  async getABTestById(id: number): Promise<any | undefined> {
+    return undefined;
+  }
+  
+  async createABTest(test: any): Promise<any> {
+    return { id: 1, ...test, createdAt: new Date(), updatedAt: new Date() };
+  }
+  
+  async updateABTest(id: number, test: any): Promise<any | undefined> {
+    return { id, ...test, updatedAt: new Date() };
+  }
+  
+  async updateABTestStatus(id: number, status: string): Promise<any | undefined> {
+    return { id, status, updatedAt: new Date() };
+  }
+  
+  async deleteABTest(id: number): Promise<boolean> {
+    return true;
+  }
+  
+  // A/B Test Variants operations
+  async getABTestVariants(testId: number): Promise<any[]> {
+    return [];
+  }
+  
+  async createABTestVariant(variant: any): Promise<any> {
+    return { id: 1, ...variant, impressions: 0, conversions: 0, conversionRate: 0 };
+  }
+  
+  async updateABTestVariant(id: number, testId: number, variant: any): Promise<any | undefined> {
+    return { id, testId, ...variant };
+  }
+  
+  async deleteABTestVariant(id: number, testId: number): Promise<boolean> {
+    return true;
+  }
+  
+  // A/B Test Tracking operations
+  async recordABTestImpression(variantId: number, data: any): Promise<any> {
+    return {
+      id: 1,
+      variantId,
+      sessionId: data.sessionId,
+      timestamp: new Date(),
+      referrer: data.referrer || null,
+      device: data.device || null,
+      converted: false
+    };
+  }
+  
+  async recordABTestConversion(variantId: number, sessionId: string): Promise<any | undefined> {
+    return {
+      id: 1,
+      variantId,
+      sessionId,
+      timestamp: new Date(),
+      converted: true,
+      conversionTimestamp: new Date()
+    };
+  }
+  
+  async getABTestResults(testId: number): Promise<any> {
+    return {
+      test: { id: testId, name: "Sample Test", status: "running" },
+      variants: [],
+      metrics: {
+        totalImpressions: 0,
+        totalConversions: 0,
+        overallConversionRate: 0,
+        bestVariant: null,
+        improvement: 0,
+        isSignificant: false,
+        confidenceLevel: 0
+      },
+      status: "running"
     };
   }
 }

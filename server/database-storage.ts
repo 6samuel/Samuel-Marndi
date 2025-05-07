@@ -1,4 +1,4 @@
-import { eq, like, desc, and, inArray, SQL } from "drizzle-orm";
+import { eq, like, desc, and, inArray, SQL, not, asc, isNull, count, sql } from "drizzle-orm";
 import { db } from "./db";
 import { 
   users, User, InsertUser,
@@ -14,7 +14,12 @@ import {
   campaignResults, CampaignResult, InsertCampaignResult,
   adTrackers, AdTracker, InsertAdTracker,
   adTrackerHits, AdTrackerHit, InsertAdTrackerHit,
-  trackingSettings, TrackingSettings, InsertTrackingSettings
+  trackingSettings, TrackingSettings, InsertTrackingSettings,
+  marketingGoals, InsertMarketingGoal, MarketingGoal,
+  marketingActivities, InsertMarketingActivity, MarketingActivity,
+  abTests, InsertABTest, ABTest,
+  abTestVariants, InsertABTestVariant, ABTestVariant,
+  abTestHits, InsertABTestHit, ABTestHit
 } from "@shared/schema";
 import { IStorage } from "./storage";
 
@@ -751,5 +756,381 @@ export class DatabaseStorage implements IStorage {
       .returning();
       
     return updatedSettings;
+  }
+  
+  // Marketing Goals operations
+  async getMarketingGoals(): Promise<MarketingGoal[]> {
+    return await db.select()
+      .from(marketingGoals)
+      .orderBy(desc(marketingGoals.createdAt));
+  }
+  
+  async getMarketingGoalById(id: number): Promise<MarketingGoal | undefined> {
+    const [goal] = await db
+      .select()
+      .from(marketingGoals)
+      .where(eq(marketingGoals.id, id));
+    return goal;
+  }
+  
+  async createMarketingGoal(insertGoal: Omit<InsertMarketingGoal, "id" | "createdAt" | "updatedAt">): Promise<MarketingGoal> {
+    const [goal] = await db
+      .insert(marketingGoals)
+      .values({
+        ...insertGoal,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return goal;
+  }
+  
+  async updateMarketingGoal(id: number, goalData: Partial<Omit<InsertMarketingGoal, "id" | "createdAt">>): Promise<MarketingGoal | undefined> {
+    const [goal] = await db
+      .update(marketingGoals)
+      .set({
+        ...goalData,
+        updatedAt: new Date()
+      })
+      .where(eq(marketingGoals.id, id))
+      .returning();
+    return goal;
+  }
+  
+  async deleteMarketingGoal(id: number): Promise<boolean> {
+    const result = await db
+      .delete(marketingGoals)
+      .where(eq(marketingGoals.id, id));
+    return result.rowCount > 0;
+  }
+  
+  // Marketing Activities operations
+  async getMarketingActivities(): Promise<MarketingActivity[]> {
+    return await db.select()
+      .from(marketingActivities)
+      .orderBy(desc(marketingActivities.startDate));
+  }
+  
+  async getMarketingActivityById(id: number): Promise<MarketingActivity | undefined> {
+    const [activity] = await db
+      .select()
+      .from(marketingActivities)
+      .where(eq(marketingActivities.id, id));
+    return activity;
+  }
+  
+  async createMarketingActivity(insertActivity: Omit<InsertMarketingActivity, "id" | "createdAt" | "updatedAt">): Promise<MarketingActivity> {
+    const [activity] = await db
+      .insert(marketingActivities)
+      .values({
+        ...insertActivity,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return activity;
+  }
+  
+  async updateMarketingActivity(id: number, activityData: Partial<Omit<InsertMarketingActivity, "id" | "createdAt">>): Promise<MarketingActivity | undefined> {
+    const [activity] = await db
+      .update(marketingActivities)
+      .set({
+        ...activityData,
+        updatedAt: new Date()
+      })
+      .where(eq(marketingActivities.id, id))
+      .returning();
+    return activity;
+  }
+  
+  async deleteMarketingActivity(id: number): Promise<boolean> {
+    const result = await db
+      .delete(marketingActivities)
+      .where(eq(marketingActivities.id, id));
+    return result.rowCount > 0;
+  }
+  
+  // A/B Testing operations
+  async getABTests(): Promise<ABTest[]> {
+    return await db.select()
+      .from(abTests)
+      .orderBy(desc(abTests.createdAt));
+  }
+  
+  async getABTestById(id: number): Promise<ABTest | undefined> {
+    const [test] = await db
+      .select()
+      .from(abTests)
+      .where(eq(abTests.id, id));
+    return test;
+  }
+  
+  async createABTest(insertTest: Omit<InsertABTest, "id" | "createdAt" | "updatedAt">): Promise<ABTest> {
+    const [test] = await db
+      .insert(abTests)
+      .values({
+        ...insertTest,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return test;
+  }
+  
+  async updateABTest(id: number, testData: Partial<Omit<InsertABTest, "id" | "createdAt">>): Promise<ABTest | undefined> {
+    const [test] = await db
+      .update(abTests)
+      .set({
+        ...testData,
+        updatedAt: new Date()
+      })
+      .where(eq(abTests.id, id))
+      .returning();
+    return test;
+  }
+  
+  async updateABTestStatus(id: number, status: string): Promise<ABTest | undefined> {
+    const [test] = await db
+      .update(abTests)
+      .set({ 
+        status,
+        updatedAt: new Date(),
+        // If we're setting status to completed, set the endDate
+        endDate: status === 'completed' ? new Date() : undefined
+      })
+      .where(eq(abTests.id, id))
+      .returning();
+    return test;
+  }
+  
+  async deleteABTest(id: number): Promise<boolean> {
+    // First delete all variants associated with this test
+    await db
+      .delete(abTestVariants)
+      .where(eq(abTestVariants.testId, id));
+    
+    // Then delete the test itself
+    const result = await db
+      .delete(abTests)
+      .where(eq(abTests.id, id));
+    return result.rowCount > 0;
+  }
+  
+  // A/B Test Variants operations
+  async getABTestVariants(testId: number): Promise<ABTestVariant[]> {
+    return await db.select()
+      .from(abTestVariants)
+      .where(eq(abTestVariants.testId, testId));
+  }
+  
+  async createABTestVariant(insertVariant: Omit<InsertABTestVariant, "id" | "impressions" | "conversions" | "conversionRate">): Promise<ABTestVariant> {
+    const [variant] = await db
+      .insert(abTestVariants)
+      .values({
+        ...insertVariant,
+        impressions: 0,
+        conversions: 0,
+        conversionRate: 0
+      })
+      .returning();
+    return variant;
+  }
+  
+  async updateABTestVariant(id: number, testId: number, variantData: Partial<Omit<InsertABTestVariant, "id" | "testId">>): Promise<ABTestVariant | undefined> {
+    const [variant] = await db
+      .update(abTestVariants)
+      .set(variantData)
+      .where(and(
+        eq(abTestVariants.id, id),
+        eq(abTestVariants.testId, testId)
+      ))
+      .returning();
+    return variant;
+  }
+  
+  async deleteABTestVariant(id: number, testId: number): Promise<boolean> {
+    // First delete all hits for this variant
+    await db
+      .delete(abTestHits)
+      .where(eq(abTestHits.variantId, id));
+    
+    // Then delete the variant itself
+    const result = await db
+      .delete(abTestVariants)
+      .where(and(
+        eq(abTestVariants.id, id),
+        eq(abTestVariants.testId, testId)
+      ));
+    return result.rowCount > 0;
+  }
+  
+  // A/B Test Tracking operations
+  async recordABTestImpression(variantId: number, data: { sessionId: string, referrer?: string, device?: string }): Promise<ABTestHit> {
+    // First increment the variant's impression count
+    await db
+      .update(abTestVariants)
+      .set({
+        impressions: sql`${abTestVariants.impressions} + 1`
+      })
+      .where(eq(abTestVariants.id, variantId));
+      
+    // Also update the conversion rate
+    await this.updateABTestVariantConversionRate(variantId);
+    
+    // Then create a hit record
+    const [hit] = await db
+      .insert(abTestHits)
+      .values({
+        variantId,
+        sessionId: data.sessionId,
+        timestamp: new Date(),
+        referrer: data.referrer || null,
+        device: data.device || null,
+        converted: false
+      })
+      .returning();
+    
+    return hit;
+  }
+  
+  private async updateABTestVariantConversionRate(variantId: number): Promise<void> {
+    const [variant] = await db
+      .select()
+      .from(abTestVariants)
+      .where(eq(abTestVariants.id, variantId));
+      
+    if (variant) {
+      const impressions = variant.impressions || 0;
+      const conversions = variant.conversions || 0;
+      const conversionRate = impressions > 0 ? (conversions / impressions) * 100 : 0;
+      
+      await db
+        .update(abTestVariants)
+        .set({ conversionRate })
+        .where(eq(abTestVariants.id, variantId));
+    }
+  }
+  
+  async recordABTestConversion(variantId: number, sessionId: string): Promise<ABTestHit | undefined> {
+    // First find the most recent hit for this session and variant that hasn't been converted
+    const [hit] = await db
+      .select()
+      .from(abTestHits)
+      .where(and(
+        eq(abTestHits.variantId, variantId),
+        eq(abTestHits.sessionId, sessionId),
+        eq(abTestHits.converted, false)
+      ))
+      .orderBy(desc(abTestHits.timestamp))
+      .limit(1);
+      
+    if (!hit) {
+      return undefined; // No matching impression found
+    }
+    
+    // Update the hit to mark it as converted
+    const [updatedHit] = await db
+      .update(abTestHits)
+      .set({
+        converted: true,
+        conversionTimestamp: new Date()
+      })
+      .where(eq(abTestHits.id, hit.id))
+      .returning();
+      
+    // Increment the variant's conversion count
+    await db
+      .update(abTestVariants)
+      .set({
+        conversions: sql`${abTestVariants.conversions} + 1`
+      })
+      .where(eq(abTestVariants.id, variantId));
+      
+    // Update the conversion rate
+    await this.updateABTestVariantConversionRate(variantId);
+    
+    return updatedHit;
+  }
+  
+  async getABTestResults(testId: number): Promise<any> {
+    // Get the test details
+    const [test] = await db
+      .select()
+      .from(abTests)
+      .where(eq(abTests.id, testId));
+      
+    if (!test) {
+      throw new Error(`Test with ID ${testId} not found`);
+    }
+    
+    // Get all variants for this test
+    const variants = await db
+      .select()
+      .from(abTestVariants)
+      .where(eq(abTestVariants.testId, testId));
+      
+    // Calculate overall metrics
+    const totalImpressions = variants.reduce((sum, v) => sum + (v.impressions || 0), 0);
+    const totalConversions = variants.reduce((sum, v) => sum + (v.conversions || 0), 0);
+    const overallConversionRate = totalImpressions > 0 ? (totalConversions / totalImpressions) * 100 : 0;
+    
+    // Find the best performing variant
+    let bestVariant = variants[0];
+    for (const variant of variants) {
+      if ((variant.conversionRate || 0) > (bestVariant?.conversionRate || 0)) {
+        bestVariant = variant;
+      }
+    }
+    
+    // Calculate improvement over control
+    const controlVariant = variants.find(v => v.isControl);
+    let improvement = 0;
+    
+    if (controlVariant && bestVariant && !bestVariant.isControl) {
+      const controlRate = controlVariant.conversionRate || 0;
+      const bestRate = bestVariant.conversionRate || 0;
+      improvement = controlRate > 0 ? ((bestRate - controlRate) / controlRate) * 100 : 0;
+    }
+    
+    // Calculate statistical significance
+    // This is a very basic implementation and would need to be improved for production
+    let isSignificant = false;
+    let confidenceLevel = 0;
+    
+    if (controlVariant && bestVariant && !bestVariant.isControl) {
+      const minSampleSize = test.targetSampleSize || 1000; // Default minimum sample size
+      
+      if (controlVariant.impressions && controlVariant.impressions >= minSampleSize &&
+          bestVariant.impressions && bestVariant.impressions >= minSampleSize) {
+        // Very simple check - in reality would use more complex statistical analysis
+        const minConfidence = test.minimumConfidence || 95;
+        
+        // This is a placeholder for actual statistical analysis
+        // In production, you'd use a proper statistical significance calculator
+        const difference = Math.abs((bestVariant.conversionRate || 0) - (controlVariant.conversionRate || 0));
+        confidenceLevel = Math.min(difference * 20, 99.9); // Scale difference to something like confidence
+        isSignificant = confidenceLevel >= minConfidence;
+      }
+    }
+    
+    // Return the results
+    return {
+      test,
+      variants,
+      metrics: {
+        totalImpressions,
+        totalConversions,
+        overallConversionRate,
+        bestVariant: bestVariant ? {
+          name: bestVariant.name,
+          id: bestVariant.id,
+          conversionRate: bestVariant.conversionRate
+        } : null,
+        improvement,
+        isSignificant,
+        confidenceLevel
+      },
+      status: test.status
+    };
   }
 }
