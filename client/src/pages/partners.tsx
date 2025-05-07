@@ -67,11 +67,21 @@ const Partners = () => {
 
   // Form submission handler
   const mutation = useMutation({
-    mutationFn: (data: PartnerFormValues) =>
-      apiRequest<{ success: boolean }>("/api/partner-applications", {
+    mutationFn: async (data: PartnerFormValues) => {
+      const response = await fetch("/api/partner-applications", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
-      }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to submit partner application");
+      }
+      
+      return response.json();
+    },
     onSuccess: () => {
       toast({
         title: "Application Submitted",

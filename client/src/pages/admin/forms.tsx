@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
@@ -14,7 +14,8 @@ export default function AdminForms() {
   // Fetch contact submissions
   const { 
     data: contactSubmissions = [], 
-    isLoading: isLoadingContacts 
+    isLoading: isLoadingContacts,
+    refetch: refetchContacts
   } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"],
     staleTime: 60 * 1000, // 1 minute
@@ -23,11 +24,18 @@ export default function AdminForms() {
   // Fetch service requests
   const { 
     data: serviceRequests = [], 
-    isLoading: isLoadingRequests 
+    isLoading: isLoadingRequests,
+    refetch: refetchRequests
   } = useQuery<ServiceRequest[]>({
     queryKey: ["/api/service-requests"],
     staleTime: 60 * 1000, // 1 minute
   });
+  
+  // Fetch data on component mount
+  useEffect(() => {
+    refetchContacts();
+    refetchRequests();
+  }, [refetchContacts, refetchRequests]);
 
   return (
     <>
