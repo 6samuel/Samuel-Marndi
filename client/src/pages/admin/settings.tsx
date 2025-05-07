@@ -130,7 +130,7 @@ export default function AdminSettings() {
   // Mutation for updating tracking settings
   const updateTrackingSettingsMutation = useMutation({
     mutationFn: async (values: TrackingFormValues) => {
-      const res = await apiRequest("POST", "/api/settings/tracking", values);
+      const res = await apiRequest("PUT", "/api/settings/tracking", values);
       return await res.json();
     },
     onSuccess: () => {
