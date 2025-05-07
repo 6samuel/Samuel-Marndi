@@ -31,12 +31,12 @@ import {
   getPaymentGatewaysStatus,
   createPaymentIntent,
   handleWebhook as handleStripeWebhook,
-  createOrder as createPaypalOrder,
-  captureOrder as capturePaypalOrder,
-  setupClient as setupPaypalClient,
-  createOrder as createRazorpayOrder,
-  verifyPayment as verifyRazorpayPayment,
-  getPaymentDetails as getRazorpayPaymentDetails
+  createPaypalOrder,
+  capturePaypalOrder,
+  setupPaypalClient,
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+  getRazorpayPaymentDetails
 } from './payment';
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1298,6 +1298,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error(`Error recording conversion for tracker ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to record conversion" });
     }
+  });
+
+  // Initialize all payment gateways
+  const paymentGateways = initPaymentGateways();
+  console.log('Payment gateways initialized:', 
+    Object.entries(paymentGateways)
+      .filter(([key]) => key !== 'anyInitialized')
+      .map(([key, value]) => `${key}: ${value ? 'Yes' : 'No'}`)
+      .join(', ')
+  );
+
+  // Payment gateways status endpoint
+  app.get(`${apiRoute}/payment/status`, (req, res) => {
+    getPaymentGatewaysStatus(req, res);
+  });
+
+  // Stripe payment endpoints
+  app.post(`${apiRoute}/payment/stripe/create-intent`, (req, res) => {
+    createPaymentIntent(req, res);
+  });
+
+  app.post(`${apiRoute}/payment/stripe/webhook`, (req, res) => {
+    handleStripeWebhook(req, res);
+  });
+
+  // PayPal payment endpoints
+  app.get(`${apiRoute}/payment/paypal/setup`, (req, res) => {
+    setupPaypalClient(req, res);
+  });
+
+  app.post(`${apiRoute}/payment/paypal/create-order`, (req, res) => {
+    createPaypalOrder(req, res);
+  });
+
+  app.post(`${apiRoute}/payment/paypal/capture/:orderID`, (req, res) => {
+    capturePaypalOrder(req, res);
+  });
+
+  // Razorpay payment endpoints
+  app.post(`${apiRoute}/payment/razorpay/create-order`, (req, res) => {
+    createRazorpayOrder(req, res);
+  });
+
+  app.post(`${apiRoute}/payment/razorpay/verify`, (req, res) => {
+    verifyRazorpayPayment(req, res);
+  });
+
+  app.get(`${apiRoute}/payment/razorpay/payment/:payment_id`, (req, res) => {
+    getRazorpayPaymentDetails(req, res);
   });
 
   const httpServer = createServer(app);
