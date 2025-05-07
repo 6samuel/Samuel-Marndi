@@ -16,6 +16,9 @@ import {
 import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication
+  setupAuth(app);
+  
   // API base prefix
   const apiRoute = '/api';
 
@@ -276,6 +279,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       handleValidationError(error, res);
+    }
+  });
+  
+  // Admin API endpoints - protected with authentication middleware
+  
+  // Get all contact submissions
+  app.get(`${apiRoute}/contact-submissions`, isAuthenticated, isAdmin, async (_req, res) => {
+    try {
+      const submissions = await storage.getContactSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching contact submissions:", error);
+      res.status(500).json({ message: "Failed to fetch contact submissions" });
+    }
+  });
+  
+  // Get contact submission by ID
+  app.get(`${apiRoute}/contact-submissions/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const submission = await storage.getContactSubmissionById(id);
+      if (!submission) {
+        return res.status(404).json({ message: "Contact submission not found" });
+      }
+      
+      res.json(submission);
+    } catch (error) {
+      console.error(`Error fetching contact submission with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch contact submission" });
+    }
+  });
+  
+  // Update contact submission status
+  app.patch(`${apiRoute}/contact-submissions/:id/status`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const { status } = req.body;
+      if (!status || typeof status !== 'string') {
+        return res.status(400).json({ message: "Status is required" });
+      }
+      
+      const updatedSubmission = await storage.updateContactSubmissionStatus(id, status);
+      if (!updatedSubmission) {
+        return res.status(404).json({ message: "Contact submission not found" });
+      }
+      
+      res.json(updatedSubmission);
+    } catch (error) {
+      console.error(`Error updating contact submission status with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update contact submission status" });
+    }
+  });
+  
+  // Get all service requests
+  app.get(`${apiRoute}/service-requests`, isAuthenticated, isAdmin, async (_req, res) => {
+    try {
+      const requests = await storage.getServiceRequests();
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching service requests:", error);
+      res.status(500).json({ message: "Failed to fetch service requests" });
+    }
+  });
+  
+  // Get service request by ID
+  app.get(`${apiRoute}/service-requests/:id`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const request = await storage.getServiceRequestById(id);
+      if (!request) {
+        return res.status(404).json({ message: "Service request not found" });
+      }
+      
+      res.json(request);
+    } catch (error) {
+      console.error(`Error fetching service request with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to fetch service request" });
+    }
+  });
+  
+  // Update service request status
+  app.patch(`${apiRoute}/service-requests/:id/status`, isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const { status } = req.body;
+      if (!status || typeof status !== 'string') {
+        return res.status(400).json({ message: "Status is required" });
+      }
+      
+      const updatedRequest = await storage.updateServiceRequestStatus(id, status);
+      if (!updatedRequest) {
+        return res.status(404).json({ message: "Service request not found" });
+      }
+      
+      res.json(updatedRequest);
+    } catch (error) {
+      console.error(`Error updating service request status with ID ${req.params.id}:`, error);
+      res.status(500).json({ message: "Failed to update service request status" });
     }
   });
 
