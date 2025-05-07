@@ -9,7 +9,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, X, Code, BarChart2, Palette, Search, ShoppingCart, Smartphone, Sun, Moon } from "lucide-react";
+import { 
+  Menu, X, Code, BarChart2, Palette, Search, ShoppingCart, Smartphone, 
+  Sun, Moon, Server, Shield, HeadphonesIcon, Binary, BrainCircuit, BoxesIcon,
+  Laptop, Building, Network, Users, Construction, Blocks
+} from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
 const SiteHeader = () => {
@@ -23,6 +27,8 @@ const SiteHeader = () => {
     { name: "Home", href: "/" },
     { name: "Services", href: "/services" },
     { name: "Portfolio", href: "/portfolio" },
+    { name: "Partners", href: "/partners" },
+    { name: "Hire Me", href: "/hire" },
     { name: "Blog", href: "/blog" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
@@ -61,8 +67,13 @@ const SiteHeader = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <span className="font-bold text-xl text-primary dark:text-primary-foreground">
-                Samuel Marndi
+              <img 
+                src="/images/logo-icon.png" 
+                alt="Samuel Marndi Logo" 
+                className="h-8 w-auto" 
+              />
+              <span className="font-bold text-xl text-gray-800 dark:text-white">
+                SAMUEL MARNDI
               </span>
             </Link>
           </div>
