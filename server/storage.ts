@@ -6,7 +6,10 @@ import {
   blogPosts, BlogPost, InsertBlogPost,
   contactSubmissions, ContactSubmission, InsertContactSubmission,
   serviceRequests, ServiceRequest, InsertServiceRequest,
-  partnerApplications, PartnerApplication, InsertPartnerApplication
+  partnerApplications, PartnerApplication, InsertPartnerApplication,
+  campaigns, Campaign, InsertCampaign,
+  recipients, Recipient, InsertRecipient,
+  campaignResults, CampaignResult, InsertCampaignResult
 } from "@shared/schema";
 import { sampleData } from "./sample-data";
 
@@ -75,6 +78,34 @@ export interface IStorage {
   createPartnerApplication(application: InsertPartnerApplication): Promise<PartnerApplication>;
   updatePartnerApplicationStatus(id: number, status: string): Promise<PartnerApplication | undefined>;
   deletePartnerApplication(id: number): Promise<boolean>;
+  
+  // Campaign operations
+  getCampaigns(): Promise<Campaign[]>;
+  getCampaignsByType(type: string): Promise<Campaign[]>;
+  getCampaignById(id: number): Promise<Campaign | undefined>;
+  createCampaign(campaign: InsertCampaign): Promise<Campaign>;
+  updateCampaign(id: number, campaign: Partial<InsertCampaign>): Promise<Campaign | undefined>;
+  updateCampaignStatus(id: number, status: string): Promise<Campaign | undefined>;
+  deleteCampaign(id: number): Promise<boolean>;
+  
+  // Recipient operations
+  getRecipients(): Promise<Recipient[]>;
+  getActiveRecipients(): Promise<Recipient[]>;
+  getRecipientsByTag(tag: string): Promise<Recipient[]>;
+  getRecipientById(id: number): Promise<Recipient | undefined>;
+  getRecipientByEmail(email: string): Promise<Recipient | undefined>;
+  createRecipient(recipient: InsertRecipient): Promise<Recipient>;
+  updateRecipient(id: number, recipient: Partial<InsertRecipient>): Promise<Recipient | undefined>;
+  updateUnsubscribeStatus(id: number, unsubscribed: boolean): Promise<Recipient | undefined>;
+  deleteRecipient(id: number): Promise<boolean>;
+  
+  // Campaign results operations
+  getCampaignResults(campaignId: number): Promise<CampaignResult[]>;
+  createCampaignResult(result: InsertCampaignResult): Promise<CampaignResult>;
+  updateCampaignResultStatus(id: number, status: string): Promise<CampaignResult | undefined>;
+  getCampaignResultsCount(campaignId: number): Promise<number>;
+  getCampaignOpenRate(campaignId: number): Promise<number>;
+  getCampaignClickRate(campaignId: number): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
