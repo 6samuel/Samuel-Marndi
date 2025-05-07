@@ -80,11 +80,8 @@ const Hire = () => {
   // Form submission handler
   const mutation = useMutation({
     mutationFn: (data: HireFormValues) =>
-      apiRequest("/api/hire-requests", {
+      apiRequest<{ success: boolean }>("/api/hire-requests", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
