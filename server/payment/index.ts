@@ -1,7 +1,19 @@
 import { Request, Response } from 'express';
-import { initStripe, getStripeStatus } from './stripe';
-import { initPayPal, getPayPalStatus } from './paypal';
-import { initRazorpay, getRazorpayStatus } from './razorpay';
+import { initStripe, getStripeStatus, createPaymentIntent, handleWebhook } from './stripe';
+import { 
+  createOrder as createPaypalOrder, 
+  captureOrder as capturePaypalOrder,
+  setupClient as setupPaypalClient,
+  getPayPalStatus,
+  initPayPal
+} from './paypal';
+import {
+  createOrder as createRazorpayOrder,
+  verifyPayment as verifyRazorpayPayment,
+  getPaymentDetails as getRazorpayPaymentDetails,
+  getRazorpayStatus,
+  initRazorpay
+} from './razorpay';
 
 // Initialize all payment gateways
 export const initPaymentGateways = () => {
@@ -26,39 +38,25 @@ export const getPaymentGatewaysStatus = (req: Request, res: Response) => {
   });
 };
 
-// Re-export all payment functions
-export * from './stripe';
-
-// Re-export PayPal functions with unique names
-import { 
-  createOrder as createPaypalOrderOriginal, 
-  captureOrder as capturePaypalOrderOriginal,
-  setupClient as setupPaypalClientOriginal,
-  getPayPalStatus,
-  initPayPal
-} from './paypal';
-
-export { 
-  createPaypalOrderOriginal as createPaypalOrder,
-  capturePaypalOrderOriginal as capturePaypalOrder,
-  setupPaypalClientOriginal as setupPaypalClient,
-  getPayPalStatus,
-  initPayPal
-};
-
-// Re-export Razorpay functions with unique names
-import {
-  createOrder as createRazorpayOrderOriginal,
-  verifyPayment as verifyRazorpayPaymentOriginal,
-  getPaymentDetails as getRazorpayPaymentDetailsOriginal,
-  getRazorpayStatus,
-  initRazorpay
-} from './razorpay';
-
+// Export all payment functions
 export {
-  createRazorpayOrderOriginal as createRazorpayOrder,
-  verifyRazorpayPaymentOriginal as verifyRazorpayPayment,
-  getRazorpayPaymentDetailsOriginal as getRazorpayPaymentDetails,
+  // Stripe
+  initStripe,
+  getStripeStatus,
+  createPaymentIntent,
+  handleWebhook,
+  
+  // PayPal
+  initPayPal,
+  getPayPalStatus,
+  createPaypalOrder,
+  capturePaypalOrder,
+  setupPaypalClient,
+  
+  // Razorpay
+  initRazorpay,
   getRazorpayStatus,
-  initRazorpay
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+  getRazorpayPaymentDetails
 };
