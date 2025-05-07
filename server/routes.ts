@@ -15,7 +15,8 @@ import {
   sendContactNotification, 
   sendServiceRequestNotification,
   sendPartnerApplicationNotification,
-  sendHireRequestNotification
+  sendHireRequestNotification,
+  sendContactReply
 } from "./email-service";
 import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 
