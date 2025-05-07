@@ -17,6 +17,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "../theme-toggle";
+import { Logo } from "@/components/ui/logo";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -98,11 +99,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {/* Sidebar header */}
           <div className="flex items-center justify-between px-4 py-4 border-b dark:border-gray-700">
             <Link href="/admin/dashboard" className="flex items-center">
-              <img
-                src="/images/logo-text.png"
-                alt="Samuel Marndi Logo"
-                className="h-8 w-auto"
-              />
+              <Logo size="sm" />
               <span className="ml-2 text-xl font-semibold dark:text-gray-200">
                 Admin
               </span>
@@ -187,11 +184,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </Button>
 
             <div className="flex items-center space-x-2 lg:hidden">
-              <img
-                src="/images/logo-text.png"
-                alt="Samuel Marndi Logo"
-                className="h-8 w-auto"
-              />
+              <Logo size="sm" />
             </div>
 
             <div className="flex items-center space-x-3">

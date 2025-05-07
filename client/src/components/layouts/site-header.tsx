@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
 import {
   Sheet,
   SheetContent,
@@ -66,13 +67,7 @@ const SiteHeader = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center">
-              <img 
-                src="/images/logo-text.png" 
-                alt="Samuel Marndi Logo" 
-                className="h-12 w-auto" 
-              />
-            </Link>
+            <Logo size="lg" />
           </div>
 
           {/* Desktop Navigation */}
