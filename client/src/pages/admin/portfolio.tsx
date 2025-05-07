@@ -10,7 +10,7 @@ export default function AdminPortfolio() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch portfolio items
-  const { data: portfolioItems = [] } = useQuery<PortfolioItem[]>({
+  const { data: portfolioData } = useQuery({
     queryKey: ["/api/portfolio-items"],
     queryFn: async () => {
       try {
@@ -26,18 +26,21 @@ export default function AdminPortfolio() {
           throw new Error(`Failed to fetch portfolio items: ${response.statusText}`);
         }
         
-        return await response.json();
+        return await response.json() as PortfolioItem[];
       } catch (error) {
         console.error("Error fetching portfolio items:", error);
-        return [];
+        throw error;
       } finally {
         setIsLoading(false);
       }
     },
-    staleTime: 60 * 1000, // 1 minute
+    enabled: !!user,
     refetchOnWindowFocus: false,
     retry: 1
   });
+  
+  // Safely access portfolio data
+  const portfolioItems = portfolioData || [];
 
   return (
     <>
