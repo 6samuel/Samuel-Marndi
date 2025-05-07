@@ -13,7 +13,8 @@ import {
   recipients, Recipient, InsertRecipient,
   campaignResults, CampaignResult, InsertCampaignResult,
   adTrackers, AdTracker, InsertAdTracker,
-  adTrackerHits, AdTrackerHit, InsertAdTrackerHit
+  adTrackerHits, AdTrackerHit, InsertAdTrackerHit,
+  trackingSettings, TrackingSettings, InsertTrackingSettings
 } from "@shared/schema";
 import { IStorage } from "./storage";
 
@@ -737,7 +738,10 @@ export class DatabaseStorage implements IStorage {
     // Update the settings
     const [updatedSettings] = await db
       .update(trackingSettings)
-      .set(settingsData)
+      .set({
+        ...settingsData,
+        updatedAt: new Date()
+      })
       .where(eq(trackingSettings.id, currentSettings.id))
       .returning();
       
