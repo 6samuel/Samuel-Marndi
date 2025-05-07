@@ -9,8 +9,8 @@ export default function AdminTestimonials() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch testimonials
-  const { data: testimonials = [] } = useQuery<Testimonial[]>({
+  // Fetch testimonials with improved approach
+  const { data: testimonialData } = useQuery({
     queryKey: ["/api/testimonials"],
     queryFn: async () => {
       try {
@@ -26,18 +26,21 @@ export default function AdminTestimonials() {
           throw new Error(`Failed to fetch testimonials: ${response.statusText}`);
         }
         
-        return await response.json();
+        return await response.json() as Testimonial[];
       } catch (error) {
         console.error("Error fetching testimonials:", error);
-        return [];
+        throw error;
       } finally {
         setIsLoading(false);
       }
     },
-    staleTime: 60 * 1000, // 1 minute
+    enabled: !!user,
     refetchOnWindowFocus: false,
     retry: 1
   });
+  
+  // Safely access testimonial data
+  const testimonials = testimonialData || [];
 
   return (
     <>
