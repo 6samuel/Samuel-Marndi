@@ -67,7 +67,9 @@ const SiteHeader = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Logo size="lg" />
+            <Link href="/" className="flex items-center">
+              <Logo size="lg" />
+            </Link>
           </div>
 
           {/* Desktop Navigation */}

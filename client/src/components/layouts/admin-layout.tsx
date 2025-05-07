@@ -98,12 +98,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="flex flex-col h-full">
           {/* Sidebar header */}
           <div className="flex items-center justify-between px-4 py-4 border-b dark:border-gray-700">
-            <Link href="/admin/dashboard" className="flex items-center">
-              <Logo size="sm" />
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Logo size="sm" />
+              </div>
               <span className="ml-2 text-xl font-semibold dark:text-gray-200">
                 Admin
               </span>
-            </Link>
+            </div>
             <Button
               variant="ghost"
               size="icon"
@@ -184,7 +186,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </Button>
 
             <div className="flex items-center space-x-2 lg:hidden">
-              <Logo size="sm" />
+              <div className="flex-shrink-0">
+                <Logo size="sm" />
+              </div>
             </div>
 
             <div className="flex items-center space-x-3">
