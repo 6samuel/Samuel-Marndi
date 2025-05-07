@@ -16,6 +16,27 @@ import { getInitials } from "@/lib/utils";
 const TestimonialsSection = () => {
   const { data: testimonials, isLoading, error } = useQuery<Testimonial[]>({
     queryKey: ['/api/testimonials/featured'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/testimonials/featured', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch featured testimonials: ${response.statusText}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching featured testimonials:", error);
+        throw error;
+      }
+    },
+    refetchOnWindowFocus: false,
+    retry: 2
   });
 
   const containerVariants = {

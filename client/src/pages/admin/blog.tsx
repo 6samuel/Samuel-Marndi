@@ -1,43 +1,36 @@
-import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import AdminLayout from "@/components/layouts/admin-layout";
 import { BlogPost } from "@shared/schema";
 import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
 
 export default function AdminBlog() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch blog posts with improved approach
-  const { data: blogData } = useQuery({
+  // Fetch blog posts with React Query handling loading state
+  const { data: blogData, isLoading } = useQuery({
     queryKey: ["/api/blog"],
     queryFn: async () => {
-      try {
-        const response = await fetch("/api/blog", {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch blog posts: ${response.statusText}`);
-        }
-        
-        return await response.json() as BlogPost[];
-      } catch (error) {
-        console.error("Error fetching blog posts:", error);
-        throw error;
-      } finally {
-        setIsLoading(false);
+      const response = await fetch("/api/blog", {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch blog posts: ${response.statusText}`);
       }
+      
+      return await response.json() as BlogPost[];
     },
     enabled: !!user,
-    refetchOnWindowFocus: false,
-    retry: 1
+    refetchOnWindowFocus: true,
+    retry: 2,
+    staleTime: 1000 // 1 second, to prevent redundant requests
   });
   
   // Safely access blog data
