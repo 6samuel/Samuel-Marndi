@@ -8,10 +8,15 @@ interface TrackingSettings {
   microsoftAdsId: string | null;
   linkedInInsightId: string | null;
   googleTagManagerId: string | null;
+  tiktokPixelId: string | null;
+  twitterPixelId: string | null;
+  snapchatPixelId: string | null;
+  hotjarId: string | null;
+  clarityId: string | null;
 }
 
 interface TrackingScriptsProps {
-  // Add any props if needed
+  customDataLayer?: Record<string, any>;
 }
 
 const TrackingScripts: React.FC<TrackingScriptsProps> = () => {
@@ -30,6 +35,11 @@ const TrackingScripts: React.FC<TrackingScriptsProps> = () => {
   const MS_ADVERTISING_TAG_ID = trackingSettings?.microsoftAdsId || "";
   const LINKEDIN_INSIGHT_TAG_ID = trackingSettings?.linkedInInsightId || "";
   const GTM_ID = trackingSettings?.googleTagManagerId || "";
+  const TIKTOK_PIXEL_ID = trackingSettings?.tiktokPixelId || "";
+  const TWITTER_PIXEL_ID = trackingSettings?.twitterPixelId || "";
+  const SNAPCHAT_PIXEL_ID = trackingSettings?.snapchatPixelId || "";
+  const HOTJAR_ID = trackingSettings?.hotjarId || "";
+  const CLARITY_ID = trackingSettings?.clarityId || "";
 
   // Track page views for Google Analytics
   useEffect(() => {
@@ -136,6 +146,98 @@ const TrackingScripts: React.FC<TrackingScriptsProps> = () => {
         />
       ) : null}
 
+      {/* TikTok Pixel */}
+      {TIKTOK_PIXEL_ID ? (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function (w, d, t) {
+                w.TiktokAnalyticsObject=t;
+                var ttq=w[t]=w[t]||[];
+                ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];
+                ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+                for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+                ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+                ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";
+                ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
+                var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;
+                var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+                ttq.load('${TIKTOK_PIXEL_ID}');
+                ttq.page();
+              }(window, document, 'ttq');
+            `,
+          }}
+        />
+      ) : null}
+
+      {/* Twitter Pixel */}
+      {TWITTER_PIXEL_ID ? (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
+              },s.version='1.1',s.queue=[],u=t.createElement(n),u.async=!0,u.src='//static.ads-twitter.com/uwt.js',
+              a=t.getElementsByTagName(n)[0],a.parentNode.insertBefore(u,a))}(window,document,'script');
+              twq('init', '${TWITTER_PIXEL_ID}');
+              twq('track', 'PageView');
+            `,
+          }}
+        />
+      ) : null}
+
+      {/* Snapchat Pixel */}
+      {SNAPCHAT_PIXEL_ID ? (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function()
+              {a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};
+              a.queue=[];var s='script';r=t.createElement(s);r.async=!0;
+              r.src=n;var c=t.getElementsByTagName(s)[0];
+              c.parentNode.insertBefore(r,c);})(window,document,
+              'https://sc-static.net/scevent.min.js');
+              snaptr('init', '${SNAPCHAT_PIXEL_ID}', {
+                'user_email': '_'
+              });
+              snaptr('track', 'PAGE_VIEW');
+            `,
+          }}
+        />
+      ) : null}
+
+      {/* Microsoft Clarity */}
+      {CLARITY_ID ? (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+              })(window, document, "clarity", "script", "${CLARITY_ID}");
+            `,
+          }}
+        />
+      ) : null}
+
+      {/* Hotjar */}
+      {HOTJAR_ID ? (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(h,o,t,j,a,r){
+                h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+                h._hjSettings={hjid:${HOTJAR_ID},hjsv:6};
+                a=o.getElementsByTagName('head')[0];
+                r=o.createElement('script');r.async=1;
+                r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+                a.appendChild(r);
+              })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+            `,
+          }}
+        />
+      ) : null}
+
       {/* No-Script fallbacks */}
       <noscript>
         {FB_PIXEL_ID && (
@@ -154,6 +256,15 @@ const TrackingScripts: React.FC<TrackingScriptsProps> = () => {
             style={{ display: "none" }}
             alt="LinkedIn Insight Tag"
             src={`https://px.ads.linkedin.com/collect/?pid=${LINKEDIN_INSIGHT_TAG_ID}&fmt=gif`}
+          />
+        )}
+        {SNAPCHAT_PIXEL_ID && (
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            alt="Snapchat Pixel"
+            src={`https://tr.snapchat.com/p?pid=${SNAPCHAT_PIXEL_ID}&ev=PAGE_VIEW&noscript=1`}
           />
         )}
       </noscript>
@@ -178,7 +289,12 @@ const getTrackingSettings = (): Promise<TrackingSettings> => {
         facebookPixelId: null,
         microsoftAdsId: null,
         linkedInInsightId: null,
-        googleTagManagerId: null
+        googleTagManagerId: null,
+        tiktokPixelId: null,
+        twitterPixelId: null,
+        snapchatPixelId: null,
+        hotjarId: null,
+        clarityId: null
       };
     });
 };
@@ -272,6 +388,115 @@ export const trackConversion = {
   }
 };
 
+// Add tracking methods for additional platforms
+export const additionalTrackingMethods = {
+  // TikTok Pixel
+  tiktokPixel: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.ttq) {
+      const settings = await getTrackingSettings();
+      if (settings.tiktokPixelId) {
+        window.ttq.track(event, data || {});
+      }
+    }
+  },
+  
+  // Twitter Pixel
+  twitterPixel: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.twq) {
+      const settings = await getTrackingSettings();
+      if (settings.twitterPixelId) {
+        window.twq('track', event, data || {});
+      }
+    }
+  },
+  
+  // Snapchat Pixel
+  snapchatPixel: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.snaptr) {
+      const settings = await getTrackingSettings();
+      if (settings.snapchatPixelId) {
+        window.snaptr('track', event, data || {});
+      }
+    }
+  },
+  
+  // Microsoft Clarity
+  msClarity: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.clarity) {
+      const settings = await getTrackingSettings();
+      if (settings.clarityId) {
+        window.clarity('event', event, data || {});
+      }
+    }
+  },
+  
+  // Hotjar
+  hotjar: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.hj) {
+      const settings = await getTrackingSettings();
+      if (settings.hotjarId) {
+        window.hj('event', event, data || {});
+      }
+    }
+  }
+};
+
+// Update the all method to include new platforms
+const originalAll = trackConversion.all;
+trackConversion.all = async (
+  name: string, 
+  value?: number, 
+  currency: string = "USD",
+  additionalData?: Record<string, any>
+) => {
+  // Call the original implementation for basic platforms
+  await originalAll(name, value, currency, additionalData);
+  
+  // Get settings once for all calls
+  const settings = await getTrackingSettings();
+  
+  // TikTok Pixel
+  if (settings.tiktokPixelId && typeof window !== "undefined" && window.ttq) {
+    additionalTrackingMethods.tiktokPixel(name, {
+      value: value,
+      currency: currency,
+      ...additionalData
+    });
+  }
+  
+  // Twitter Pixel
+  if (settings.twitterPixelId && typeof window !== "undefined" && window.twq) {
+    additionalTrackingMethods.twitterPixel(name, {
+      value: value,
+      currency: currency,
+      ...additionalData
+    });
+  }
+  
+  // Snapchat Pixel
+  if (settings.snapchatPixelId && typeof window !== "undefined" && window.snaptr) {
+    additionalTrackingMethods.snapchatPixel(name, {
+      value: value,
+      currency: currency,
+      ...additionalData
+    });
+  }
+  
+  // Microsoft Clarity
+  if (settings.clarityId && typeof window !== "undefined" && window.clarity) {
+    additionalTrackingMethods.msClarity(name, {
+      value: value,
+      currency: currency,
+      ...additionalData
+    });
+  }
+  
+  // Hotjar
+  if (settings.hotjarId && typeof window !== "undefined" && window.hj) {
+    additionalTrackingMethods.hotjar(name, additionalData);
+  }
+};
+
 // Extend Window interface to include tracking tools
 declare global {
   interface Window {
@@ -280,6 +505,11 @@ declare global {
     uetq: any;
     lintrk: any;
     dataLayer: any[];
+    ttq: any; // TikTok
+    twq: any; // Twitter
+    snaptr: any; // Snapchat
+    clarity: any; // Microsoft Clarity
+    hj: any; // Hotjar
   }
 }
 
