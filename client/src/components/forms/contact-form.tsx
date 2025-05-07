@@ -1,0 +1,251 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
+
+const formSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  phone: z.string().optional(),
+  subject: z.string().optional(),
+  message: z.string().min(10, { message: "Message must be at least 10 characters" }),
+  serviceInterest: z.string().optional(),
+  source: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+const ContactForm = () => {
+  const { toast } = useToast();
+  const [submitted, setSubmitted] = useState(false);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: "",
+      serviceInterest: "",
+      source: "website",
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (values: FormValues) =>
+      apiRequest("POST", "/api/contact", values),
+    onSuccess: () => {
+      toast({
+        title: "Message sent!",
+        description: "Thank you for your message. I'll get back to you soon.",
+      });
+      form.reset();
+      setSubmitted(true);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "There was a problem sending your message. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Contact form error:", error);
+    },
+  });
+
+  const onSubmit = (values: FormValues) => {
+    mutation.mutate(values);
+  };
+
+  if (submitted) {
+    return (
+      <div className="text-center py-10 px-6 bg-primary/5 dark:bg-primary/10 rounded-lg">
+        <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+          Thank You!
+        </h3>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
+          Your message has been received. I'll get back to you as soon as possible.
+        </p>
+        <Button onClick={() => setSubmitted(false)}>Send Another Message</Button>
+      </div>
+    );
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Your name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="your.email@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone (Optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Your phone number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="subject"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Subject</FormLabel>
+                <FormControl>
+                  <Input placeholder="What's this about?" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="serviceInterest"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Service Interest</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a service you're interested in" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="web-development">Web Development</SelectItem>
+                  <SelectItem value="digital-marketing">Digital Marketing</SelectItem>
+                  <SelectItem value="ui-ux-design">UI/UX Design</SelectItem>
+                  <SelectItem value="seo-optimization">SEO Optimization</SelectItem>
+                  <SelectItem value="ecommerce-solutions">E-commerce Solutions</SelectItem>
+                  <SelectItem value="mobile-app-development">Mobile App Development</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="message"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Message</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Tell me about your project or inquiry..."
+                  className="min-h-[120px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="source"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>How did you hear about me?</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an option" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="search">Search Engine</SelectItem>
+                  <SelectItem value="social">Social Media</SelectItem>
+                  <SelectItem value="referral">Referral</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button
+          type="submit"
+          className="w-full md:w-auto"
+          disabled={mutation.isPending}
+        >
+          {mutation.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            "Send Message"
+          )}
+        </Button>
+      </form>
+    </Form>
+  );
+};
+
+export default ContactForm;
