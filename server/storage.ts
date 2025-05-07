@@ -832,6 +832,7 @@ export class MemStorage implements IStorage {
     // In-memory implementation - return default settings
     return {
       id: 1,
+      updatedAt: new Date(),
       googleAnalyticsId: null,
       facebookPixelId: null,
       microsoftAdsId: null,
@@ -845,6 +846,7 @@ export class MemStorage implements IStorage {
     // In a real implementation, we would save these to the database
     return {
       id: 1,
+      updatedAt: new Date(),
       googleAnalyticsId: settingsData.googleAnalyticsId || null,
       facebookPixelId: settingsData.facebookPixelId || null,
       microsoftAdsId: settingsData.microsoftAdsId || null,
