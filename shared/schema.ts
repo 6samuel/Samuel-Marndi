@@ -296,3 +296,22 @@ export type InsertAdTracker = z.infer<typeof insertAdTrackerSchema>;
 
 export type AdTrackerHit = typeof adTrackerHits.$inferSelect;
 export type InsertAdTrackerHit = z.infer<typeof insertAdTrackerHitSchema>;
+
+// Tracking Settings
+export const trackingSettings = pgTable("tracking_settings", {
+  id: serial("id").primaryKey(),
+  googleAnalyticsId: text("google_analytics_id"),
+  facebookPixelId: text("facebook_pixel_id"),
+  microsoftAdsId: text("microsoft_ads_id"),
+  linkedInInsightId: text("linkedin_insight_id"),
+  googleTagManagerId: text("google_tag_manager_id"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertTrackingSettingsSchema = createInsertSchema(trackingSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type TrackingSettings = typeof trackingSettings.$inferSelect;
+export type InsertTrackingSettings = z.infer<typeof insertTrackingSettingsSchema>;
