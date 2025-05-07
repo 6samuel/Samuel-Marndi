@@ -724,7 +724,12 @@ export class DatabaseStorage implements IStorage {
         facebookPixelId: null,
         microsoftAdsId: null,
         linkedInInsightId: null,
-        googleTagManagerId: null
+        googleTagManagerId: null,
+        tiktokPixelId: null,
+        twitterPixelId: null,
+        snapchatPixelId: null,
+        hotjarId: null,
+        clarityId: null
       })
       .returning();
       

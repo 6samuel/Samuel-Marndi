@@ -305,6 +305,11 @@ export const trackingSettings = pgTable("tracking_settings", {
   microsoftAdsId: text("microsoft_ads_id"),
   linkedInInsightId: text("linkedin_insight_id"),
   googleTagManagerId: text("google_tag_manager_id"),
+  tiktokPixelId: text("tiktok_pixel_id"),
+  twitterPixelId: text("twitter_pixel_id"),
+  snapchatPixelId: text("snapchat_pixel_id"),
+  hotjarId: text("hotjar_id"),
+  clarityId: text("clarity_id"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
