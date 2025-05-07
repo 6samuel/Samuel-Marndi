@@ -23,9 +23,10 @@ import { Logo } from "@/components/ui/logo";
 interface AdminLayoutProps {
   children: ReactNode;
   title?: string;
+  description?: string;
 }
 
-export default function AdminLayout({ children, title }: AdminLayoutProps) {
+export default function AdminLayout({ children, title, description }: AdminLayoutProps) {
   const [location] = useLocation();
   const { user, logoutMutation } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -67,8 +68,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       icon: <Megaphone className="h-5 w-5" />,
     },
     {
-      title: "Tracking",
-      href: "/admin/tracking",
+      title: "Ad Trackers",
+      href: "/admin/ad-trackers",
       icon: <ChartLine className="h-5 w-5" />,
     },
     {
@@ -210,7 +211,21 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 pb-16">
-          {children}
+          {title && (
+            <div className="px-6 pt-6 pb-4">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {title}
+              </h1>
+              {description && (
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  {description}
+                </p>
+              )}
+            </div>
+          )}
+          <div className={title ? "px-6" : ""}>
+            {children}
+          </div>
         </main>
       </div>
     </div>
