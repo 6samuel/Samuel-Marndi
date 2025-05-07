@@ -24,6 +24,7 @@ import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 
 // Import sitemap generator functions
 import { generateSitemap, generateRobotsTxt } from './sitemap-generator';
+import { getAnalyticsOverview, getTrackerAnalytics, getAnalyticsDashboardData, getConversionAnalytics } from './analytics';
 
 // Import payment gateway handlers
 import {
@@ -1299,6 +1300,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error(`Error recording conversion for tracker ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to record conversion" });
     }
+  });
+  
+  // Analytics API endpoints
+  app.get(`${apiRoute}/analytics/overview`, isAuthenticated, isAdmin, async (req, res) => {
+    await getAnalyticsOverview(req, res);
+  });
+  
+  app.get(`${apiRoute}/analytics/tracker/:trackerId`, isAuthenticated, isAdmin, async (req, res) => {
+    await getTrackerAnalytics(req, res);
+  });
+  
+  app.get(`${apiRoute}/analytics/dashboard`, isAuthenticated, isAdmin, async (req, res) => {
+    await getAnalyticsDashboardData(req, res);
+  });
+  
+  app.get(`${apiRoute}/analytics/conversions`, isAuthenticated, isAdmin, async (req, res) => {
+    await getConversionAnalytics(req, res);
   });
 
   // Initialize all payment gateways
