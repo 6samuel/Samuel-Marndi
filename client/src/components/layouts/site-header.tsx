@@ -68,7 +68,7 @@ const SiteHeader = () => {
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               <img 
-                src="/logo.svg" 
+                src="/logo.png" 
                 alt="Samuel Marndi Logo" 
                 className="h-12 w-auto" 
               />

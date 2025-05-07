@@ -4,50 +4,68 @@ export const sampleData = {
   services: [
     {
       slug: "web-development",
-      title: "Web Development",
-      shortDescription: "Custom websites and web applications designed for your business needs",
-      fullDescription: `I create responsive, user-friendly websites that are tailored to your specific business needs. From simple informational sites to complex web applications, I handle all aspects of development including frontend, backend, database integration, and user experience optimization. My development process ensures your website not only looks great but performs well on all devices and loads quickly to keep your visitors engaged.
+      title: "Professional Web Development Services",
+      shortDescription: "Expert custom website & web application development for businesses of all sizes",
+      fullDescription: `Transform your online presence with professional, responsive, and high-performance web development services. My comprehensive web development solutions are tailored specifically to your business goals, delivering exceptional user experiences that drive conversions and growth.
 
-Technologies I specialize in:
-- HTML5, CSS3, JavaScript (ES6+)
-- React, Vue.js, and Angular frameworks
-- Node.js and Express for backend development
-- WordPress customization and theme development
-- E-commerce solutions with WooCommerce or Shopify
-- Progressive Web Applications (PWAs)
+As an expert web developer with extensive experience across all major frameworks and technologies, I create custom websites and web applications that showcase your brand while delivering the functionality your business needs to thrive online.
 
-Every project includes:
-- Responsive design for all screen sizes
-- SEO-friendly code architecture
-- Cross-browser compatibility
-- Performance optimization
-- Security best practices implementation`,
+## Expert Web Development Technologies
+
+I specialize in a comprehensive range of cutting-edge web technologies:
+- **Front-End Technologies**: HTML5, CSS3, JavaScript (ES6+), TypeScript, jQuery
+- **Modern Frameworks**: React.js, Vue.js, Angular, Next.js, Gatsby, Svelte
+- **Back-End Development**: Node.js, Express, PHP, Python, Ruby on Rails, Java
+- **Content Management**: WordPress, Drupal, Joomla, Shopify, Magento
+- **E-commerce Solutions**: WooCommerce, Shopify, Magento, BigCommerce, PrestaShop
+- **Database Integration**: MySQL, PostgreSQL, MongoDB, Firebase, Redis
+
+## Why Choose My Web Development Services?
+
+Every website and web application I develop includes:
+✓ Mobile-first responsive design ensuring perfect display across all devices
+✓ SEO-optimized code structure for better search engine visibility
+✓ Rigorous cross-browser compatibility testing
+✓ Performance optimization for lightning-fast loading speeds
+✓ Advanced security implementation to protect your business and customers
+✓ Accessibility compliance (WCAG) for inclusive user experience
+✓ Scalable architecture that grows with your business
+
+Whether you need a corporate website, e-commerce store, progressive web app, or custom web application, I deliver solutions that combine aesthetic excellence with technical perfection to help you achieve your business objectives.`,
       iconName: "Code",
-      imageUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      imageUrl: "/images/services/web-development.jpg",
       featured: true,
       displayOrder: 1
     },
     {
       slug: "digital-marketing",
-      title: "Digital Marketing",
-      shortDescription: "Strategic marketing services to grow your online presence and attract customers",
-      fullDescription: `I provide comprehensive digital marketing services designed to increase your online visibility, drive targeted traffic, and convert visitors into customers. My data-driven approach ensures that your marketing budget is efficiently allocated to deliver the best possible return on investment.
+      title: "Comprehensive Digital Marketing Solutions",
+      shortDescription: "Results-driven digital marketing strategies to increase visibility, traffic, and conversions",
+      fullDescription: `Boost your online presence and drive business growth with my data-driven digital marketing services. I develop and implement comprehensive marketing strategies that target your ideal customers, increase brand awareness, and maximize your return on investment.
 
-Marketing services include:
-- Search Engine Optimization (SEO)
-- Pay-Per-Click (PPC) advertising campaigns
-- Social media marketing and management
-- Content marketing strategy and implementation
-- Email marketing campaigns
-- Analytics and performance reporting
-- Conversion rate optimization
+With my expertise in multiple digital marketing channels and cutting-edge analytics tools, I create tailored campaigns that deliver measurable results for businesses of all sizes across various industries.
 
-Each marketing campaign is:
-- Based on thorough market research
-- Targeted to your ideal customer persona
-- Regularly monitored and optimized
-- Transparent with detailed performance reports
-- Focused on measurable results and ROI`,
+## Complete Digital Marketing Services
+
+My comprehensive digital marketing solutions include:
+- **Search Engine Optimization (SEO)**: Advanced technical SEO, keyword research, content optimization, and link building strategies to improve organic rankings and drive qualified traffic
+- **Pay-Per-Click (PPC) Advertising**: Strategic campaign management across Google Ads, Microsoft Advertising, and social media platforms with precision targeting and continuous optimization
+- **Social Media Marketing**: Platform-specific strategy development, content creation, community management, and paid social campaigns to build brand presence and engage audiences
+- **Content Marketing**: High-quality, SEO-optimized content creation including blog posts, articles, whitepapers, case studies, and infographics to establish thought leadership
+- **Email Marketing**: Personalized email campaigns, newsletter management, segmentation strategies, and automation sequences for nurturing leads and customer retention
+- **Conversion Rate Optimization (CRO)**: Data-driven analysis, A/B testing, and strategic improvements to turn more visitors into customers
+
+## The Strategic Advantage
+
+Every marketing campaign is strategically designed to:
+✓ Target your ideal customer personas with precision
+✓ Adapt to algorithm changes and market trends
+✓ Provide competitive analysis and positioning
+✓ Deliver consistent monitoring and optimization
+✓ Offer transparent reporting with actionable insights
+✓ Focus on measurable ROI and business growth metrics
+
+Partner with me to develop a comprehensive digital marketing strategy that aligns with your business goals and delivers sustainable growth for your organization.`,
       iconName: "BarChart",
       imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
       featured: true,
@@ -298,27 +316,54 @@ Features of my mobile applications:
 
   blogPosts: [
     {
-      slug: "importance-of-responsive-design",
-      title: "Why Responsive Design Is Critical for Your Business Website",
-      excerpt: "Explore the importance of responsive design for modern websites and how it impacts user experience, SEO, and conversion rates.",
+      slug: "responsive-web-design-business-impact",
+      title: "The Business Impact of Responsive Web Design: Boosting Conversions and SEO Rankings",
+      excerpt: "Discover how implementing responsive web design can dramatically improve your website's performance, mobile traffic, conversion rates, and search engine rankings in today's device-diverse digital landscape.",
       content: `
-# Why Responsive Design Is Critical for Your Business Website
+# The Business Impact of Responsive Web Design: Boosting Conversions and SEO Rankings
 
-In today's digital landscape, having a responsive website isn't just a luxury—it's an absolute necessity for businesses of all sizes. With mobile devices accounting for over 50% of global web traffic, failing to optimize your site for different screen sizes means missing out on a significant portion of potential customers.
+In today's multi-device digital ecosystem, responsive web design has evolved from a luxury to a critical business necessity. With mobile devices now generating over 60% of global internet traffic, businesses with non-responsive websites are effectively excluding the majority of their potential customers and severely limiting their digital growth potential.
 
-## What is Responsive Design?
+## Understanding Responsive Web Design: The Technical Foundation
 
-Responsive web design is an approach that makes your website adapt to different screen sizes and viewing environments. Instead of creating separate websites for desktop and mobile, responsive design uses flexible grids, layouts, and CSS media queries to create a seamless experience across all devices.
+Responsive web design is a sophisticated development approach that enables your website to automatically adapt its layout, content, and functionality to provide optimal viewing and interaction experiences across all devices—from desktop computers to smartphones and tablets. Unlike the outdated approach of creating separate mobile and desktop versions, responsive design utilizes:
 
-## Key Benefits of Responsive Design
+- **Fluid grid layouts** that scale proportionally to screen size
+- **Flexible images and media** that resize within their containing elements
+- **CSS media queries** that apply different styling rules based on device characteristics
+- **Viewport meta tags** that control scaling and dimensions on mobile browsers
+- **Touch-friendly interface elements** for mobile interactions
 
-### 1. Improved User Experience
+## Measurable Business Benefits of Responsive Web Design
 
-A responsive website provides a consistent and user-friendly experience regardless of the device. When users don't have to pinch, zoom, or scroll horizontally to navigate your site, they're more likely to stay longer and engage with your content.
+### 1. Enhanced User Experience and Engagement Metrics
 
-### 2. Better SEO Performance
+Websites optimized for all devices deliver superior user experiences, directly impacting key performance indicators:
 
-Google uses mobile-first indexing, meaning it predominantly uses the mobile version of your site for indexing and ranking. A responsive website helps improve your search engine rankings, making it easier for potential customers to find your business online.
+- **Reduced bounce rates**: Studies show responsive websites typically reduce bounce rates by 35-40%
+- **Increased time on site**: Mobile users spend 70% more time on responsive sites
+- **Higher page views**: Responsive design leads to 15-25% more pages viewed per session
+- **Improved interaction rates**: Call-to-action buttons and forms see 22% higher completion on responsive sites
+
+### 2. Significant SEO Advantages and Search Visibility
+
+Google's mobile-first indexing policy means responsive design directly impacts your search rankings:
+
+- **Priority indexing**: Google predominantly uses the mobile version of sites for ranking determination
+- **Higher SERP positions**: Responsive sites gain an average of 15% higher search positions
+- **Improved crawling efficiency**: Single URLs with responsive designs conserve crawl budget
+- **Lower bounce rates**: User behavior metrics from mobile visitors influence rankings
+- **Faster loading speeds**: Properly implemented responsive designs typically load 50% faster on mobile
+
+### 3. Conversion Rate Optimization and Revenue Impact
+
+The business case for responsive design is clear when examining conversion metrics:
+
+- **Increased conversion rates**: Responsive ecommerce sites see 30-50% higher conversion rates
+- **Higher average order values**: Mobile-optimized checkout processes result in 10-15% larger purchases
+- **Reduced cart abandonment**: Responsive checkout forms reduce abandonment by up to 25%
+- **Improved lead generation**: Contact and signup forms see 27% higher completion rates
+- **Enhanced cross-device conversions**: Seamless experiences between devices support multi-touch conversion paths
 
 ### 3. Higher Conversion Rates
 
@@ -447,9 +492,9 @@ Remember that SEO is a long-term investment. Consistent effort and adaptation to
       featured: true
     },
     {
-      slug: "ecommerce-conversion-tips",
-      title: "10 Proven Tips to Boost Your E-commerce Conversion Rate",
-      excerpt: "Learn practical strategies to increase your online store's conversion rate and maximize sales potential.",
+      slug: "ecommerce-conversion-optimization-strategies",
+      title: "E-commerce Conversion Rate Optimization: 10 Advanced Strategies to Transform Browsers into Buyers",
+      excerpt: "Discover data-driven e-commerce conversion rate optimization techniques that have helped top online retailers increase sales by up to 175% through strategic UX improvements, trust-building elements, and checkout optimization.",
       content: `
 # 10 Proven Tips to Boost Your E-commerce Conversion Rate
 
