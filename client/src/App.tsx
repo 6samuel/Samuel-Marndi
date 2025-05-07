@@ -22,6 +22,7 @@ import Hire from "@/pages/hire";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
 import Contact from "@/pages/contact";
+import Payment from "@/pages/payment";
 
 // Admin Pages
 import AdminLogin from "@/pages/admin/login";
@@ -73,6 +74,7 @@ function Router() {
               <Route path="/blog" component={Blog} />
               <Route path="/blog/:slug" component={BlogPost} />
               <Route path="/contact" component={Contact} />
+              <Route path="/payment" component={Payment} />
               <Route component={NotFound} />
             </Switch>
           </main>
