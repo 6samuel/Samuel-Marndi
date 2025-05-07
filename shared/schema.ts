@@ -133,6 +133,27 @@ export const insertServiceRequestSchema = createInsertSchema(serviceRequests).om
   status: true,
 });
 
+// Partner applications
+export const partnerApplications = pgTable("partner_applications", {
+  id: serial("id").primaryKey(),
+  companyName: text("company_name").notNull(),
+  contactName: text("contact_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  website: text("website"),
+  businessType: text("business_type").notNull(),
+  services: text("services").notNull(),
+  expectations: text("expectations").notNull(),
+  submittedAt: timestamp("submitted_at").notNull().defaultNow(),
+  status: text("status").notNull().default("new"),
+});
+
+export const insertPartnerApplicationSchema = createInsertSchema(partnerApplications).omit({
+  id: true,
+  submittedAt: true,
+  status: true,
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -154,3 +175,6 @@ export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSche
 
 export type ServiceRequest = typeof serviceRequests.$inferSelect;
 export type InsertServiceRequest = z.infer<typeof insertServiceRequestSchema>;
+
+export type PartnerApplication = typeof partnerApplications.$inferSelect;
+export type InsertPartnerApplication = z.infer<typeof insertPartnerApplicationSchema>;
