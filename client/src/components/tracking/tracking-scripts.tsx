@@ -56,6 +56,27 @@ const TrackingScripts: React.FC<TrackingScriptsProps> = () => {
       window.fbq("track", "PageView");
     }
   }, [location, FB_PIXEL_ID]);
+  
+  // Track page views for TikTok Pixel
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.ttq && TIKTOK_PIXEL_ID) {
+      window.ttq.track("PageView");
+    }
+  }, [location, TIKTOK_PIXEL_ID]);
+  
+  // Track page views for Twitter Pixel
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.twq && TWITTER_PIXEL_ID) {
+      window.twq("track", "PageView");
+    }
+  }, [location, TWITTER_PIXEL_ID]);
+  
+  // Track page views for Snapchat Pixel
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.snaptr && SNAPCHAT_PIXEL_ID) {
+      window.snaptr("track", "PAGE_VIEW");
+    }
+  }, [location, SNAPCHAT_PIXEL_ID]);
 
   return (
     <>
@@ -300,7 +321,7 @@ const getTrackingSettings = (): Promise<TrackingSettings> => {
 };
 
 // Helper functions for conversion tracking
-export const trackConversion = {
+const trackConversionObj = {
   // Google Analytics conversion
   googleAnalytics: async (action: string, category: string, label?: string, value?: number) => {
     if (typeof window !== "undefined" && window.gtag) {
@@ -341,6 +362,56 @@ export const trackConversion = {
       const settings = await getTrackingSettings();
       if (settings.linkedInInsightId) {
         window.lintrk("track", { conversion_id: conversionId, value: value });
+      }
+    }
+  },
+  
+  // TikTok Pixel conversion
+  tiktokPixel: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.ttq) {
+      const settings = await getTrackingSettings();
+      if (settings.tiktokPixelId) {
+        window.ttq.track(event, data || {});
+      }
+    }
+  },
+  
+  // Twitter Pixel conversion
+  twitterPixel: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.twq) {
+      const settings = await getTrackingSettings();
+      if (settings.twitterPixelId) {
+        window.twq('track', event, data || {});
+      }
+    }
+  },
+  
+  // Snapchat Pixel conversion
+  snapchatPixel: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.snaptr) {
+      const settings = await getTrackingSettings();
+      if (settings.snapchatPixelId) {
+        window.snaptr('track', event, data || {});
+      }
+    }
+  },
+  
+  // Microsoft Clarity event
+  msClarity: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.clarity) {
+      const settings = await getTrackingSettings();
+      if (settings.clarityId) {
+        window.clarity('event', event, data || {});
+      }
+    }
+  },
+  
+  // Hotjar event
+  hotjar: async (event: string, data?: Record<string, any>) => {
+    if (typeof window !== "undefined" && window.hj) {
+      const settings = await getTrackingSettings();
+      if (settings.hotjarId) {
+        window.hj('event', event, data || {});
       }
     }
   },
@@ -388,62 +459,18 @@ export const trackConversion = {
   }
 };
 
-// Add tracking methods for additional platforms
-export const additionalTrackingMethods = {
-  // TikTok Pixel
-  tiktokPixel: async (event: string, data?: Record<string, any>) => {
-    if (typeof window !== "undefined" && window.ttq) {
-      const settings = await getTrackingSettings();
-      if (settings.tiktokPixelId) {
-        window.ttq.track(event, data || {});
-      }
-    }
-  },
-  
-  // Twitter Pixel
-  twitterPixel: async (event: string, data?: Record<string, any>) => {
-    if (typeof window !== "undefined" && window.twq) {
-      const settings = await getTrackingSettings();
-      if (settings.twitterPixelId) {
-        window.twq('track', event, data || {});
-      }
-    }
-  },
-  
-  // Snapchat Pixel
-  snapchatPixel: async (event: string, data?: Record<string, any>) => {
-    if (typeof window !== "undefined" && window.snaptr) {
-      const settings = await getTrackingSettings();
-      if (settings.snapchatPixelId) {
-        window.snaptr('track', event, data || {});
-      }
-    }
-  },
-  
-  // Microsoft Clarity
-  msClarity: async (event: string, data?: Record<string, any>) => {
-    if (typeof window !== "undefined" && window.clarity) {
-      const settings = await getTrackingSettings();
-      if (settings.clarityId) {
-        window.clarity('event', event, data || {});
-      }
-    }
-  },
-  
-  // Hotjar
-  hotjar: async (event: string, data?: Record<string, any>) => {
-    if (typeof window !== "undefined" && window.hj) {
-      const settings = await getTrackingSettings();
-      if (settings.hotjarId) {
-        window.hj('event', event, data || {});
-      }
-    }
-  }
+// Reference to more specialized tracking methods for use in the all method
+const additionalTrackingMethods = {
+  tiktokPixel: trackConversionObj.tiktokPixel,
+  twitterPixel: trackConversionObj.twitterPixel,
+  snapchatPixel: trackConversionObj.snapchatPixel,
+  msClarity: trackConversionObj.msClarity,
+  hotjar: trackConversionObj.hotjar
 };
 
 // Update the all method to include new platforms
-const originalAll = trackConversion.all;
-trackConversion.all = async (
+const originalAll = trackConversionObj.all;
+trackConversionObj.all = async (
   name: string, 
   value?: number, 
   currency: string = "USD",
@@ -512,5 +539,8 @@ declare global {
     hj: any; // Hotjar
   }
 }
+
+// Export tracking conversion methods for use in other components
+export const trackConversion = trackConversionObj;
 
 export default TrackingScripts;
