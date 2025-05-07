@@ -11,6 +11,8 @@ import Services from "@/pages/services";
 import ServiceDetail from "@/pages/service-detail";
 import Portfolio from "@/pages/portfolio";
 import PortfolioItem from "@/pages/portfolio-item";
+import Partners from "@/pages/partners";
+import Hire from "@/pages/hire";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
 import Contact from "@/pages/contact";
@@ -30,6 +32,8 @@ function Router() {
           <Route path="/services/:slug" component={ServiceDetail} />
           <Route path="/portfolio" component={Portfolio} />
           <Route path="/portfolio/:slug" component={PortfolioItem} />
+          <Route path="/partners" component={Partners} />
+          <Route path="/hire" component={Hire} />
           <Route path="/blog" component={Blog} />
           <Route path="/blog/:slug" component={BlogPost} />
           <Route path="/contact" component={Contact} />

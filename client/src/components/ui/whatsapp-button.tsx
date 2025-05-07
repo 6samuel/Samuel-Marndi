@@ -17,7 +17,7 @@ const WhatsAppButton = () => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
-  const phoneNumber = "+1234567890"; // Replace with your actual WhatsApp number
+  const phoneNumber = "+918280320550"; // Samuel Marndi's WhatsApp number
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
