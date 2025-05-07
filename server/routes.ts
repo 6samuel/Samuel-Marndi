@@ -20,12 +20,24 @@ import {
 } from "./email-service";
 import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 
+// Import sitemap generator functions
+import { generateSitemap, generateRobotsTxt } from './sitemap-generator';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
   setupAuth(app);
   
   // API base prefix
   const apiRoute = '/api';
+  
+  // Generate sitemap and robots.txt on startup
+  try {
+    await generateSitemap();
+    generateRobotsTxt();
+    console.log('Generated SEO assets (sitemap.xml, robots.txt)');
+  } catch (error) {
+    console.error('Error generating SEO assets:', error);
+  }
 
   // Handle Zod validation errors
   const handleValidationError = (error: unknown, res: Response) => {
