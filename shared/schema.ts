@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, date, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -178,3 +178,74 @@ export type InsertServiceRequest = z.infer<typeof insertServiceRequestSchema>;
 
 export type PartnerApplication = typeof partnerApplications.$inferSelect;
 export type InsertPartnerApplication = z.infer<typeof insertPartnerApplicationSchema>;
+
+// Marketing Recipients
+export const recipients = pgTable("recipients", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  added: timestamp("added").notNull().defaultNow(),
+  source: text("source").notNull().default("website"),
+  tags: text("tags").array(),
+  unsubscribed: boolean("unsubscribed").notNull().default(false),
+  metadata: jsonb("metadata"),
+});
+
+export const insertRecipientSchema = createInsertSchema(recipients).omit({
+  id: true,
+  added: true,
+});
+
+// Marketing Campaigns
+export const campaigns = pgTable("campaigns", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // 'email' or 'sms'
+  subject: text("subject"),
+  content: text("content").notNull(),
+  recipientFilter: text("recipient_filter").notNull().default("all"),
+  recipientCount: integer("recipient_count").default(0),
+  sentAt: timestamp("sent_at"),
+  scheduledFor: timestamp("scheduled_for"),
+  status: text("status").notNull().default("draft"), // 'draft', 'sent', 'scheduled'
+  openRate: integer("open_rate"),
+  clickRate: integer("click_rate"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdBy: integer("created_by").notNull(), // user ID
+});
+
+export const insertCampaignSchema = createInsertSchema(campaigns).omit({
+  id: true,
+  sentAt: true,
+  recipientCount: true,
+  openRate: true,
+  clickRate: true,
+  createdAt: true,
+});
+
+// Campaign results
+export const campaignResults = pgTable("campaign_results", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull(),
+  recipientId: integer("recipient_id").notNull(),
+  status: text("status").notNull().default("sent"), // 'sent', 'delivered', 'opened', 'clicked', 'failed'
+  sentAt: timestamp("sent_at").notNull().defaultNow(),
+  openedAt: timestamp("opened_at"),
+  clickedAt: timestamp("clicked_at"),
+  failureReason: text("failure_reason"),
+});
+
+export const insertCampaignResultSchema = createInsertSchema(campaignResults).omit({
+  id: true,
+  sentAt: true,
+});
+
+export type Recipient = typeof recipients.$inferSelect;
+export type InsertRecipient = z.infer<typeof insertRecipientSchema>;
+
+export type Campaign = typeof campaigns.$inferSelect; 
+export type InsertCampaign = z.infer<typeof insertCampaignSchema>;
+
+export type CampaignResult = typeof campaignResults.$inferSelect;
+export type InsertCampaignResult = z.infer<typeof insertCampaignResultSchema>;
