@@ -36,7 +36,8 @@ import {
   setupPaypalClient,
   createRazorpayOrder,
   verifyRazorpayPayment,
-  getRazorpayPaymentDetails
+  getRazorpayPaymentDetails,
+  upiHandler
 } from './payment';
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1347,6 +1348,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(`${apiRoute}/payment/razorpay/payment/:payment_id`, (req, res) => {
     getRazorpayPaymentDetails(req, res);
+  });
+  
+  // UPI direct payment endpoints
+  app.get(`${apiRoute}/payment/upi/info`, (req, res) => {
+    upiHandler.getUpiInfo(req, res);
+  });
+  
+  app.post(`${apiRoute}/payment/upi/verify`, (req, res) => {
+    upiHandler.verifyPayment(req, res);
+  });
+  
+  app.get(`${apiRoute}/payment/upi/status/:transactionId`, (req, res) => {
+    upiHandler.getPaymentStatus(req, res);
   });
 
   const httpServer = createServer(app);
