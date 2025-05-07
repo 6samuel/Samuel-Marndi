@@ -65,6 +65,26 @@ const trackingFormSchema = z.object({
     .refine(val => !val || /^GTM-[a-zA-Z0-9]+$/.test(val), {
       message: "Invalid Google Tag Manager ID. Should start with GTM-"
     }),
+  tiktokPixelId: z.string().optional()
+    .refine(val => !val || /^\d+$/.test(val), {
+      message: "Invalid TikTok Pixel ID. Should only contain numbers"
+    }),
+  twitterPixelId: z.string().optional()
+    .refine(val => !val || /^[a-zA-Z0-9]+$/.test(val), {
+      message: "Invalid Twitter Pixel ID. Should only contain alphanumeric characters"
+    }),
+  snapchatPixelId: z.string().optional()
+    .refine(val => !val || /^[a-zA-Z0-9\-]+$/.test(val), {
+      message: "Invalid Snapchat Pixel ID. Should only contain alphanumeric characters and hyphens"
+    }),
+  hotjarId: z.string().optional()
+    .refine(val => !val || /^\d+$/.test(val), {
+      message: "Invalid Hotjar ID. Should only contain numbers"
+    }),
+  clarityId: z.string().optional()
+    .refine(val => !val || /^[a-zA-Z0-9]+$/.test(val), {
+      message: "Invalid Microsoft Clarity ID. Should only contain alphanumeric characters"
+    }),
 });
 
 type TrackingFormValues = z.infer<typeof trackingFormSchema>;
@@ -75,6 +95,11 @@ interface TrackingSettings {
   microsoftAdsId: string | null;
   linkedInInsightId: string | null;
   googleTagManagerId: string | null;
+  tiktokPixelId: string | null;
+  twitterPixelId: string | null;
+  snapchatPixelId: string | null;
+  hotjarId: string | null;
+  clarityId: string | null;
 }
 
 export default function AdminSettings() {
@@ -111,6 +136,11 @@ export default function AdminSettings() {
       microsoftAdsId: "",
       linkedInInsightId: "",
       googleTagManagerId: "",
+      tiktokPixelId: "",
+      twitterPixelId: "",
+      snapchatPixelId: "",
+      hotjarId: "",
+      clarityId: "",
     },
   });
 
@@ -123,6 +153,11 @@ export default function AdminSettings() {
         microsoftAdsId: trackingSettings.microsoftAdsId || "",
         linkedInInsightId: trackingSettings.linkedInInsightId || "",
         googleTagManagerId: trackingSettings.googleTagManagerId || "",
+        tiktokPixelId: trackingSettings.tiktokPixelId || "",
+        twitterPixelId: trackingSettings.twitterPixelId || "",
+        snapchatPixelId: trackingSettings.snapchatPixelId || "",
+        hotjarId: trackingSettings.hotjarId || "",
+        clarityId: trackingSettings.clarityId || "",
       });
     }
   }, [trackingSettings, trackingForm]);
@@ -508,6 +543,91 @@ export default function AdminSettings() {
                                 </FormControl>
                                 <FormDescription>
                                   Used for LinkedIn advertising conversion tracking
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={trackingForm.control}
+                            name="tiktokPixelId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>TikTok Pixel ID</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="12345678" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                  Used for TikTok ads conversion tracking
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={trackingForm.control}
+                            name="twitterPixelId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Twitter Pixel ID</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="abc123" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                  Used for Twitter/X ads conversion tracking
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={trackingForm.control}
+                            name="snapchatPixelId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Snapchat Pixel ID</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="xxxx-xxxx-xxxx" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                  Used for Snapchat ads conversion tracking
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={trackingForm.control}
+                            name="hotjarId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Hotjar Site ID</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="1234567" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                  Used for Hotjar analytics and behavior tracking
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={trackingForm.control}
+                            name="clarityId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Microsoft Clarity ID</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="abcdef1234" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                  Used for Microsoft Clarity analytics and heatmaps
                                 </FormDescription>
                                 <FormMessage />
                               </FormItem>
