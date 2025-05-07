@@ -29,6 +29,12 @@ const SiteHeader = () => {
     { name: "Partner", href: "/partners" },
     { name: "Contact", href: "/contact" },
   ];
+  
+  // Additional navigation items that will appear in mobile menu only
+  const mobileNavItems = [
+    ...navItems,
+    { name: "Payment", href: "/payment" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
