@@ -2,6 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { trackConversion } from './tracking-scripts';
 
+// Extend Window interface to include tracking tools
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    fbq: (...args: any[]) => void;
+    uetq: any;
+    lintrk: any;
+    dataLayer: any[];
+    ttq: any; // TikTok
+    twq: any; // Twitter
+    snaptr: any; // Snapchat
+    clarity: any; // Microsoft Clarity
+    hj: any; // Hotjar
+  }
+}
+
 // Session ID is used to track the same user across different page views
 const generateSessionId = () => {
   return `sid_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
@@ -113,6 +129,11 @@ interface TrackingSettings {
   microsoftAdsId: string | null;
   linkedInInsightId: string | null;
   googleTagManagerId: string | null;
+  tiktokPixelId: string | null;
+  twitterPixelId: string | null;
+  snapchatPixelId: string | null;
+  hotjarId: string | null;
+  clarityId: string | null;
 }
 
 interface ConversionTrackerProps {
@@ -167,6 +188,21 @@ export const ConversionTracker: React.FC<ConversionTrackerProps> = ({
       
       if (trackingSettings?.linkedInInsightId && window.lintrk) {
         window.lintrk('track', { page_view: true });
+      }
+      
+      // Track in TikTok Pixel
+      if (trackingSettings?.tiktokPixelId && window.ttq) {
+        window.ttq.track('PageView');
+      }
+      
+      // Track in Twitter Pixel
+      if (trackingSettings?.twitterPixelId && window.twq) {
+        window.twq('track', 'PageView');
+      }
+      
+      // Track in Snapchat Pixel
+      if (trackingSettings?.snapchatPixelId && window.snaptr) {
+        window.snaptr('track', 'PAGE_VIEW');
       }
       
       // Record hit in internal tracking system
