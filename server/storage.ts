@@ -104,6 +104,7 @@ export class MemStorage implements IStorage {
     this.blogPosts = new Map();
     this.contactSubmissions = new Map();
     this.serviceRequests = new Map();
+    this.partnerApplications = new Map();
     
     // Initialize with sample data
     this.initializeData();
@@ -393,6 +394,42 @@ export class MemStorage implements IStorage {
 
   async deleteServiceRequest(id: number): Promise<boolean> {
     return this.serviceRequests.delete(id);
+  }
+  
+  // Partner application operations
+  async getPartnerApplications(): Promise<PartnerApplication[]> {
+    return Array.from(this.partnerApplications.values())
+      .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+  }
+
+  async getPartnerApplicationById(id: number): Promise<PartnerApplication | undefined> {
+    return this.partnerApplications.get(id);
+  }
+
+  async createPartnerApplication(insertApplication: InsertPartnerApplication): Promise<PartnerApplication> {
+    const id = this.partnerApplicationId++;
+    const submittedAt = new Date();
+    const application: PartnerApplication = { 
+      ...insertApplication, 
+      id, 
+      submittedAt,
+      status: "new" 
+    };
+    this.partnerApplications.set(id, application);
+    return application;
+  }
+
+  async updatePartnerApplicationStatus(id: number, status: string): Promise<PartnerApplication | undefined> {
+    const application = this.partnerApplications.get(id);
+    if (!application) return undefined;
+    
+    const updatedApplication: PartnerApplication = { ...application, status };
+    this.partnerApplications.set(id, updatedApplication);
+    return updatedApplication;
+  }
+
+  async deletePartnerApplication(id: number): Promise<boolean> {
+    return this.partnerApplications.delete(id);
   }
 }
 
