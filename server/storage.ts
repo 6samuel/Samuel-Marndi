@@ -11,7 +11,8 @@ import {
   recipients, Recipient, InsertRecipient,
   campaignResults, CampaignResult, InsertCampaignResult,
   adTrackers, AdTracker, InsertAdTracker,
-  adTrackerHits, AdTrackerHit, InsertAdTrackerHit
+  adTrackerHits, AdTrackerHit, InsertAdTrackerHit,
+  trackingSettings, TrackingSettings, InsertTrackingSettings
 } from "@shared/schema";
 import { sampleData } from "./sample-data";
 
@@ -127,6 +128,10 @@ export interface IStorage {
   getAdTrackerHitsBySources(trackerId: number): Promise<Record<string, number>>;
   getAdTrackerHitsByDeviceType(trackerId: number): Promise<Record<string, number>>;
   deleteAdTrackerHit(id: number): Promise<boolean>;
+  
+  // Tracking Settings operations
+  getTrackingSettings(): Promise<TrackingSettings>;
+  updateTrackingSettings(settings: Partial<InsertTrackingSettings>): Promise<TrackingSettings>;
 }
 
 export class MemStorage implements IStorage {
@@ -820,6 +825,32 @@ export class MemStorage implements IStorage {
 
   async deleteAdTrackerHit(id: number): Promise<boolean> {
     return this.adTrackerHits.delete(id);
+  }
+  
+  // Tracking Settings operations
+  async getTrackingSettings(): Promise<TrackingSettings> {
+    // In-memory implementation - return default settings
+    return {
+      id: 1,
+      googleAnalyticsId: null,
+      facebookPixelId: null,
+      microsoftAdsId: null,
+      linkedInInsightId: null,
+      googleTagManagerId: null
+    };
+  }
+  
+  async updateTrackingSettings(settingsData: Partial<InsertTrackingSettings>): Promise<TrackingSettings> {
+    // In-memory implementation - just return the settings that were sent
+    // In a real implementation, we would save these to the database
+    return {
+      id: 1,
+      googleAnalyticsId: settingsData.googleAnalyticsId || null,
+      facebookPixelId: settingsData.facebookPixelId || null,
+      microsoftAdsId: settingsData.microsoftAdsId || null,
+      linkedInInsightId: settingsData.linkedInInsightId || null,
+      googleTagManagerId: settingsData.googleTagManagerId || null
+    };
   }
 }
 
