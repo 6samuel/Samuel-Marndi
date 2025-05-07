@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  Quote
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
