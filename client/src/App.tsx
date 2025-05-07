@@ -21,8 +21,17 @@ import Hire from "@/pages/hire";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
 import Contact from "@/pages/contact";
+
+// Admin Pages
 import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
+import AdminServices from "@/pages/admin/services";
+import AdminPortfolio from "@/pages/admin/portfolio";
+import AdminBlog from "@/pages/admin/blog";
+import AdminForms from "@/pages/admin/forms";
+import AdminCampaigns from "@/pages/admin/campaigns";
+import AdminTracking from "@/pages/admin/tracking";
+import AdminSettings from "@/pages/admin/settings";
 
 // Layout components
 import SiteHeader from "@/components/layouts/site-header";
@@ -36,6 +45,13 @@ function Router() {
         {/* Admin routes - without the header/footer */}
         <Route path="/admin/login" component={AdminLogin} />
         <ProtectedRoute path="/admin/dashboard" component={AdminDashboard} adminOnly />
+        <ProtectedRoute path="/admin/services" component={AdminServices} adminOnly />
+        <ProtectedRoute path="/admin/portfolio" component={AdminPortfolio} adminOnly />
+        <ProtectedRoute path="/admin/blog" component={AdminBlog} adminOnly />
+        <ProtectedRoute path="/admin/forms" component={AdminForms} adminOnly />
+        <ProtectedRoute path="/admin/campaigns" component={AdminCampaigns} adminOnly />
+        <ProtectedRoute path="/admin/tracking" component={AdminTracking} adminOnly />
+        <ProtectedRoute path="/admin/settings" component={AdminSettings} adminOnly />
         
         {/* Regular site routes - with header/footer */}
         <Route>
