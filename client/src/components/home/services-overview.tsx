@@ -26,7 +26,12 @@ const ServiceIcon = ({ name }: { name: string }) => {
     "Palette": <Palette className="h-5 w-5" />,
     "Search": <Search className="h-5 w-5" />,
     "ShoppingCart": <ShoppingCart className="h-5 w-5" />,
-    "Smartphone": <Smartphone className="h-5 w-5" />
+    "Smartphone": <Smartphone className="h-5 w-5" />,
+    "Brain": <Brain className="h-5 w-5" />,
+    "Link": <Link2 className="h-5 w-5" />,
+    "Copy": <Copy className="h-5 w-5" />,
+    "Wrench": <Wrench className="h-5 w-5" />,
+    "Share2": <Share2 className="h-5 w-5" />
   };
   
   return icons[name as keyof typeof icons] || <Code className="h-5 w-5" />;
@@ -83,11 +88,12 @@ const ServicesOverview = () => {
       <div className="container px-4 mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">
-            Expert Services for Your Digital Success
+            Comprehensive Digital Services for Projects of All Sizes
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            I offer comprehensive solutions to help your business thrive in the digital landscape.
-            From stunning websites to powerful marketing strategies.
+            I offer a complete range of fast, reliable, and cutting-edge solutions to help your business thrive in the digital landscape.
+            From stunning websites and AI integration to mobile apps and strategic marketing campaigns.
+            All delivered with a focus on reliability, speed, and competitive pricing for every budget.
           </p>
         </div>
 
