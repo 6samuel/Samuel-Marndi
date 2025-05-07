@@ -1,242 +1,214 @@
-import React from "react";
-import { useAuth } from "@/hooks/use-auth";
-import { Redirect, Link, useLocation } from "wouter";
-import { 
-  LayoutDashboard, 
-  Mail, 
-  FileText, 
-  Briefcase, 
-  Image, 
-  MessageSquare, 
-  BarChart, 
-  Settings, 
-  FileCode, 
-  LogOut, 
-  ChevronDown,
-  Menu,
-  X
-} from "lucide-react";
-import { getInitials } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Toaster } from "@/components/ui/toaster";
+import { useState, ReactNode } from "react";
+import { Link, useLocation } from "wouter";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { 
-  Sheet, 
-  SheetContent,
-  SheetTrigger,
-  SheetClose
-} from "@/components/ui/sheet";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+  LayoutDashboard,
+  Code,
+  Briefcase,
+  FileText,
+  Mail,
+  Megaphone,
+  ChartLine,
+  Settings,
+  User,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "../theme-toggle";
 
 interface AdminLayoutProps {
-  children: React.ReactNode;
-  title: string;
+  children: ReactNode;
 }
 
-const navItems = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
-  { href: "/admin/forms", label: "Form Submissions", icon: <FileText className="w-5 h-5" /> },
-  { href: "/admin/services", label: "Services", icon: <Briefcase className="w-5 h-5" /> },
-  { href: "/admin/portfolio", label: "Portfolio", icon: <Image className="w-5 h-5" /> },
-  { href: "/admin/blog", label: "Blog", icon: <FileText className="w-5 h-5" /> },
-  { href: "/admin/campaigns", label: "Email Campaigns", icon: <Mail className="w-5 h-5" /> },
-  { href: "/admin/tracking", label: "Ad Tracking", icon: <BarChart className="w-5 h-5" /> },
-  { href: "/admin/code", label: "Custom Code", icon: <FileCode className="w-5 h-5" /> },
-  { href: "/admin/settings", label: "Settings", icon: <Settings className="w-5 h-5" /> },
-];
-
-export default function AdminLayout({ children, title }: AdminLayoutProps) {
-  const { user, logoutMutation } = useAuth();
+export default function AdminLayout({ children }: AdminLayoutProps) {
   const [location] = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const { user, logoutMutation } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // If not an admin, redirect to login
-  if (!user || user.role !== "admin") {
-    return <Redirect to="/admin/login" />;
-  }
+  const menuItems = [
+    {
+      title: "Dashboard",
+      href: "/admin/dashboard",
+      icon: <LayoutDashboard className="h-5 w-5" />,
+    },
+    {
+      title: "Services",
+      href: "/admin/services",
+      icon: <Code className="h-5 w-5" />,
+    },
+    {
+      title: "Portfolio",
+      href: "/admin/portfolio",
+      icon: <Briefcase className="h-5 w-5" />,
+    },
+    {
+      title: "Blog",
+      href: "/admin/blog",
+      icon: <FileText className="h-5 w-5" />,
+    },
+    {
+      title: "Forms",
+      href: "/admin/forms",
+      icon: <Mail className="h-5 w-5" />,
+    },
+    {
+      title: "Campaigns",
+      href: "/admin/campaigns",
+      icon: <Megaphone className="h-5 w-5" />,
+    },
+    {
+      title: "Tracking",
+      href: "/admin/tracking",
+      icon: <ChartLine className="h-5 w-5" />,
+    },
+    {
+      title: "Settings",
+      href: "/admin/settings",
+      icon: <Settings className="h-5 w-5" />,
+    },
+  ];
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
 
   const handleLogout = () => {
     logoutMutation.mutate();
   };
 
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
   return (
-    <div className="flex h-screen bg-background">
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex md:w-64 md:flex-col">
-        <div className="flex flex-col flex-grow pt-5 overflow-y-auto border-r bg-card">
-          <div className="flex items-center flex-shrink-0 px-4">
-            <Link href="/" className="flex items-center gap-2">
+    <div className="flex h-screen overflow-hidden bg-gray-100 dark:bg-gray-900">
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          onClick={closeSidebar}
+        ></div>
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Sidebar header */}
+          <div className="flex items-center justify-between px-4 py-4 border-b dark:border-gray-700">
+            <Link href="/admin/dashboard" className="flex items-center">
               <img
-                className="w-8 h-8"
-                src="/logo.svg"
-                alt="Logo"
+                src="/logo.png"
+                alt="Samuel Marndi Logo"
+                className="h-8 w-auto"
               />
-              <span className="text-xl font-semibold tracking-wide">Sam Marndi</span>
+              <span className="ml-2 text-xl font-semibold dark:text-gray-200">
+                Admin
+              </span>
             </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={closeSidebar}
+              className="lg:hidden"
+            >
+              <X className="h-5 w-5" />
+            </Button>
           </div>
-          <div className="flex flex-col flex-grow mt-5">
-            <nav className="flex-1 px-2 pb-4 space-y-1">
-              {navItems.map((item) => (
+
+          {/* Navigation */}
+          <nav className="flex-1 px-2 py-4 overflow-y-auto">
+            <div className="space-y-1">
+              {menuItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                  onClick={closeSidebar}
+                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                     location === item.href
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground hover:bg-primary/10"
+                      ? "bg-gray-100 dark:bg-gray-700 text-primary dark:text-primary-foreground"
+                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
-                  {item.icon}
-                  <span className="ml-3">{item.label}</span>
+                  <span className="mr-3">{item.icon}</span>
+                  {item.title}
                 </Link>
               ))}
-            </nav>
-          </div>
-          <div className="flex flex-shrink-0 p-4 border-t">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center w-full px-2">
-                  <div className="flex items-center">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>{getInitials(user.name || user.username)}</AvatarFallback>
-                    </Avatar>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium">{user.name || user.username}</p>
-                      <p className="text-xs text-muted-foreground">Admin</p>
-                    </div>
-                  </div>
-                  <ChevronDown className="w-4 h-4 ml-auto" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/admin/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/admin/settings">Settings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            </div>
+          </nav>
+
+          {/* Sidebar footer */}
+          <div className="p-4 border-t dark:border-gray-700">
+            <div className="flex items-center mb-4">
+              <div className="flex-shrink-0">
+                <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                  <User className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+                </div>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  {user?.name || user?.username}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Administrator
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Mobile sidebar */}
-      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetContent side="left" className="sm:max-w-xs">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between mb-6">
-              <Link href="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
-                <img className="w-8 h-8" src="/logo.svg" alt="Logo" />
-                <span className="text-xl font-semibold tracking-wide">Sam Marndi</span>
-              </Link>
-              <Button variant="ghost" size="icon" onClick={closeMobileMenu}>
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <nav className="flex-1 space-y-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={closeMobileMenu}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    location === item.href
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground hover:bg-primary/10"
-                  }`}
-                >
-                  {item.icon}
-                  <span className="ml-3">{item.label}</span>
-                </Link>
-              ))}
-            </nav>
-            <div className="p-4 mt-auto border-t">
-              <Button variant="destructive" className="w-full" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Log out
-              </Button>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+      </aside>
 
       {/* Main content */}
-      <div className="flex flex-col flex-1 w-0 overflow-hidden">
-        <div className="relative z-10 flex h-16 bg-background shrink-0 border-b shadow-sm">
-          <div className="flex justify-between flex-1 px-4 md:px-6">
-            <div className="flex items-center md:hidden">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setIsMobileMenuOpen(true)}
-              >
-                <Menu className="w-5 h-5" aria-hidden="true" />
-                <span className="sr-only">Open sidebar</span>
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Top bar */}
+        <header className="bg-white dark:bg-gray-800 shadow-sm z-10">
+          <div className="px-4 py-3 flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+
+            <div className="flex items-center space-x-2 lg:hidden">
+              <img
+                src="/logo.png"
+                alt="Samuel Marndi Logo"
+                className="h-8 w-auto"
+              />
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/" target="_blank">
+                  View Site
+                </Link>
               </Button>
             </div>
-            <div className="flex items-center justify-center md:justify-start">
-              <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/" target="_blank" className="text-sm text-muted-foreground hover:text-primary">
-                View Website
-              </Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="md:hidden" asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>{getInitials(user.name || user.username)}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin/profile">Profile</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin/settings">Settings</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
-        </div>
+        </header>
 
-        <main className="relative flex-1 overflow-y-auto focus:outline-none">
-          <div className="py-6">
-            <div className="px-4 mx-auto md:px-6 lg:px-8">
-              {children}
-            </div>
-          </div>
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 pb-16">
+          {children}
         </main>
       </div>
-      <Toaster />
     </div>
   );
 }
