@@ -107,44 +107,65 @@ const recordConversion = async (trackerId: number, sessionId: string, conversion
   }
 };
 
+interface TrackingSettings {
+  googleAnalyticsId: string | null;
+  facebookPixelId: string | null;
+  microsoftAdsId: string | null;
+  linkedInInsightId: string | null;
+  googleTagManagerId: string | null;
+}
+
 interface ConversionTrackerProps {
-  trackingId?: string;  // Google Analytics ID
-  pixelId?: string;     // Facebook Pixel ID
-  uetTagId?: string;    // Microsoft Advertising UET Tag ID
-  linkedInTagId?: string; // LinkedIn Insight Tag ID
   adsTrackerId?: number; // Internal ads tracker ID
   onLoad?: () => void;
 }
 
 export const ConversionTracker: React.FC<ConversionTrackerProps> = ({
-  trackingId,
-  pixelId,
-  uetTagId,
-  linkedInTagId,
   adsTrackerId,
   onLoad,
 }) => {
   const [location] = useLocation();
   const [isTracked, setIsTracked] = useState(false);
+  const [trackingSettings, setTrackingSettings] = useState<TrackingSettings | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Fetch tracking settings
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/settings/tracking');
+        if (response.ok) {
+          const data = await response.json();
+          setTrackingSettings(data);
+        }
+      } catch (error) {
+        console.error('Error fetching tracking settings:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchSettings();
+  }, []);
   
   useEffect(() => {
     const trackPageView = async () => {
-      if (isTracked) return;
+      if (isTracked || isLoading) return;
       
       // Track page view in analytics platforms
-      if (trackingId) {
+      if (trackingSettings?.googleAnalyticsId) {
         trackConversion.googleAnalytics('page_view', 'navigation');
       }
       
-      if (pixelId) {
+      if (trackingSettings?.facebookPixelId) {
         trackConversion.facebookPixel('PageView');
       }
       
-      if (uetTagId && window.uetq) {
+      if (trackingSettings?.microsoftAdsId && window.uetq) {
         trackConversion.microsoftAds('page_view');
       }
       
-      if (linkedInTagId && window.lintrk) {
+      if (trackingSettings?.linkedInInsightId && window.lintrk) {
         window.lintrk('track', { page_view: true });
       }
       
@@ -178,7 +199,7 @@ export const ConversionTracker: React.FC<ConversionTrackerProps> = ({
     return () => {
       setIsTracked(false);
     };
-  }, [location, trackingId, pixelId, uetTagId, linkedInTagId, adsTrackerId, isTracked, onLoad]);
+  }, [location, trackingSettings, adsTrackerId, isTracked, isLoading, onLoad]);
   
   return null; // This component doesn't render anything
 };
@@ -186,6 +207,24 @@ export const ConversionTracker: React.FC<ConversionTrackerProps> = ({
 // Hook to track conversions
 export const useConversionTracking = (adsTrackerId?: number) => {
   const sessionId = getSessionId();
+  const [trackingSettings, setTrackingSettings] = useState<TrackingSettings | null>(null);
+  
+  // Fetch tracking settings when the hook is used
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/settings/tracking');
+        if (response.ok) {
+          const data = await response.json();
+          setTrackingSettings(data);
+        }
+      } catch (error) {
+        console.error('Error fetching tracking settings:', error);
+      }
+    };
+    
+    fetchSettings();
+  }, []);
   
   const trackConversionEvent = async (
     event: string,
@@ -203,7 +242,10 @@ export const useConversionTracking = (adsTrackerId?: number) => {
     }
   };
   
-  return { trackConversionEvent };
+  return { 
+    trackConversionEvent,
+    trackingSettings 
+  };
 };
 
 export default ConversionTracker;

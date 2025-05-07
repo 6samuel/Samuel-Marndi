@@ -1229,7 +1229,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Tracking Settings API endpoints
-  app.get(`${apiRoute}/settings/tracking`, isAuthenticated, isAdmin, async (_req, res) => {
+  // Public endpoint - no authentication required since tracking scripts need access
+  app.get(`${apiRoute}/settings/tracking`, async (_req, res) => {
     try {
       const settings = await storage.getTrackingSettings();
       res.json(settings);
