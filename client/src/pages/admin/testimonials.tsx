@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
@@ -30,11 +30,11 @@ export default function AdminTestimonials() {
       } catch (error) {
         console.error("Error fetching testimonials:", error);
         return [];
+      } finally {
+        setIsLoading(false);
       }
     },
     staleTime: 60 * 1000, // 1 minute
-    onSuccess: () => setIsLoading(false),
-    onError: () => setIsLoading(false)
   });
 
   return (
