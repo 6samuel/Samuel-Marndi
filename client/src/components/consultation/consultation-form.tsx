@@ -92,20 +92,39 @@ export default function ConsultationForm() {
   const createConsultationMutation = useMutation({
     mutationFn: async (values: FormValues) => {
       const response = await apiRequest("POST", "/api/consultations", {
-        ...values,
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
         date: format(values.date, "yyyy-MM-dd"),
+        time: values.time,
+        topic: values.topic,
+        additionalInfo: values.additionalInfo || null,
         status: "pending",
         paymentStatus: "unpaid",
+        paymentMethod: null,
+        meetingLink: null,
+        notes: null
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to book consultation");
+      }
+      
       return await response.json();
     },
     onSuccess: (data) => {
       console.log("Consultation booked:", data);
-      setConsultationId(data.consultation.id);
+      setConsultationId(data.id);
       setIsPaymentStep(true);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Error booking consultation:", error);
+      toast({
+        title: "Booking Error",
+        description: error.message || "Failed to book consultation. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
