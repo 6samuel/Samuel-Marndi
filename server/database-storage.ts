@@ -1134,4 +1134,75 @@ export class DatabaseStorage implements IStorage {
       status: test.status
     };
   }
+
+  // Consultation operations
+  async getConsultations(): Promise<Consultation[]> {
+    return await db.select()
+      .from(consultations)
+      .orderBy(desc(consultations.requestedAt));
+  }
+
+  async getConsultationById(id: number): Promise<Consultation | undefined> {
+    const [consultation] = await db
+      .select()
+      .from(consultations)
+      .where(eq(consultations.id, id));
+    return consultation;
+  }
+
+  async createConsultation(insertConsultation: InsertConsultation): Promise<Consultation> {
+    const [consultation] = await db
+      .insert(consultations)
+      .values({
+        ...insertConsultation,
+        requestedAt: new Date(),
+        status: "pending",
+        paymentStatus: "unpaid"
+      })
+      .returning();
+    return consultation;
+  }
+
+  async updateConsultation(id: number, consultationData: Partial<InsertConsultation>): Promise<Consultation | undefined> {
+    const [consultation] = await db
+      .update(consultations)
+      .set(consultationData)
+      .where(eq(consultations.id, id))
+      .returning();
+    return consultation;
+  }
+
+  async updateConsultationStatus(id: number, status: string): Promise<Consultation | undefined> {
+    const [consultation] = await db
+      .update(consultations)
+      .set({ status })
+      .where(eq(consultations.id, id))
+      .returning();
+    return consultation;
+  }
+
+  async updateConsultationPaymentStatus(
+    id: number, 
+    paymentStatus: string, 
+    paymentId?: string, 
+    paymentMethod?: string
+  ): Promise<Consultation | undefined> {
+    const [consultation] = await db
+      .update(consultations)
+      .set({ 
+        paymentStatus,
+        paymentId,
+        paymentMethod
+      })
+      .where(eq(consultations.id, id))
+      .returning();
+    return consultation;
+  }
+
+  async deleteConsultation(id: number): Promise<boolean> {
+    const result = await db
+      .delete(consultations)
+      .where(eq(consultations.id, id));
+    return result.rowCount > 0;
+  }
 }
