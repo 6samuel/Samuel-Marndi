@@ -12,15 +12,19 @@ import {
   GridIcon,
   ListIcon,
   Search,
-  ChevronUp,
-  ChevronDown,
   AlertCircle,
   Save,
   CheckIcon,
   XCircle,
+  Code,
+  LucideIcon,
+  Globe,
+  Star,
   Move,
-  Image,
-  Package
+  ArrowUp,
+  ArrowDown,
+  Layers,
+  Link
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -72,12 +76,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -99,25 +97,57 @@ import {
 import { Switch } from "@/components/ui/switch";
 import MediaLibrarySelector from "@/components/admin/media-library-selector";
 
+// List of available Lucide icons to choose from
+const availableIcons = [
+  "Code",
+  "Globe",
+  "Star",
+  "Layers",
+  "Link",
+  "BarChart",
+  "Book",
+  "Brain",
+  "Building",
+  "Cog",
+  "Cpu",
+  "Database",
+  "FileCode",
+  "Fingerprint",
+  "HardDrive",
+  "LineChart",
+  "Megaphone",
+  "MessageSquare",
+  "Mobile",
+  "MonitorSmartphone",
+  "Palette",
+  "Rocket",
+  "Search",
+  "Server",
+  "Settings",
+  "Shield",
+  "ShoppingCart",
+  "Smartphone",
+  "Table",
+  "Tablet",
+  "Terminal",
+  "Truck",
+  "Users",
+  "Zap"
+];
+
 const serviceSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long"),
   slug: z.string().min(3, "Slug must be at least 3 characters long")
     .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
-  shortDescription: z.string().min(10, "Short description must be at least 10 characters"),
-  fullDescription: z.string().min(50, "Full description must be at least 50 characters"),
-  iconName: z.string(),
-  imageUrl: z.string().url("Please enter a valid URL").or(z.literal("")),
+  shortDescription: z.string().min(20, "Short description must be at least 20 characters long"),
+  fullDescription: z.string().min(100, "Full description must be at least 100 characters long"),
+  iconName: z.string().min(1, "Icon is required"),
+  imageUrl: z.string().url("Please enter a valid URL"),
   featured: z.boolean().default(false),
-  displayOrder: z.coerce.number().int().default(0),
+  displayOrder: z.number().int().nonnegative("Display order must be a non-negative number"),
 });
 
 type ServiceFormValues = z.infer<typeof serviceSchema>;
-
-const iconOptions = [
-  "Code", "Globe", "Layout", "Smartphone", "ShoppingCart", "Server", 
-  "Image", "PenTool", "BarChart", "Search", "MessageSquare", "Share2",
-  "Database", "Link", "Award", "Zap", "Shield", "Monitor"
-];
 
 interface ServiceCardProps {
   service: any;
@@ -125,7 +155,8 @@ interface ServiceCardProps {
   onDelete: (id: number) => void;
   onPreview: (service: any) => void;
   onToggleFeatured: (id: number, featured: boolean) => void;
-  onReorder: (id: number, direction: 'up' | 'down') => void;
+  onMoveUp: (id: number) => void;
+  onMoveDown: (id: number) => void;
 }
 
 function ServiceCard({ 
@@ -134,94 +165,119 @@ function ServiceCard({
   onDelete, 
   onPreview, 
   onToggleFeatured,
-  onReorder 
+  onMoveUp,
+  onMoveDown
 }: ServiceCardProps) {
+  // Dynamically get the icon component
+  const IconComponent = (service.iconName && typeof service.iconName === 'string') 
+    ? (globalThis as any)['lucide-react'][service.iconName] 
+    : Code;
+  
   return (
-    <Card className="mb-4">
+    <Card className="overflow-hidden flex flex-col">
+      <div className="relative aspect-video bg-gray-100">
+        <img 
+          src={service.imageUrl} 
+          alt={service.title} 
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "https://placehold.co/400x300?text=Image+Not+Found";
+          }}
+        />
+        <div className="absolute bottom-0 right-0 flex gap-1 m-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="bg-white/80 backdrop-blur-sm hover:bg-white"
+            onClick={() => onPreview(service)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="bg-white/80 backdrop-blur-sm hover:bg-white"
+            onClick={() => onEdit(service)}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-xl mb-1">{service.title}</CardTitle>
-            <CardDescription className="text-sm">
-              /{service.slug}
-            </CardDescription>
-          </div>
-          <div className="flex space-x-2">
-            {service.featured && <Badge>Featured</Badge>}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => onEdit(service)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onPreview(service)}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Preview
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onToggleFeatured(service.id, !service.featured)}>
-                  {service.featured ? 
-                    <>
-                      <XCircle className="mr-2 h-4 w-4" />
-                      Remove Featured
-                    </> :
-                    <>
-                      <CheckIcon className="mr-2 h-4 w-4" />
-                      Mark as Featured
-                    </>
-                  }
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => onReorder(service.id, 'up')}>
-                  <ChevronUp className="mr-2 h-4 w-4" />
-                  Move Up
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onReorder(service.id, 'down')}>
-                  <ChevronDown className="mr-2 h-4 w-4" />
-                  Move Down
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  className="text-red-600" 
-                  onClick={() => onDelete(service.id)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="py-2">
-        <div className="flex items-start gap-3">
-          {service.imageUrl && (
-            <img 
-              src={service.imageUrl} 
-              alt={service.title} 
-              className="w-20 h-20 object-cover rounded-md"
-            />
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-gray-600 line-clamp-2 mb-2">{service.shortDescription}</p>
-            <div className="flex gap-2 items-center text-xs text-gray-500">
-              <span className="flex items-center">
-                <Package className="h-3 w-3 mr-1" />
-                Icon: {service.iconName}
-              </span>
-              <span className="flex items-center">
-                <Move className="h-3 w-3 mr-1" />
-                Order: {service.displayOrder}
-              </span>
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              {IconComponent && <IconComponent className="h-5 w-5" />}
+            </div>
+            <div>
+              <CardTitle className="text-lg">{service.title}</CardTitle>
+              <CardDescription className="text-xs">
+                /services/{service.slug}
+              </CardDescription>
             </div>
           </div>
+          {service.featured && <Badge>Featured</Badge>}
         </div>
+      </CardHeader>
+      
+      <CardContent className="py-2 flex-grow">
+        <p className="text-sm line-clamp-3">{service.shortDescription}</p>
       </CardContent>
+      
+      <CardFooter className="pt-2 flex justify-between border-t">
+        <div className="flex gap-1">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => onMoveUp(service.id)}
+            title="Move up"
+          >
+            <ArrowUp className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => onMoveDown(service.id)}
+            title="Move down"
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-gray-500 flex items-center px-2">
+            Order: {service.displayOrder}
+          </span>
+        </div>
+        
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onToggleFeatured(service.id, !service.featured)}
+          >
+            {service.featured ? (
+              <>
+                <XCircle className="h-4 w-4 mr-1.5" />
+                Unfeature
+              </>
+            ) : (
+              <>
+                <Star className="h-4 w-4 mr-1.5" />
+                Feature
+              </>
+            )}
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-red-600 hover:text-red-700 hover:bg-red-100"
+            onClick={() => onDelete(service.id)}
+          >
+            <Trash2 className="h-4 w-4 mr-1.5" />
+            Delete
+          </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
 }
@@ -244,7 +300,7 @@ export default function ServiceManager() {
       slug: "",
       shortDescription: "",
       fullDescription: "",
-      iconName: "Code",
+      iconName: "",
       imageUrl: "",
       featured: false,
       displayOrder: 0,
@@ -258,7 +314,7 @@ export default function ServiceManager() {
       slug: "",
       shortDescription: "",
       fullDescription: "",
-      iconName: "Code", 
+      iconName: "",
       imageUrl: "",
       featured: false,
       displayOrder: 0,
@@ -361,48 +417,11 @@ export default function ServiceManager() {
   });
   
   const reorderServiceMutation = useMutation({
-    mutationFn: async ({ id, direction }: { id: number; direction: 'up' | 'down' }) => {
-      // Find the current service and adjacent service
-      const currentService = services.find((s: any) => s.id === id);
-      
-      if (!currentService) return;
-      
-      // Sort services by display order
-      const sortedServices = [...services].sort((a: any, b: any) => 
-        (a.displayOrder || 0) - (b.displayOrder || 0)
-      );
-      
-      // Find the current index
-      const currentIndex = sortedServices.findIndex((s: any) => s.id === id);
-      
-      // Check if we can move in the requested direction
-      if (
-        (direction === 'up' && currentIndex === 0) || 
-        (direction === 'down' && currentIndex === sortedServices.length - 1)
-      ) {
-        return;
-      }
-      
-      // Find the adjacent service
-      const adjacentIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-      const adjacentService = sortedServices[adjacentIndex];
-      
-      // Swap display orders
-      const res = await apiRequest("PUT", `/api/services/${id}`, { 
-        displayOrder: adjacentService.displayOrder 
-      });
-      
-      const res2 = await apiRequest("PUT", `/api/services/${adjacentService.id}`, { 
-        displayOrder: currentService.displayOrder 
-      });
-      
+    mutationFn: async ({ id, displayOrder }: { id: number; displayOrder: number }) => {
+      const res = await apiRequest("PATCH", `/api/services/${id}`, { displayOrder });
       return await res.json();
     },
     onSuccess: () => {
-      toast({
-        title: "Service reordered",
-        description: "The service order has been updated.",
-      });
       queryClient.invalidateQueries({ queryKey: ["/api/services"] });
     },
     onError: (error: any) => {
@@ -445,7 +464,7 @@ export default function ServiceManager() {
       shortDescription: service.shortDescription,
       fullDescription: service.fullDescription,
       iconName: service.iconName,
-      imageUrl: service.imageUrl || "",
+      imageUrl: service.imageUrl,
       featured: service.featured || false,
       displayOrder: service.displayOrder || 0,
     });
@@ -467,8 +486,46 @@ export default function ServiceManager() {
     toggleFeaturedMutation.mutate({ id, featured });
   };
   
-  const handleReorderService = (id: number, direction: 'up' | 'down') => {
-    reorderServiceMutation.mutate({ id, direction });
+  const handleMoveUp = (id: number) => {
+    if (!services) return;
+    
+    const serviceList = [...services];
+    const currentIndex = serviceList.findIndex((s: any) => s.id === id);
+    if (currentIndex <= 0) return; // Already at the top
+    
+    const currentService = serviceList[currentIndex];
+    const prevService = serviceList[currentIndex - 1];
+    
+    // Swap display orders
+    reorderServiceMutation.mutate({ 
+      id: currentService.id, 
+      displayOrder: prevService.displayOrder 
+    });
+    reorderServiceMutation.mutate({ 
+      id: prevService.id, 
+      displayOrder: currentService.displayOrder 
+    });
+  };
+  
+  const handleMoveDown = (id: number) => {
+    if (!services) return;
+    
+    const serviceList = [...services];
+    const currentIndex = serviceList.findIndex((s: any) => s.id === id);
+    if (currentIndex === -1 || currentIndex >= serviceList.length - 1) return; // Already at the bottom
+    
+    const currentService = serviceList[currentIndex];
+    const nextService = serviceList[currentIndex + 1];
+    
+    // Swap display orders
+    reorderServiceMutation.mutate({ 
+      id: currentService.id, 
+      displayOrder: nextService.displayOrder 
+    });
+    reorderServiceMutation.mutate({ 
+      id: nextService.id, 
+      displayOrder: currentService.displayOrder 
+    });
   };
   
   const handleImageSelected = (url: string) => {
@@ -507,14 +564,14 @@ export default function ServiceManager() {
         return searchQuery === "" || 
           service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           service.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          service.slug.toLowerCase().includes(searchQuery.toLowerCase());
+          service.fullDescription.toLowerCase().includes(searchQuery.toLowerCase());
       })
     : [];
   
   // Sort services by display order
-  const sortedServices = filteredServices && filteredServices.length > 0
-    ? [...filteredServices].sort((a: any, b: any) => (a.displayOrder || 0) - (b.displayOrder || 0))
-    : [];
+  const sortedServices = [...(filteredServices || [])].sort(
+    (a: any, b: any) => a.displayOrder - b.displayOrder
+  );
   
   return (
     <div>
@@ -522,7 +579,7 @@ export default function ServiceManager() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Services</h2>
           <p className="text-muted-foreground">
-            Manage your service offerings and details
+            Manage your service offerings and descriptions
           </p>
         </div>
         <Dialog open={isNewServiceDialogOpen} onOpenChange={setIsNewServiceDialogOpen}>
@@ -532,23 +589,23 @@ export default function ServiceManager() {
               New Service
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[700px]">
+          <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create new service</DialogTitle>
+              <DialogTitle>Create New Service</DialogTitle>
               <DialogDescription>
                 Add a new service to your offerings
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleCreateService)} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
                       name="title"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Title</FormLabel>
+                          <FormLabel>Service Title</FormLabel>
                           <FormControl>
                             <Input placeholder="Web Development" {...field} />
                           </FormControl>
@@ -567,7 +624,7 @@ export default function ServiceManager() {
                             <Input placeholder="web-development" {...field} />
                           </FormControl>
                           <FormDescription>
-                            Used in the URL: /services/{field.value || "example-slug"}
+                            Used in the URL: /services/{field.value || "example-service"}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -582,11 +639,14 @@ export default function ServiceManager() {
                           <FormLabel>Short Description</FormLabel>
                           <FormControl>
                             <Textarea 
-                              placeholder="Brief description of the service" 
+                              placeholder="A brief summary of the service..." 
                               {...field} 
                               rows={2}
                             />
                           </FormControl>
+                          <FormDescription>
+                            Displayed in service listings and cards
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -605,9 +665,13 @@ export default function ServiceManager() {
                                   <SelectValue placeholder="Select icon" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent>
-                                {iconOptions.map(icon => (
-                                  <SelectItem key={icon} value={icon}>{icon}</SelectItem>
+                              <SelectContent className="max-h-[280px]">
+                                {availableIcons.map(iconName => (
+                                  <SelectItem key={iconName} value={iconName}>
+                                    <div className="flex items-center">
+                                      {iconName}
+                                    </div>
+                                  </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -623,63 +687,51 @@ export default function ServiceManager() {
                           <FormItem>
                             <FormLabel>Display Order</FormLabel>
                             <FormControl>
-                              <Input type="number" {...field} />
+                              <Input 
+                                type="number" 
+                                min="0" 
+                                {...field} 
+                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              />
                             </FormControl>
+                            <FormDescription>
+                              Lower numbers appear first
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     </div>
                     
-                    <div className="flex gap-4 items-center">
-                      <FormField
-                        control={form.control}
-                        name="featured"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between space-y-0 rounded-md border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                              <FormLabel>Featured Service</FormLabel>
-                              <FormDescription>
-                                Show this service on the homepage
-                              </FormDescription>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="featured"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between space-y-0 rounded-md border p-3 shadow-sm">
+                          <div className="space-y-0.5">
+                            <FormLabel>Featured Service</FormLabel>
+                            <FormDescription>
+                              Feature this service on the homepage
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                   </div>
                   
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="fullDescription"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Description</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Detailed description of the service" 
-                              {...field} 
-                              rows={8}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
                       name="imageUrl"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Image URL</FormLabel>
+                          <FormLabel>Featured Image URL</FormLabel>
                           <div className="flex gap-2">
                             <FormControl>
                               <Input placeholder="https://example.com/image.jpg" {...field} />
@@ -698,6 +750,27 @@ export default function ServiceManager() {
                               />
                             </div>
                           )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="fullDescription"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Full Description</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="A detailed description of the service..." 
+                              {...field} 
+                              rows={16}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Displayed on the service detail page. Markdown supported.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -723,9 +796,9 @@ export default function ServiceManager() {
 
         {/* Update Service Dialog */}
         <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
-          <DialogContent className="sm:max-w-[700px]">
+          <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Update service</DialogTitle>
+              <DialogTitle>Update Service</DialogTitle>
               <DialogDescription>
                 Edit your existing service
               </DialogDescription>
@@ -733,14 +806,14 @@ export default function ServiceManager() {
             {selectedService && (
               <Form {...updateForm}>
                 <form onSubmit={updateForm.handleSubmit(handleUpdateService)} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <FormField
                         control={updateForm.control}
                         name="title"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Title</FormLabel>
+                            <FormLabel>Service Title</FormLabel>
                             <FormControl>
                               <Input {...field} />
                             </FormControl>
@@ -773,8 +846,14 @@ export default function ServiceManager() {
                           <FormItem>
                             <FormLabel>Short Description</FormLabel>
                             <FormControl>
-                              <Textarea {...field} rows={2} />
+                              <Textarea 
+                                {...field} 
+                                rows={2}
+                              />
                             </FormControl>
+                            <FormDescription>
+                              Displayed in service listings and cards
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -787,15 +866,19 @@ export default function ServiceManager() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Icon</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select icon" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
-                                  {iconOptions.map(icon => (
-                                    <SelectItem key={icon} value={icon}>{icon}</SelectItem>
+                                <SelectContent className="max-h-[280px]">
+                                  {availableIcons.map(iconName => (
+                                    <SelectItem key={iconName} value={iconName}>
+                                      <div className="flex items-center">
+                                        {iconName}
+                                      </div>
+                                    </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
@@ -811,59 +894,51 @@ export default function ServiceManager() {
                             <FormItem>
                               <FormLabel>Display Order</FormLabel>
                               <FormControl>
-                                <Input type="number" {...field} />
+                                <Input 
+                                  type="number" 
+                                  min="0" 
+                                  {...field} 
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
                               </FormControl>
+                              <FormDescription>
+                                Lower numbers appear first
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
                       
-                      <div className="flex gap-4 items-center">
-                        <FormField
-                          control={updateForm.control}
-                          name="featured"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between space-y-0 rounded-md border p-3 shadow-sm">
-                              <div className="space-y-0.5">
-                                <FormLabel>Featured Service</FormLabel>
-                                <FormDescription>
-                                  Show this service on the homepage
-                                </FormDescription>
-                              </div>
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                      <FormField
+                        control={updateForm.control}
+                        name="featured"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between space-y-0 rounded-md border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                              <FormLabel>Featured Service</FormLabel>
+                              <FormDescription>
+                                Feature this service on the homepage
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
                     </div>
                     
                     <div className="space-y-4">
                       <FormField
                         control={updateForm.control}
-                        name="fullDescription"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Description</FormLabel>
-                            <FormControl>
-                              <Textarea {...field} rows={8} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={updateForm.control}
                         name="imageUrl"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Image URL</FormLabel>
+                            <FormLabel>Featured Image URL</FormLabel>
                             <div className="flex gap-2">
                               <FormControl>
                                 <Input {...field} />
@@ -882,6 +957,26 @@ export default function ServiceManager() {
                                 />
                               </div>
                             )}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={updateForm.control}
+                        name="fullDescription"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Full Description</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                {...field} 
+                                rows={16}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Displayed on the service detail page. Markdown supported.
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -908,7 +1003,7 @@ export default function ServiceManager() {
         
         {/* Preview Service Dialog */}
         <Dialog open={isPreviewDialogOpen} onOpenChange={setIsPreviewDialogOpen}>
-          <DialogContent className="sm:max-w-[700px]">
+          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{selectedService?.title}</DialogTitle>
               <DialogDescription>
@@ -916,60 +1011,73 @@ export default function ServiceManager() {
               </DialogDescription>
             </DialogHeader>
             {selectedService && (
-              <div className="space-y-4">
-                {selectedService.imageUrl && (
-                  <div className="rounded-md overflow-hidden h-48">
-                    <img 
-                      src={selectedService.imageUrl} 
-                      alt={selectedService.title} 
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://placehold.co/800x400?text=Image+Not+Found";
-                      }}
-                    />
+              <div className="space-y-6">
+                <div className="rounded-md overflow-hidden h-60">
+                  <img 
+                    src={selectedService.imageUrl} 
+                    alt={selectedService.title} 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://placehold.co/800x400?text=Image+Not+Found";
+                    }}
+                  />
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      {React.createElement(
+                        (globalThis as any)['lucide-react'][selectedService.iconName] || Code, 
+                        { className: "h-5 w-5" }
+                      )}
+                    </div>
+                    <h3 className="text-lg font-medium">{selectedService.title}</h3>
                   </div>
-                )}
-                
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Badge variant={selectedService.featured ? "default" : "outline"}>
-                    {selectedService.featured ? "Featured" : "Not Featured"}
-                  </Badge>
-                  <Badge variant="outline">
-                    Order: {selectedService.displayOrder}
-                  </Badge>
-                  <Badge variant="outline">
-                    Icon: {selectedService.iconName}
-                  </Badge>
+                  
+                  {selectedService.featured && <Badge>Featured</Badge>}
                 </div>
                 
                 <div>
-                  <h3 className="text-base font-semibold mb-1">Short Description</h3>
-                  <p className="text-sm text-gray-700">{selectedService.shortDescription}</p>
+                  <h4 className="text-sm font-medium text-gray-700 mb-1">Short Description</h4>
+                  <p className="text-gray-600">{selectedService.shortDescription}</p>
                 </div>
                 
                 <div>
-                  <h3 className="text-base font-semibold mb-1">Full Description</h3>
-                  <div className="bg-gray-50 p-3 rounded-md border text-sm text-gray-700 max-h-64 overflow-auto whitespace-pre-line">
+                  <h4 className="text-sm font-medium text-gray-700 mb-1">Display Order</h4>
+                  <p className="text-gray-600">{selectedService.displayOrder}</p>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Full Description</h4>
+                  <div className="bg-gray-50 p-4 rounded-md border text-sm text-gray-700 max-h-96 overflow-auto whitespace-pre-line">
                     {selectedService.fullDescription}
                   </div>
                 </div>
                 
                 <div className="pt-2">
-                  <h3 className="text-base font-semibold mb-1">URL</h3>
+                  <h4 className="text-sm font-medium text-gray-700 mb-1">URL</h4>
                   <p className="text-sm text-blue-600">/services/{selectedService.slug}</p>
                 </div>
               </div>
             )}
             <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => handleEditService(selectedService)}
+                className="mr-auto"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
               <Button onClick={() => setIsPreviewDialogOpen(false)}>Close</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
       
-      {/* Search and View Toggle */}
+      {/* Search and View Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <div className="relative w-full sm:w-64">
+        <div className="relative w-full sm:w-60">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
           <Input
             type="search"
@@ -1010,20 +1118,20 @@ export default function ServiceManager() {
         </div>
       ) : services && services.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-md">
-          <Package className="h-12 w-12 mx-auto text-gray-400 mb-3" />
+          <Code className="h-12 w-12 mx-auto text-gray-400 mb-3" />
           <h3 className="text-lg font-medium mb-2">No services yet</h3>
-          <p className="text-gray-500 mb-4">Get started by creating your first service</p>
+          <p className="text-gray-500 mb-4">Get started by adding your first service</p>
           <Button onClick={() => setIsNewServiceDialogOpen(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Create Your First Service
+            <PlusCircle className="mr-2 h-4 w-4" /> Add Your First Service
           </Button>
         </div>
-      ) : sortedServices.length === 0 ? (
+      ) : filteredServices.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-md">
           <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-3" />
           <h3 className="text-lg font-medium mb-2">No matching services</h3>
           <p className="text-gray-500 mb-4">Try adjusting your search query</p>
           <Button variant="outline" onClick={() => setSearchQuery("")}>
-            Reset Search
+            Clear Search
           </Button>
         </div>
       ) : viewMode === 'grid' ? (
@@ -1036,7 +1144,8 @@ export default function ServiceManager() {
               onDelete={handleDeleteService}
               onPreview={handlePreviewService}
               onToggleFeatured={handleToggleFeatured}
-              onReorder={handleReorderService}
+              onMoveUp={handleMoveUp}
+              onMoveDown={handleMoveDown}
             />
           ))}
         </div>
@@ -1046,21 +1155,58 @@ export default function ServiceManager() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[50px]">Order</TableHead>
+                <TableHead className="w-[80px]">Image</TableHead>
                 <TableHead>Title</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead className="hidden md:table-cell">Description</TableHead>
+                <TableHead className="hidden md:table-cell">Short Description</TableHead>
+                <TableHead className="hidden md:table-cell">Icon</TableHead>
                 <TableHead className="w-[100px] text-center">Featured</TableHead>
-                <TableHead className="w-[100px] text-right">Actions</TableHead>
+                <TableHead className="w-[150px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedServices.map((service: any) => (
                 <TableRow key={service.id}>
-                  <TableCell className="font-medium">{service.displayOrder}</TableCell>
-                  <TableCell>{service.title}</TableCell>
-                  <TableCell className="text-muted-foreground">/{service.slug}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      {service.displayOrder}
+                      <div>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleMoveUp(service.id)}>
+                          <ArrowUp className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleMoveDown(service.id)}>
+                          <ArrowDown className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+                      <img 
+                        src={service.imageUrl} 
+                        alt={service.title} 
+                        className="max-w-full max-h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://placehold.co/400x300?text=Error";
+                        }}
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    <div className="max-w-xs">
+                      <div className="truncate">{service.title}</div>
+                      <div className="text-xs text-gray-500 truncate">/services/{service.slug}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell max-w-xs">
+                    <div className="truncate">{service.shortDescription}</div>
+                  </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <span className="line-clamp-1">{service.shortDescription}</span>
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      {React.createElement(
+                        (globalThis as any)['lucide-react'][service.iconName] || Code, 
+                        { className: "h-5 w-5" }
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-center">
                     {service.featured ? 
@@ -1076,13 +1222,13 @@ export default function ServiceManager() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditService(service)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handlePreviewService(service)}>
                           <Eye className="mr-2 h-4 w-4" />
                           Preview
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditService(service)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleFeatured(service.id, !service.featured)}>
                           {service.featured ? 
@@ -1091,19 +1237,10 @@ export default function ServiceManager() {
                               Remove Featured
                             </> :
                             <>
-                              <CheckIcon className="mr-2 h-4 w-4" />
+                              <Star className="mr-2 h-4 w-4" />
                               Mark as Featured
                             </>
                           }
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleReorderService(service.id, 'up')}>
-                          <ChevronUp className="mr-2 h-4 w-4" />
-                          Move Up
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleReorderService(service.id, 'down')}>
-                          <ChevronDown className="mr-2 h-4 w-4" />
-                          Move Down
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
