@@ -315,19 +315,20 @@ export default function ServiceRequestForm({
             )}
           />
           
-          <div className="flex justify-end space-x-2">
+          <div className={`${onClose ? 'flex flex-col-reverse sm:flex-row gap-3 sm:gap-2 sm:justify-end' : 'flex justify-end space-x-2'}`}>
             {onClose && (
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={onClose}
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
             )}
             <Button 
               type="submit" 
-              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary transition-all duration-300" 
+              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary transition-all duration-300 w-full sm:w-auto" 
               disabled={isPending}
             >
               {isPending ? (

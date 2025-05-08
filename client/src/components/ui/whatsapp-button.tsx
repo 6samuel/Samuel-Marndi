@@ -50,8 +50,8 @@ const WhatsAppButton = () => {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh]">
+          <DialogHeader className="pt-10 sm:pt-6">
             <DialogTitle>Send a WhatsApp Message</DialogTitle>
             <DialogDescription>
               Have a question? Send me a message directly on WhatsApp.
@@ -59,35 +59,45 @@ const WhatsAppButton = () => {
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
+              <div className="grid sm:grid-cols-4 items-center gap-2 sm:gap-4">
+                <Label htmlFor="name" className="sm:text-right">
                   Name
                 </Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="col-span-3"
+                  className="sm:col-span-3"
                   placeholder="Your name"
                   required
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="message" className="text-right">
+              <div className="grid sm:grid-cols-4 items-start gap-2 sm:gap-4">
+                <Label htmlFor="message" className="sm:text-right pt-2">
                   Message
                 </Label>
                 <Textarea
                   id="message"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="col-span-3"
+                  className="sm:col-span-3 min-h-[100px]"
                   placeholder="How can I help you?"
                   required
                 />
               </div>
             </div>
-            <DialogFooter>
-              <Button type="submit">Send Message</Button>
+            <DialogFooter className="flex flex-col sm:flex-row gap-3 sm:gap-0 pb-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setOpen(false)}
+                className="sm:order-1 order-2"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="sm:order-2 order-1">
+                Send Message
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
