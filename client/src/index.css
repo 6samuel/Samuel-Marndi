@@ -102,4 +102,88 @@
   .animate-float-slower {
     animation: float 10s ease-in-out infinite;
   }
+  
+  /* Phone input custom styling */
+  .phone-input-container {
+    position: relative;
+  }
+  
+  .phone-input {
+    width: 100%;
+  }
+  
+  .phone-input .form-control {
+    width: 100% !important;
+    height: 38px !important;
+    padding-left: 50px !important;
+  }
+  
+  .phone-input-container .flag-dropdown {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(209, 213, 219, 0.5) !important;
+  }
+  
+  .dark .phone-input-container .flag-dropdown {
+    background-color: rgba(31, 41, 55, 0.5) !important;
+    border-color: rgba(75, 85, 99, 0.5) !important;
+  }
+  
+  .phone-input-container .selected-flag {
+    background-color: transparent !important;
+    padding-left: 8px !important;
+  }
+  
+  .phone-input-container .selected-flag:hover,
+  .phone-input-container .selected-flag:focus {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .dark .phone-input-container .selected-flag:hover,
+  .dark .phone-input-container .selected-flag:focus {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+  
+  .phone-select-dropdown {
+    background-color: white !important;
+    border-color: rgba(209, 213, 219, 0.8) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .dark .phone-select-dropdown {
+    background-color: #1f2937 !important;
+    border-color: rgba(75, 85, 99, 0.8) !important;
+    color: white !important;
+  }
+  
+  .phone-select-dropdown .country-list {
+    scrollbar-width: thin;
+  }
+  
+  .phone-select-dropdown .country-list .country:hover,
+  .phone-select-dropdown .country-list .country.highlight {
+    background-color: rgba(249, 115, 22, 0.1) !important;
+  }
+  
+  .dark .phone-select-dropdown .country-list .country:hover,
+  .dark .phone-select-dropdown .country-list .country.highlight {
+    background-color: rgba(249, 115, 22, 0.2) !important;
+  }
+  
+  .phone-select-dropdown .search-box {
+    padding: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .phone-select-dropdown .search-box input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(209, 213, 219, 0.8);
+  }
+  
+  .dark .phone-select-dropdown .search-box input {
+    background-color: #374151;
+    border-color: rgba(75, 85, 99, 0.8);
+    color: white;
+  }
 }

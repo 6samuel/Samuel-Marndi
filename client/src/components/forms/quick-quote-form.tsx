@@ -1,7 +1,7 @@
 import React from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { 
   Form,
   FormControl,
@@ -16,6 +16,8 @@ import { Loader2 } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 // Define form schema
 const quickQuoteSchema = z.object({
@@ -147,11 +149,26 @@ export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps 
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input 
-                        placeholder="Phone Number *" 
-                        {...field} 
-                        className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50 focus:bg-white dark:focus:bg-gray-800" 
-                      />
+                      <div className="phone-input-container">
+                        <Controller
+                          name="phone"
+                          control={form.control}
+                          render={({ field: { onChange, value } }) => (
+                            <PhoneInput
+                              country={'in'} // Default to India
+                              value={value}
+                              onChange={onChange}
+                              inputClass="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50 focus:bg-white dark:focus:bg-gray-800 w-full h-10 rounded-md"
+                              containerClass="phone-input"
+                              buttonClass="phone-select-button"
+                              dropdownClass="phone-select-dropdown"
+                              enableSearch={true}
+                              placeholder="Phone Number *"
+                              searchPlaceholder="Search countries..."
+                            />
+                          )}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
