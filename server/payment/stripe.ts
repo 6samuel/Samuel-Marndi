@@ -21,7 +21,7 @@ export const initStripe = () => {
   }
 };
 
-// Create a payment intent
+// Create a payment intent (Express route handler)
 export const createPaymentIntent = async (req: Request, res: Response) => {
   if (!stripe) {
     return res.status(503).json({ 
@@ -53,6 +53,42 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error creating Stripe payment intent:', error);
     res.status(500).json({ error: error.message });
+  }
+};
+
+// Create a payment intent with parameters directly (for internal use)
+export const createPaymentIntentDirect = async (
+  amount: number, 
+  currency: string = 'inr', 
+  metadata: Record<string, string> = {}
+): Promise<{clientSecret: string | null, id: string | null} | null> => {
+  if (!stripe) {
+    console.error('Stripe payment gateway not available');
+    return null;
+  }
+
+  try {
+    if (!amount || amount <= 0) {
+      throw new Error('Invalid amount');
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents/paise
+      currency,
+      description: 'Samuel Marndi Services',
+      metadata: {
+        integration_check: 'accept_a_payment',
+        ...metadata
+      },
+    });
+
+    return {
+      clientSecret: paymentIntent.client_secret,
+      id: paymentIntent.id,
+    };
+  } catch (error: any) {
+    console.error('Error creating Stripe payment intent:', error);
+    return null;
   }
 };
 

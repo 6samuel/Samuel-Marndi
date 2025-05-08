@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { initStripe, getStripeStatus, createPaymentIntent, handleWebhook } from './stripe';
+import { initStripe, getStripeStatus, createPaymentIntent, createPaymentIntentDirect, handleWebhook } from './stripe';
 import { 
   createOrder as createPaypalOrder, 
   captureOrder as capturePaypalOrder,
@@ -49,6 +49,7 @@ export {
   initStripe,
   getStripeStatus,
   createPaymentIntent,
+  createPaymentIntentDirect,
   handleWebhook,
   
   // PayPal
