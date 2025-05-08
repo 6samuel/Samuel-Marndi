@@ -384,12 +384,6 @@ const SiteHeader = () => {
               {/* Action Buttons (Desktop) */}
               {!isMobile && (
                 <div className="flex items-center space-x-2">
-                  <Link href="/payment" className="mr-2">
-                    <Button variant="outline" size="sm" className="flex items-center gap-1">
-                      <CreditCard className="h-4 w-4" />
-                      <span>Payment</span>
-                    </Button>
-                  </Link>
                   <Link href="/consultation" className="mr-2">
                     <Button variant="outline" size="sm" className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
