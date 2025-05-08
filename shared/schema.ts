@@ -443,3 +443,36 @@ export type InsertABTestVariant = z.infer<typeof insertAbTestVariantSchema>;
 
 export type ABTestHit = typeof abTestHits.$inferSelect;
 export type InsertABTestHit = z.infer<typeof insertAbTestHitSchema>;
+
+// Consultations
+export const consultations = pgTable("consultations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  date: date("date").notNull(),
+  timeSlot: text("time_slot").notNull(),
+  topic: text("topic").notNull(),
+  message: text("message"),
+  paymentStatus: text("payment_status").notNull().default("pending"), // pending, completed, failed, refunded
+  paymentId: text("payment_id"),
+  paymentAmount: integer("payment_amount").notNull().default(1000), // Price in INR
+  paymentMethod: text("payment_method"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  status: text("status").notNull().default("scheduled"), // scheduled, completed, cancelled, rescheduled
+  meetingLink: text("meeting_link"),
+  notes: text("notes"),
+});
+
+export const insertConsultationSchema = createInsertSchema(consultations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  paymentId: true,
+  meetingLink: true,
+  status: true,
+});
+
+export type Consultation = typeof consultations.$inferSelect;
+export type InsertConsultation = z.infer<typeof insertConsultationSchema>;
