@@ -463,6 +463,7 @@ export const consultations = pgTable("consultations", {
   status: text("status").notNull().default("scheduled"), // scheduled, completed, cancelled, rescheduled
   meetingLink: text("meeting_link"),
   notes: text("notes"),
+  duration: integer("duration").default(1), // Duration in hours
 });
 
 export const insertConsultationSchema = createInsertSchema(consultations).omit({
