@@ -3,6 +3,29 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Code, BarChart2, Palette, Brain, Smartphone, Link2 } from "lucide-react";
+import QuickQuoteForm from "@/components/forms/quick-quote-form";
+
+// Wrapper component to handle form state
+const QuickQuoteFormWrapper = () => {
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  if (isSubmitted) {
+    return (
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-8 text-center">
+        <h3 className="text-2xl font-bold mb-4">Thank You!</h3>
+        <p className="mb-6">Your quote request has been submitted. I'll be in touch shortly.</p>
+        <Link href="/services">
+          <Button>
+            Explore My Services
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+  
+  return <QuickQuoteForm onSubmitSuccess={() => setIsSubmitted(true)} />;
+};
 
 const HeroSection = () => {
   const [currentWord, setCurrentWord] = useState(0);
@@ -146,7 +169,7 @@ const HeroSection = () => {
             </motion.div>
           </div>
           
-          {/* Hero Image */}
+          {/* Quick Quote Form */}
           <motion.div 
             className="flex-1"
             variants={itemVariants}
@@ -155,11 +178,16 @@ const HeroSection = () => {
               <div className="absolute -top-6 -left-6 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
               <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
               
-              <img 
-                src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
-                alt="Professional web developer" 
-                className="rounded-lg shadow-2xl relative z-10 w-full h-auto"
-              />
+              {/* Quick Quote Form */}
+              <div className="relative z-10">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                >
+                  <QuickQuoteFormWrapper />
+                </motion.div>
+              </div>
               
               {/* Floating Elements */}
               <div className="absolute top-5 -left-8 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20 hidden md:block">
@@ -198,7 +226,7 @@ const HeroSection = () => {
                 </div>
               </div>
               
-              <div className="absolute bottom-1/3 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20 hidden md:block">
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20 hidden md:block">
                 <div className="flex items-center gap-3 text-sm">
                   <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full">
                     <Smartphone className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
@@ -207,7 +235,7 @@ const HeroSection = () => {
                 </div>
               </div>
               
-              <div className="absolute top-2/3 right-1/2 translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20 hidden md:block">
+              <div className="absolute top-2/3 -right-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg z-20 hidden md:block">
                 <div className="flex items-center gap-3 text-sm">
                   <div className="p-2 bg-sky-100 dark:bg-sky-900 rounded-full">
                     <Link2 className="h-5 w-5 text-sky-600 dark:text-sky-400" />
