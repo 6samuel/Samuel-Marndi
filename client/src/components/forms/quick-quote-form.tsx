@@ -27,7 +27,11 @@ const quickQuoteSchema = z.object({
 
 type QuickQuoteFormValues = z.infer<typeof quickQuoteSchema>;
 
-export default function QuickQuoteForm() {
+interface QuickQuoteFormProps {
+  onSubmitSuccess?: () => void;
+}
+
+export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps = {}) {
   const { toast } = useToast();
   
   // Form definition
@@ -67,6 +71,11 @@ export default function QuickQuoteForm() {
       
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ['/api/contact'] });
+      
+      // Call success callback if provided
+      if (onSubmitSuccess) {
+        onSubmitSuccess();
+      }
     },
     onError: (error: any) => {
       toast({
