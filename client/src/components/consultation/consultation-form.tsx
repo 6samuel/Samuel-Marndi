@@ -98,14 +98,10 @@ export default function ConsultationForm() {
         email: values.email,
         phone: values.phone,
         date: format(values.date, "yyyy-MM-dd"),
-        time: values.time,
+        timeSlot: values.time,
         topic: values.topic,
         additionalInfo: values.additionalInfo || null,
-        status: "pending",
-        paymentStatus: "unpaid",
-        paymentMethod: null,
-        meetingLink: null,
-        notes: null
+        paymentStatus: "unpaid"
       });
       
       if (!response.ok) {
@@ -411,85 +407,113 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-primary/5 p-4 rounded-lg mb-4">
-        <h3 className="font-semibold flex items-center">
-          <Clock className="h-4 w-4 mr-2" />
+    <div className="space-y-5">
+      {/* Consultation fee card */}
+      <div className="bg-primary/5 p-5 rounded-lg border border-primary/10">
+        <h3 className="font-semibold flex items-center text-lg mb-2">
+          <Clock className="h-5 w-5 mr-2 text-primary" />
           Consultation Fee
         </h3>
-        <p className="text-lg font-semibold">₹1000 per hour</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-lg font-semibold">₹1000</p>
+            <p className="text-sm text-muted-foreground">per 1-hour session</p>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            <p>• Professional consultation</p>
+            <p>• Personalized solutions</p>
+            <p>• Follow-up recommendations</p>
+          </div>
+        </div>
       </div>
       
-      <div className="space-y-2">
-        <FormLabel>Select Payment Method</FormLabel>
-        <div className="grid grid-cols-2 gap-2">
+      {/* Payment method selection */}
+      <div className="space-y-3">
+        <h3 className="text-base font-medium">Select Payment Method</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Button
             type="button"
             variant={selectedPaymentMethod === "stripe" ? "default" : "outline"}
             onClick={() => setSelectedPaymentMethod("stripe")}
-            className="justify-start"
+            className="justify-start h-14 px-4"
           >
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" 
                  alt="Stripe" 
-                 className="h-6 mr-2" />
-            Card Payment
+                 className="h-7 mr-3" />
+            <div className="text-left">
+              <p className="font-medium">Card Payment</p>
+              <p className="text-xs text-muted-foreground">Visa, Mastercard, Amex</p>
+            </div>
           </Button>
           
           <Button
             type="button"
             variant={selectedPaymentMethod === "paypal" ? "default" : "outline"}
             onClick={() => setSelectedPaymentMethod("paypal")}
-            className="justify-start"
+            className="justify-start h-14 px-4"
           >
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Paypal_2014_logo.png" 
                  alt="PayPal" 
-                 className="h-6 mr-2" />
-            PayPal
+                 className="h-7 mr-3" />
+            <div className="text-left">
+              <p className="font-medium">PayPal</p>
+              <p className="text-xs text-muted-foreground">Pay with PayPal account</p>
+            </div>
           </Button>
           
           <Button
             type="button"
             variant={selectedPaymentMethod === "razorpay" ? "default" : "outline"}
             onClick={() => setSelectedPaymentMethod("razorpay")}
-            className="justify-start"
+            className="justify-start h-14 px-4"
           >
             <img src="https://razorpay.com/assets/razorpay-logo.svg" 
                  alt="Razorpay" 
-                 className="h-6 mr-2" />
-            Razorpay
+                 className="h-7 mr-3" />
+            <div className="text-left">
+              <p className="font-medium">Razorpay</p>
+              <p className="text-xs text-muted-foreground">Indian payment gateway</p>
+            </div>
           </Button>
           
           <Button
             type="button"
             variant={selectedPaymentMethod === "upi" ? "default" : "outline"}
             onClick={() => setSelectedPaymentMethod("upi")}
-            className="justify-start"
+            className="justify-start h-14 px-4"
           >
             <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" 
                  alt="UPI" 
-                 className="h-6 mr-2" />
-            UPI / QR Code
+                 className="h-7 mr-3" />
+            <div className="text-left">
+              <p className="font-medium">UPI Payment</p>
+              <p className="text-xs text-muted-foreground">Google Pay, PhonePe, etc.</p>
+            </div>
           </Button>
         </div>
       </div>
       
+      {/* Error message display */}
       {paymentError && (
-        <div className="text-red-500 text-sm p-2 bg-red-50 rounded">
-          {paymentError}
+        <div className="text-red-500 text-sm p-3 bg-red-50 rounded-md border border-red-100">
+          <p className="font-medium">Payment Error</p>
+          <p>{paymentError}</p>
         </div>
       )}
       
+      {/* Payment info display after initiation */}
       {paymentData && (
-        <div className="bg-primary/5 p-4 rounded-lg">
-          <h3 className="font-semibold mb-2">Payment Information</h3>
-          <div className="text-sm">
-            {selectedPaymentMethod === "stripe" && paymentData.clientSecret && (
-              <div>
-                <p className="mb-3">Proceed to Stripe checkout to complete your payment:</p>
+        <div className="bg-primary/5 p-5 rounded-lg border border-primary/10">
+          <h3 className="font-semibold mb-3 text-lg">Payment Information</h3>
+          
+          {selectedPaymentMethod === "stripe" && paymentData.clientSecret && (
+            <div className="space-y-3">
+              <div className="p-3 bg-white rounded-md border">
+                <p className="mb-2 font-medium">Secure Card Payment</p>
+                <p className="text-sm mb-4">Complete your payment through Stripe's secure checkout:</p>
                 <Button 
                   className="w-full" 
                   onClick={() => {
-                    // Open Stripe checkout in a new window
                     window.open(
                       `https://checkout.stripe.com/pay/${paymentData.clientSecret}`,
                       "_blank"
@@ -499,15 +523,17 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
                   Open Stripe Checkout
                 </Button>
               </div>
-            )}
-            
-            {selectedPaymentMethod === "paypal" && paymentData.id && (
-              <div>
-                <p className="mb-3">Proceed to PayPal to complete your payment:</p>
+            </div>
+          )}
+          
+          {selectedPaymentMethod === "paypal" && paymentData.id && (
+            <div className="space-y-3">
+              <div className="p-3 bg-white rounded-md border">
+                <p className="mb-2 font-medium">PayPal Payment</p>
+                <p className="text-sm mb-4">Complete your payment through PayPal's secure checkout:</p>
                 <Button 
                   className="w-full" 
                   onClick={() => {
-                    // Open PayPal checkout
                     window.open(
                       `https://www.paypal.com/checkoutnow?token=${paymentData.id}`,
                       "_blank"
@@ -517,57 +543,78 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
                   Open PayPal Checkout
                 </Button>
               </div>
-            )}
-            
-            {selectedPaymentMethod === "razorpay" && paymentData.id && (
-              <div>
-                <p className="mb-3">Proceed to Razorpay to complete your payment:</p>
+            </div>
+          )}
+          
+          {selectedPaymentMethod === "razorpay" && paymentData.id && (
+            <div className="space-y-3">
+              <div className="p-3 bg-white rounded-md border">
+                <p className="mb-2 font-medium">Razorpay Payment</p>
+                <p className="text-sm mb-4">Complete your payment through Razorpay's secure checkout:</p>
                 <Button 
                   className="w-full"
                   onClick={() => {
-                    // In a real implementation, you would use the Razorpay JS SDK here
                     alert("Razorpay integration will open the payment window");
                   }}
                 >
                   Open Razorpay Checkout
                 </Button>
               </div>
-            )}
-            
-            {selectedPaymentMethod === "upi" && paymentData.upiInfo && (
-              <div className="text-center">
-                <p className="mb-2">Scan the QR code or use the UPI ID below:</p>
-                <div className="bg-white p-4 mb-2 inline-block">
-                  {/* Using QRCodeSVG component for a real QR code */}
-                  {paymentData.upiInfo.upiId && (
+            </div>
+          )}
+          
+          {selectedPaymentMethod === "upi" && paymentData.upiInfo && (
+            <div className="flex flex-col md:flex-row gap-5 p-3 bg-white rounded-md border">
+              <div className="flex-1 text-center md:text-left">
+                <p className="font-medium mb-2">UPI Payment Details</p>
+                <p className="text-sm mb-1">Scan the QR code with any UPI app:</p>
+                <ul className="text-xs mb-3 list-disc list-inside text-muted-foreground">
+                  <li>Google Pay</li>
+                  <li>PhonePe</li>
+                  <li>Paytm</li>
+                  <li>BHIM UPI</li>
+                  <li>Banking UPI apps</li>
+                </ul>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">UPI ID:</p>
+                  <code className="bg-gray-100 px-2 py-1 rounded text-sm break-all">{paymentData.upiInfo.upiId}</code>
+                  <p className="text-sm mt-2">Reference: <span className="font-medium">{paymentData.referenceId}</span></p>
+                  <p className="text-sm">Amount: <span className="font-medium">₹1000</span></p>
+                </div>
+              </div>
+              <div className="flex justify-center items-center">
+                {paymentData.upiInfo.upiId && (
+                  <div className="bg-white p-3 border rounded-md inline-block shadow-sm">
                     <QRCodeSVG 
                       value={`upi://pay?pa=${paymentData.upiInfo.upiId}&am=1000&cu=INR&tn=Consultation`}
-                      size={128}
+                      size={150}
                       bgColor={"#ffffff"}
                       fgColor={"#000000"}
                       level={"L"}
                       includeMargin={false}
                     />
-                  )}
-                </div>
-                <p className="font-medium">UPI ID: {paymentData.upiInfo.upiId}</p>
-                <p className="mt-1 text-xs">Reference: {paymentData.referenceId}</p>
-                <p className="mt-2 text-xs">Amount: ₹1000</p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+          
+          <p className="mt-4 text-sm text-center text-muted-foreground">
+            After completing payment, you will receive a confirmation email with the meeting details.
+          </p>
         </div>
       )}
       
+      {/* Payment button */}
       <Button 
         onClick={handlePayment}
-        className="w-full"
+        className="w-full py-6 text-lg"
         disabled={paymentProcessing || !!paymentData}
       >
         {paymentProcessing ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Processing Payment...
           </>
         ) : paymentData ? (
           "Payment Initiated"
@@ -576,11 +623,10 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
         )}
       </Button>
       
-      {paymentData && (
-        <div className="text-xs text-center text-gray-500">
-          After completing payment, you will receive a confirmation email with the meeting details.
-        </div>
-      )}
+      <p className="text-xs text-center text-muted-foreground px-4">
+        By proceeding with the payment, you agree to our terms of service and privacy policy.
+        All payments are secured with industry-standard encryption.
+      </p>
     </div>
   );
 }
