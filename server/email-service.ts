@@ -399,3 +399,73 @@ export async function sendHireRequestNotification(request: any): Promise<boolean
 
   return sendEmail(ADMIN_EMAIL, subject, html);
 }
+
+// Send consultation confirmation email
+export async function sendConsultationConfirmation(consultation: any): Promise<boolean> {
+  const meetingLinkText = consultation.meetingLink 
+    ? `<p>You can join the consultation using this link: <a href="${consultation.meetingLink}" style="color: #007bff;">${consultation.meetingLink}</a></p>` 
+    : '<p>A meeting link will be shared with you closer to the appointment time.</p>';
+
+  const paymentStatusText = consultation.paymentStatus === 'paid' 
+    ? '<p style="color: #28a745;">✓ Payment Received</p>' 
+    : '<p style="color: #dc3545;">⚠ Payment Pending - Please complete your payment to confirm the consultation.</p>';
+
+  const messageHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333;">Your Consultation is Confirmed</h2>
+      <p>Hello ${consultation.name},</p>
+      <p>Your consultation has been confirmed. Here are the details:</p>
+      <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 15px 0;">
+        <p><strong>Date:</strong> ${new Date(consultation.date).toDateString()}</p>
+        <p><strong>Time:</strong> ${consultation.timeSlot}</p>
+        <p><strong>Topic:</strong> ${consultation.topic}</p>
+        ${paymentStatusText}
+      </div>
+      ${meetingLinkText}
+      <p>If you need to reschedule or have any questions, please reply to this email or contact me directly.</p>
+      <p>I'm looking forward to our meeting!</p>
+      <p>Best regards,<br>Samuel Marndi</p>
+    </div>
+  `;
+
+  return await sendEmail(
+    consultation.email,
+    "Your Consultation is Confirmed", 
+    messageHtml
+  );
+}
+
+// Send consultation reminder email
+export async function sendConsultationReminder(consultation: any): Promise<boolean> {
+  const meetingLinkText = consultation.meetingLink 
+    ? `<p>You can join the consultation using this link: <a href="${consultation.meetingLink}" style="color: #007bff;">${consultation.meetingLink}</a></p>` 
+    : '<p>A meeting link will be shared with you before the appointment time.</p>';
+
+  const paymentStatusText = consultation.paymentStatus === 'paid' 
+    ? '<p style="color: #28a745;">✓ Payment Received</p>' 
+    : '<p style="color: #dc3545;">⚠ Payment Pending - Please complete your payment as soon as possible to avoid cancellation.</p>';
+
+  const messageHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333;">Reminder: Upcoming Consultation</h2>
+      <p>Hello ${consultation.name},</p>
+      <p>This is a friendly reminder about your upcoming consultation. Here are the details:</p>
+      <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 15px 0;">
+        <p><strong>Date:</strong> ${new Date(consultation.date).toDateString()}</p>
+        <p><strong>Time:</strong> ${consultation.timeSlot}</p>
+        <p><strong>Topic:</strong> ${consultation.topic}</p>
+        ${paymentStatusText}
+      </div>
+      ${meetingLinkText}
+      <p>If you need to reschedule or have any questions, please reply to this email or contact me directly.</p>
+      <p>I'm looking forward to our meeting!</p>
+      <p>Best regards,<br>Samuel Marndi</p>
+    </div>
+  `;
+
+  return await sendEmail(
+    consultation.email,
+    "Reminder: Upcoming Consultation",
+    messageHtml
+  );
+}
