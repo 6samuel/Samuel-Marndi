@@ -1139,7 +1139,7 @@ export class DatabaseStorage implements IStorage {
   async getConsultations(): Promise<Consultation[]> {
     return await db.select()
       .from(consultations)
-      .orderBy(desc(consultations.requestedAt));
+      .orderBy(desc(consultations.createdAt));
   }
 
   async getConsultationById(id: number): Promise<Consultation | undefined> {
@@ -1155,7 +1155,6 @@ export class DatabaseStorage implements IStorage {
       .insert(consultations)
       .values({
         ...insertConsultation,
-        requestedAt: new Date(),
         status: "pending",
         paymentStatus: "unpaid"
       })
