@@ -44,7 +44,7 @@ const ContactForm = () => {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
   // Get conversion tracking function
-  const { trackConversionEvent } = useConversionTracking(1); // Assuming tracker ID 1 for contact form
+  const { trackEvent } = useConversionTracking(); // Fixed hook usage
   const [phoneValue, setPhoneValue] = useState("");
 
   const form = useForm<FormValues>({
@@ -69,13 +69,13 @@ const ContactForm = () => {
       });
       
       // Track form submission as conversion in all platforms
-      trackConversionEvent(
+      trackEvent(
         'contact_form_submission', 
-        undefined, 
+        'lead_generation',
+        'contact_form',
+        undefined,
         'USD',
-        'lead',
         {
-          category: 'lead_generation',
           service_interest: form.getValues().serviceInterest || 'general',
           lead_source: 'website'
         }

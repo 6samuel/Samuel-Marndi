@@ -1,4 +1,46 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
+
+// Hook for tracking conversions in other components
+export const useConversionTracking = () => {
+  const trackEvent = useCallback((
+    eventType: string, 
+    category?: string, 
+    label?: string, 
+    value?: number, 
+    currency?: string,
+    metadata?: Record<string, any>
+  ) => {
+    // Google Analytics
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', eventType, {
+        event_category: category,
+        event_label: label,
+        value: value,
+        ...metadata
+      });
+    }
+    
+    // Facebook Pixel
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', eventType, {
+        content_category: category,
+        content_name: label,
+        value: value,
+        currency: currency || 'USD',
+        ...metadata
+      });
+    }
+
+    // Twitter Pixel
+    if (typeof window.twq === 'function') {
+      window.twq('track', eventType, metadata);
+    }
+
+    console.log(`Tracked conversion event: ${eventType}`, { category, label, value, metadata });
+  }, []);
+
+  return { trackEvent };
+};
 
 interface ConversionTrackerProps {
   conversionType: string;
