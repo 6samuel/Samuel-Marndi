@@ -351,6 +351,17 @@ export async function sendPartnerApplicationNotification(application: any): Prom
   // Also send SMS notification
   const smsText = `New partner application from ${application.name}. Please check your dashboard.`;
   sendSMS(ADMIN_PHONE, smsText).catch(console.error);
+  
+  // Send confirmation email to the user
+  if (application.email) {
+    sendSubmissionConfirmation({
+      ...application,
+      type: 'partnership',
+      subject: 'Partnership Application'
+    }).catch(err => {
+      console.error('Failed to send partner application confirmation email:', err);
+    });
+  }
 
   return sendEmail(ADMIN_EMAIL, subject, html);
 }
@@ -368,12 +379,23 @@ export async function sendHireRequestNotification(request: any): Promise<boolean
     <p><strong>Budget:</strong> ${request.budget || 'Not specified'}</p>
     <p><strong>Timeline:</strong> ${request.timeline || 'Not specified'}</p>
     <p><strong>Project Details:</strong></p>
-    <p>${request.details}</p>
+    <p>${request.details || request.servicesNeeded || request.message || ''}</p>
   `;
 
   // Also send SMS notification
   const smsText = `New hire request from ${request.name}. Please check your dashboard.`;
   sendSMS(ADMIN_PHONE, smsText).catch(console.error);
+  
+  // Send confirmation email to the user
+  if (request.email) {
+    sendSubmissionConfirmation({
+      ...request,
+      type: 'hire-request',
+      subject: 'Hire Request Submission'
+    }).catch(err => {
+      console.error('Failed to send hire request confirmation email:', err);
+    });
+  }
 
   return sendEmail(ADMIN_EMAIL, subject, html);
 }
