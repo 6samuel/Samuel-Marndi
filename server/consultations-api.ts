@@ -54,7 +54,9 @@ export const createConsultation = async (req: Request, res: Response) => {
       timeSlot,
       topic,
       additionalInfo,
-      paymentStatus = "unpaid"
+      paymentStatus = "unpaid",
+      paymentAmount = 1000, // Default amount if not specified
+      duration = 1 // Default duration (1 hour) if not specified
     } = req.body;
 
     // Basic validation
@@ -70,14 +72,13 @@ export const createConsultation = async (req: Request, res: Response) => {
       date,
       timeSlot,
       topic,
-      additionalInfo,
+      message: additionalInfo, // Map additionalInfo to message field
       status: "pending",
       paymentStatus,
-      paymentAmount: 1000, // Default amount
+      paymentAmount, // Use the dynamic amount based on duration
       paymentMethod: null,
       paymentId: null,
-      meetingLink: null,
-      notes: null
+      notes: `Duration: ${duration} hour(s)`
     });
 
     res.status(201).json({ 
