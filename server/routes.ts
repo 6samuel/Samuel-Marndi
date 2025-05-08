@@ -1918,50 +1918,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Process payment based on the payment method
       switch (paymentMethod) {
         case 'stripe':
-          paymentData = await createPaymentIntent({
-            amount,
-            currency: 'inr',
-            metadata: { consultationId: id.toString() }
-          });
+          // Create the Stripe payment intent
+          if (typeof createPaymentIntent === 'function') {
+            paymentData = await createPaymentIntent(
+              amount,
+              'inr',
+              { consultationId: id.toString() }
+            );
+          } else {
+            throw new Error("Stripe payment handler is not properly configured");
+          }
           break;
         case 'paypal':
           // Create temporary response to get PayPal information
           const tempRes = {
             json: (data: any) => { paymentData = data; }
-          } as any;
+          } as Response;
           
-          await createPaypalOrder({
-            amount: amount.toString(),
-            currency: 'INR',
-            metadata: { consultationId: id.toString() }
-          }, tempRes);
+          // Create mock request with the necessary data
+          const mockPaypalReq = {
+            body: {
+              amount: amount.toString(),
+              currency: 'INR',
+              intent: 'CAPTURE',
+              metadata: { consultationId: id.toString() }
+            }
+          } as Request;
+          
+          await createPaypalOrder(mockPaypalReq, tempRes);
           break;
         case 'razorpay':
           // Create temporary response to get Razorpay information
           const razorpayTempRes = {
             json: (data: any) => { paymentData = data; }
-          } as any;
+          } as Response;
           
-          await createRazorpayOrder({
-            amount: amount * 100,
-            metadata: { consultationId: id.toString() }
-          }, razorpayTempRes);
+          // Create mock request with the necessary data
+          const mockRazorpayReq = {
+            body: {
+              amount: amount * 100,
+              metadata: { consultationId: id.toString() }
+            }
+          } as Request;
+          
+          await createRazorpayOrder(mockRazorpayReq, razorpayTempRes);
           break;
         case 'upi':
           // Create temporary response to get UPI information
           const upiTempRes = {
             json: (data: any) => { paymentData = { upiInfo: data }; }
-          } as any;
+          } as Response;
           
           await upiHandler.getUpiInfo(req, upiTempRes);
           
-          // Add additional information
-          paymentData = {
-            ...paymentData,
-            referenceId: `CONSULT-${id}-${Date.now()}`,
-            amount,
-            currency: 'INR'
-          };
+          // Add additional information if paymentData exists
+          if (paymentData && paymentData.upiInfo) {
+            paymentData = {
+              upiInfo: paymentData.upiInfo,
+              referenceId: `CONSULT-${id}-${Date.now()}`,
+              amount,
+              currency: 'INR'
+            };
+          }
           break;
         default:
           return res.status(400).json({ message: "Invalid payment method" });
