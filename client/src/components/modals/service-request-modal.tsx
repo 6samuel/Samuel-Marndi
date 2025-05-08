@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import ServiceRequestForm from '@/components/forms/service-request-form';
 import { useQuery } from '@tanstack/react-query';
@@ -20,13 +21,13 @@ export default function ServiceRequestModal({
   serviceId
 }: ServiceRequestModalProps) {
   // Fetch all services for the dropdown
-  const { data: services } = useQuery({
+  const { data: services } = useQuery<any[]>({
     queryKey: ['/api/services'],
     select: (data) => {
-      return data?.map((service: any) => ({
+      return Array.isArray(data) ? data.map((service) => ({
         id: service.id,
         title: service.title
-      }));
+      })) : [];
     }
   });
 
@@ -35,6 +36,9 @@ export default function ServiceRequestModal({
       <DialogContent className="sm:max-w-[600px] p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle>Request This Service</DialogTitle>
+          <DialogDescription>
+            Fill out the form below to request more information about this service
+          </DialogDescription>
         </DialogHeader>
         <div className="p-6 pt-2">
           <ServiceRequestForm

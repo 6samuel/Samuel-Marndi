@@ -178,13 +178,20 @@ const Services = () => {
                         {service.fullDescription.split(' ').slice(0, 30).join(' ')}...
                       </p>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="flex flex-col gap-3">
                       <Link href={`/services/${service.slug}`}>
                         <Button className="w-full">
                           Learn More
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-primary/30 text-primary hover:bg-primary/5"
+                        onClick={() => openRequestModal(service.id)}
+                      >
+                        Request this service
+                      </Button>
                     </CardFooter>
                   </Card>
                 </motion.div>
@@ -333,6 +340,13 @@ const Services = () => {
           </motion.div>
         </section>
       </div>
+
+      {/* Service Request Modal */}
+      <ServiceRequestModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+        serviceId={selectedServiceId}
+      />
     </>
   );
 };
