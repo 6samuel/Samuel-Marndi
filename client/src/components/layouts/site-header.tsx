@@ -330,8 +330,9 @@ const SiteHeader = () => {
                   
                   {/* Partner Link */}
                   <NavigationMenuItem>
-                    <Link href="/partners" passHref legacyBehavior>
-                      <NavigationMenuLink 
+                    <NavigationMenuLink asChild>
+                      <Link 
+                        href="/partners"
                         className={cn(
                           "inline-flex items-center px-4 py-2 text-sm font-medium transition-colors",
                           location === "/partners" 
@@ -340,14 +341,15 @@ const SiteHeader = () => {
                         )}
                       >
                         Partner
-                      </NavigationMenuLink>
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                   
                   {/* Contact Link */}
                   <NavigationMenuItem>
-                    <Link href="/contact" passHref legacyBehavior>
-                      <NavigationMenuLink 
+                    <NavigationMenuLink asChild>
+                      <Link 
+                        href="/contact"
                         className={cn(
                           "inline-flex items-center px-4 py-2 text-sm font-medium transition-colors",
                           location === "/contact" 
@@ -356,8 +358,8 @@ const SiteHeader = () => {
                         )}
                       >
                         Contact
-                      </NavigationMenuLink>
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
