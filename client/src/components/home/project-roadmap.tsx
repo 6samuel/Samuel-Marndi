@@ -107,72 +107,128 @@ export default function ProjectRoadmap() {
 
         <div 
           ref={roadmapRef}
-          className="relative mt-20 pb-10"
+          className="relative mt-20 pb-10 overflow-hidden"
         >
           {/* Timeline line */}
-          <div className="absolute h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-teal-500 top-9 left-0 right-0 z-0 rounded-full"/>
-
-          <div className="flex overflow-x-auto pb-10 hide-scrollbar scroll-smooth">
-            <div className="flex space-x-8 md:space-x-12 px-4">
-              {projectSteps.map((step, index) => (
-                <motion.div
-                  key={step.step}
-                  className="flex-shrink-0 w-56 relative"
-                  initial="hidden"
-                  animate={controls}
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: {
-                      opacity: 1,
-                      y: 0,
-                      transition: {
-                        delay: index * 0.1,
-                        duration: 0.5,
-                      },
+          <div className="absolute h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-teal-500 top-12 left-0 right-0 z-0 rounded-full opacity-70 hidden md:block"/>
+          
+          {/* Mobile & Desktop View */}
+          <div className="flex flex-col md:hidden space-y-8 px-4 max-w-md mx-auto">
+            {projectSteps.map((step, index) => (
+              <motion.div
+                key={step.step}
+                className="flex items-start gap-4 relative"
+                initial="hidden"
+                animate={controls}
+                variants={{
+                  hidden: { opacity: 0, x: -20 },
+                  visible: {
+                    opacity: 1,
+                    x: 0,
+                    transition: {
+                      delay: index * 0.1,
+                      duration: 0.5,
                     },
-                  }}
-                >
-                  {/* Step Circle */}
-                  <div className={`${step.color} w-20 h-20 rounded-full flex items-center justify-center shadow-lg relative z-10 mx-auto mb-4`}>
-                    <step.icon className="w-8 h-8" />
+                  },
+                }}
+              >
+                {/* Connection Line */}
+                {index < projectSteps.length - 1 && (
+                  <div className="absolute left-7 top-14 w-1 h-16 bg-gradient-to-b from-current to-blue-400" style={{ color: step.color.split(' ')[0] }}></div>
+                )}
+                
+                {/* Step Circle with Number */}
+                <div className="relative">
+                  <div className={`${step.color} w-14 h-14 rounded-full flex items-center justify-center shadow-lg relative z-10`}>
+                    <step.icon className="w-6 h-6" />
                   </div>
-                  
-                  {/* Step Number */}
-                  <div className="absolute top-0 right-0 -mt-2 -mr-2 bg-white dark:bg-gray-800 rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20">
+                  <div className="absolute -top-1 -right-1 bg-white dark:bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20">
                     {step.step}
                   </div>
-
-                  {/* Arrow Icon (except for the last item) */}
-                  {index < projectSteps.length - 1 && (
-                    <div className="absolute top-9 -right-6 transform z-10">
-                      <ArrowRight className="w-4 h-4 text-primary" />
-                    </div>
-                  )}
-                  
-                  {/* Step Content */}
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {step.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                </div>
+                
+                {/* Step Content */}
+                <div className="pt-1">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    {step.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
+          
+          {/* Desktop Horizontal Timeline */}
+          <div className="hidden md:block">
+            <div className="flex overflow-x-auto pb-10 hide-scrollbar scroll-smooth">
+              <div className="flex space-x-10 md:space-x-14 px-4">
+                {projectSteps.map((step, index) => (
+                  <motion.div
+                    key={step.step}
+                    className="flex-shrink-0 w-52 relative"
+                    initial="hidden"
+                    animate={controls}
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      visible: {
+                        opacity: 1,
+                        y: 0,
+                        transition: {
+                          delay: index * 0.1,
+                          duration: 0.5,
+                        },
+                      },
+                    }}
+                  >
+                    {/* Step Circle */}
+                    <div className={`${step.color} w-24 h-24 rounded-full flex items-center justify-center shadow-lg relative z-10 mx-auto mb-4`}>
+                      <step.icon className="w-10 h-10" />
+                    </div>
+                    
+                    {/* Step Number */}
+                    <div className="absolute top-0 right-0 -mt-2 -mr-2 bg-white dark:bg-gray-800 rounded-full w-9 h-9 flex items-center justify-center text-sm font-bold border-2 border-primary text-primary z-20">
+                      {step.step}
+                    </div>
 
-          {/* Scroll Indicator */}
-          <div className="flex justify-center mt-4">
-            <motion.div
-              animate={{ x: [0, 10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className="flex items-center text-sm text-gray-500 dark:text-gray-400"
-            >
-              <span>Scroll to view entire process</span>
-              <ChevronRight className="ml-1 w-4 h-4" />
-            </motion.div>
+                    {/* Arrow Icon (except for the last item) */}
+                    {index < projectSteps.length - 1 && (
+                      <div className="absolute top-12 -right-8 transform z-10">
+                        <motion.div
+                          animate={{ x: [0, 5, 0] }}
+                          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: index * 0.2 }}
+                        >
+                          <ArrowRight className="w-6 h-6 text-primary" />
+                        </motion.div>
+                      </div>
+                    )}
+                    
+                    {/* Step Content */}
+                    <div className="text-center px-2">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        {step.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {step.description}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Scroll Indicator */}
+            <div className="flex justify-center mt-4">
+              <motion.div
+                animate={{ x: [0, 10, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                className="flex items-center text-sm text-gray-500 dark:text-gray-400"
+              >
+                <span>Scroll to view entire process</span>
+                <ChevronRight className="ml-1 w-4 h-4" />
+              </motion.div>
+            </div>
           </div>
         </div>
 

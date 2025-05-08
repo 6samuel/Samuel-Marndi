@@ -222,8 +222,8 @@ const techCategories = [
       { icon: SiTwilio, name: "Twilio", color: "#F22F46" },
       { icon: SiSendgrid, name: "SendGrid", color: "#1A82E2" },
       { icon: SiMailchimp, name: "Mailchimp", color: "#FFE01B" },
-      { icon: SiRabbitmq, name: "RabbitMQ", color: "#FF6600" },
-      { icon: SiKafka, name: "Kafka", color: "#000000" },
+      { icon: FaServer, name: "RabbitMQ", color: "#FF6600" },
+      { icon: FaServer, name: "Kafka", color: "#000000" },
     ]
   },
   {
@@ -245,7 +245,7 @@ const techCategories = [
       { icon: SiGoogletagmanager, name: "GTM", color: "#246FDB" },
       { icon: SiGooglesearchconsole, name: "Search Console", color: "#458CF5" },
       { icon: SiHubspot, name: "HubSpot", color: "#FF7A59" },
-      { icon: SiPowerbi, name: "Power BI", color: "#F2C811" },
+      { icon: FaNetworkWired, name: "Power BI", color: "#F2C811" },
       { icon: SiTableau, name: "Tableau", color: "#E97627" },
       { icon: SiMetabase, name: "Metabase", color: "#509EE3" },
     ]
