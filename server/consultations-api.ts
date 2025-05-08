@@ -136,11 +136,9 @@ export const updateConsultationStatus = async (req: Request, res: Response) => {
 };
 
 // Update consultation payment status (admin only)
+// Note: isAdmin middleware should be applied in routes.ts, not called as a function here
 export const updateConsultationPaymentStatus = async (req: Request, res: Response) => {
   try {
-    if (!isAdmin(req)) {
-      return res.status(403).json({ message: "Unauthorized: Admin access required" });
-    }
 
     const consultationId = parseInt(req.params.id);
     
@@ -176,11 +174,9 @@ export const updateConsultationPaymentStatus = async (req: Request, res: Respons
 };
 
 // Update consultation details (admin only)
+// Note: isAdmin middleware should be applied in routes.ts, not called as a function here
 export const updateConsultation = async (req: Request, res: Response) => {
   try {
-    if (!isAdmin(req)) {
-      return res.status(403).json({ message: "Unauthorized: Admin access required" });
-    }
 
     const consultationId = parseInt(req.params.id);
     
@@ -210,11 +206,9 @@ export const updateConsultation = async (req: Request, res: Response) => {
 };
 
 // Delete consultation (admin only)
+// Note: isAdmin middleware should be applied in routes.ts, not called as a function here
 export const deleteConsultation = async (req: Request, res: Response) => {
   try {
-    if (!isAdmin(req)) {
-      return res.status(403).json({ message: "Unauthorized: Admin access required" });
-    }
 
     const consultationId = parseInt(req.params.id);
     
@@ -300,11 +294,9 @@ export const processConsultationPayment = async (req: Request, res: Response) =>
 };
 
 // Send reminder email (admin only)
+// Note: isAdmin middleware should be applied in routes.ts, not called as a function here
 export const sendReminder = async (req: Request, res: Response) => {
   try {
-    if (!isAdmin(req)) {
-      return res.status(403).json({ message: "Unauthorized: Admin access required" });
-    }
 
     const consultationId = parseInt(req.params.id);
     
