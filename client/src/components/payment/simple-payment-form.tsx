@@ -155,7 +155,7 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
   if (currentStep === 1) {
     return (
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mx-auto max-w-md">
           <FormField
             control={form.control}
             name="amount"
@@ -323,7 +323,7 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
   // Review step (step 2)
   const formValues = form.getValues();
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mx-auto max-w-md">
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">

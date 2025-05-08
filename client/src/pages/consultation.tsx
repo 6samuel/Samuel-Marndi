@@ -119,8 +119,6 @@ const ConsultationPage = () => {
           </div>
         </div>
       </div>
-
-      <SiteFooter />
     </>
   );
 };
