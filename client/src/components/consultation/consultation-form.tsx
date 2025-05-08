@@ -493,6 +493,37 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
     processPaymentMutation.mutate(selectedPaymentMethod);
   };
 
+  // Fetch consultation details to display correct amount
+  const [consultation, setConsultation] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    if (consultationId) {
+      const fetchConsultation = async () => {
+        try {
+          setIsLoading(true);
+          const response = await fetch(`/api/consultations/${consultationId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setConsultation(data.consultation);
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to fetch consultation details",
+              variant: "destructive",
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching consultation:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      fetchConsultation();
+    }
+  }, [consultationId, toast]);
+
   return (
     <div className="space-y-5">
       {/* Consultation fee card */}
@@ -501,17 +532,37 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
           <Clock className="h-5 w-5 mr-2 text-primary" />
           Consultation Fee
         </h3>
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-lg font-semibold">₹1000</p>
-            <p className="text-sm text-muted-foreground">per 1-hour session</p>
+        {isLoading ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-          <div className="text-sm text-muted-foreground">
-            <p>• Professional consultation</p>
-            <p>• Personalized solutions</p>
-            <p>• Follow-up recommendations</p>
+        ) : consultation ? (
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-lg font-semibold">₹{consultation.paymentAmount || 1000}</p>
+              <p className="text-sm text-muted-foreground">
+                for {consultation.notes?.match(/Duration: (\d+) hour/)?.[1] || 1} hour(s) consultation
+              </p>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              <p>• Professional consultation</p>
+              <p>• Personalized solutions</p>
+              <p>• Follow-up recommendations</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-lg font-semibold">₹1000</p>
+              <p className="text-sm text-muted-foreground">per 1-hour session</p>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              <p>• Professional consultation</p>
+              <p>• Personalized solutions</p>
+              <p>• Follow-up recommendations</p>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Payment method selection */}
@@ -666,14 +717,14 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
                   <p className="text-sm font-medium">UPI ID:</p>
                   <code className="bg-gray-100 px-2 py-1 rounded text-sm break-all">{paymentData.upiInfo.upiId}</code>
                   <p className="text-sm mt-2">Reference: <span className="font-medium">{paymentData.referenceId}</span></p>
-                  <p className="text-sm">Amount: <span className="font-medium">₹1000</span></p>
+                  <p className="text-sm">Amount: <span className="font-medium">₹{consultation?.paymentAmount || 1000}</span></p>
                 </div>
               </div>
               <div className="flex justify-center items-center">
                 {paymentData.upiInfo.upiId && (
                   <div className="bg-white p-3 border rounded-md inline-block shadow-sm">
                     <QRCodeSVG 
-                      value={`upi://pay?pa=${paymentData.upiInfo.upiId}&am=1000&cu=INR&tn=Consultation`}
+                      value={`upi://pay?pa=${paymentData.upiInfo.upiId}&am=${consultation?.paymentAmount || 1000}&cu=INR&tn=Consultation`}
                       size={150}
                       bgColor={"#ffffff"}
                       fgColor={"#000000"}
@@ -696,17 +747,22 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
       <Button 
         onClick={handlePayment}
         className="w-full py-6 text-lg"
-        disabled={paymentProcessing || !!paymentData}
+        disabled={paymentProcessing || !!paymentData || isLoading}
       >
         {paymentProcessing ? (
           <>
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             Processing Payment...
           </>
+        ) : isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Loading...
+          </>
         ) : paymentData ? (
           "Payment Initiated"
         ) : (
-          "Pay Now - ₹1000"
+          `Pay Now - ₹${consultation?.paymentAmount || 1000}`
         )}
       </Button>
       
