@@ -229,28 +229,28 @@ const HeroSection = () => {
               variants={itemVariants}
             >
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                MY PROFESSIONAL BRANDING
+                TRUSTED BY BUSINESSES WORLDWIDE
               </p>
               <div className="flex flex-wrap justify-center lg:justify-start gap-8">
                 <img 
-                  src="/images/logos/samuel-marndi-logo.png" 
-                  alt="Samuel Marndi" 
-                  className="h-10 w-auto dark:brightness-150"
+                  src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/microsoft.svg" 
+                  alt="Microsoft" 
+                  className="h-6 w-auto opacity-50 dark:invert"
                 />
                 <img 
-                  src="/images/logos/samuel-marndi-logo-text.png" 
-                  alt="Samuel Marndi Text Logo" 
-                  className="h-10 w-auto dark:brightness-150"
+                  src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/adobe.svg" 
+                  alt="Adobe" 
+                  className="h-6 w-auto opacity-50 dark:invert"
                 />
                 <img 
-                  src="/images/logos/sm-icon.png" 
-                  alt="SM Icon" 
-                  className="h-8 w-auto dark:brightness-150"
+                  src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/shopify.svg" 
+                  alt="Shopify" 
+                  className="h-6 w-auto opacity-50 dark:invert"
                 />
                 <img 
-                  src="/images/logos/samuel-marndi-icon.png" 
-                  alt="Samuel Marndi Icon" 
-                  className="h-8 w-auto dark:brightness-150"
+                  src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/slack.svg" 
+                  alt="Slack" 
+                  className="h-6 w-auto opacity-50 dark:invert"
                 />
               </div>
             </motion.div>
