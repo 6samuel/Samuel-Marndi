@@ -7,7 +7,14 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { HelmetProvider } from "react-helmet-async";
-import TrackingScripts from "@/components/tracking/tracking-scripts";
+import { lazy, Suspense } from "react";
+
+// Lazy load tracking scripts
+const TrackingScripts = lazy(() => 
+  import("@/components/tracking/tracking-scripts").then(module => ({
+    default: module.default
+  }))
+);
 
 // Pages
 import NotFound from "@/pages/not-found";
@@ -107,7 +114,9 @@ function App() {
           <ThemeProvider defaultTheme="light" storageKey="sm-theme">
             <TooltipProvider>
               <Toaster />
-              <TrackingScripts />
+              <Suspense fallback={null}>
+                <TrackingScripts />
+              </Suspense>
               <Router />
             </TooltipProvider>
           </ThemeProvider>
