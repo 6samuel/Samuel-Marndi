@@ -1030,6 +1030,70 @@ export class MemStorage implements IStorage {
       status: "running"
     };
   }
+
+  // Consultation operations
+  async getConsultations(): Promise<Consultation[]> {
+    return Array.from(this.consultations.values())
+      .sort((a, b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
+  }
+
+  async getConsultationById(id: number): Promise<Consultation | undefined> {
+    return this.consultations.get(id);
+  }
+
+  async createConsultation(insertConsultation: InsertConsultation): Promise<Consultation> {
+    const id = this.consultationId++;
+    const consultation: Consultation = {
+      ...insertConsultation,
+      id,
+      requestedAt: new Date(),
+      status: "pending",
+      paymentStatus: "unpaid"
+    };
+    this.consultations.set(id, consultation);
+    return consultation;
+  }
+
+  async updateConsultation(id: number, consultationData: Partial<InsertConsultation>): Promise<Consultation | undefined> {
+    const consultation = this.consultations.get(id);
+    if (!consultation) return undefined;
+    
+    const updatedConsultation: Consultation = { ...consultation, ...consultationData };
+    this.consultations.set(id, updatedConsultation);
+    return updatedConsultation;
+  }
+
+  async updateConsultationStatus(id: number, status: string): Promise<Consultation | undefined> {
+    const consultation = this.consultations.get(id);
+    if (!consultation) return undefined;
+    
+    const updatedConsultation: Consultation = { ...consultation, status };
+    this.consultations.set(id, updatedConsultation);
+    return updatedConsultation;
+  }
+
+  async updateConsultationPaymentStatus(
+    id: number, 
+    paymentStatus: string, 
+    paymentId?: string, 
+    paymentMethod?: string
+  ): Promise<Consultation | undefined> {
+    const consultation = this.consultations.get(id);
+    if (!consultation) return undefined;
+    
+    const updatedConsultation: Consultation = { 
+      ...consultation, 
+      paymentStatus,
+      paymentId,
+      paymentMethod 
+    };
+    this.consultations.set(id, updatedConsultation);
+    return updatedConsultation;
+  }
+
+  async deleteConsultation(id: number): Promise<boolean> {
+    return this.consultations.delete(id);
+  }
 }
 
 // Import database storage
