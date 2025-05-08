@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -44,14 +44,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { CalendarIcon, Clock, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Define available time slots for consultation (9 AM to 7 PM)
-const timeSlots = Array.from({ length: 11 }, (_, i) => {
+// Define available time slots (9 AM to 8 PM)
+const hours = Array.from({ length: 12 }, (_, i) => {
   const hour = i + 9;
   const formattedHour = hour > 12 ? hour - 12 : hour;
   const period = hour >= 12 ? "PM" : "AM";
+  const value = hour.toString().padStart(2, '0');
   return {
-    value: `${hour}:00`,
-    label: `${formattedHour}:00 ${period}`
+    value,
+    label: `${formattedHour}:00 ${period}`,
+    hour
   };
 });
 
@@ -63,18 +65,34 @@ const formSchema = z.object({
   date: z.date({
     required_error: "Please select a date for your consultation",
   }),
-  time: z.string({
-    required_error: "Please select a time slot",
+  fromHour: z.string({
+    required_error: "Please select a start time",
+  }),
+  toHour: z.string({
+    required_error: "Please select an end time",
   }),
   topic: z.string().min(5, "Please provide a brief description of your consultation topic"),
   additionalInfo: z.string().optional(),
+}).refine((data) => {
+  // Validate that toHour is greater than fromHour
+  return parseInt(data.toHour) > parseInt(data.fromHour);
+}, {
+  message: "End time must be after start time",
+  path: ["toHour"]
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
+// Price per hour for consultation (in INR)
+const HOURLY_RATE = 1000;
+
 export default function ConsultationForm() {
   const [isPaymentStep, setIsPaymentStep] = useState(false);
   const [consultationId, setConsultationId] = useState<number | null>(null);
+  
+  // State to track the consultation duration and price
+  const [duration, setDuration] = useState<number>(1);
+  const [price, setPrice] = useState<number>(HOURLY_RATE);
 
   // Define the form
   const form = useForm<FormValues>({
@@ -88,20 +106,41 @@ export default function ConsultationForm() {
     },
   });
 
+  // Update duration and price when from/to hours change
+  const fromHour = form.watch("fromHour");
+  const toHour = form.watch("toHour");
+
+  // Calculate duration and price when from/to hours change
+  useEffect(() => {
+    if (fromHour && toHour) {
+      const from = parseInt(fromHour);
+      const to = parseInt(toHour);
+      if (to > from) {
+        const newDuration = to - from;
+        setDuration(newDuration);
+        setPrice(newDuration * HOURLY_RATE);
+      }
+    }
+  }, [fromHour, toHour]);
+
   // Create consultation mutation
   const { toast } = useToast();
   
   const createConsultationMutation = useMutation({
     mutationFn: async (values: FormValues) => {
+      const timeSlot = `${values.fromHour}:00-${values.toHour}:00`;
+      
       const response = await apiRequest("POST", "/api/consultations", {
         name: values.name,
         email: values.email,
         phone: values.phone,
         date: format(values.date, "yyyy-MM-dd"),
-        timeSlot: values.time,
+        timeSlot,
         topic: values.topic,
         additionalInfo: values.additionalInfo || null,
-        paymentStatus: "unpaid"
+        paymentStatus: "unpaid",
+        paymentAmount: price,
+        duration: duration
       });
       
       if (!response.ok) {
@@ -141,7 +180,7 @@ export default function ConsultationForm() {
       <CardHeader>
         <CardTitle className="text-2xl font-semibold">Book a Consultation</CardTitle>
         <CardDescription>
-          Fill in the details below to schedule a 1-hour consultation (₹1000)
+          Fill in the details below to schedule your consultation (₹{HOURLY_RATE} per hour)
         </CardDescription>
       </CardHeader>
       
@@ -199,67 +238,67 @@ export default function ConsultationForm() {
                 )}
               />
               
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => 
+                            date < new Date() || 
+                            date > new Date(new Date().setMonth(new Date().getMonth() + 2))
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => 
-                              date < new Date() || 
-                              date > new Date(new Date().setMonth(new Date().getMonth() + 2))
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="time"
+                  name="fromHour"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Time</FormLabel>
+                      <FormLabel>Start Time</FormLabel>
                       <Select 
                         onValueChange={field.onChange} 
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select time slot" />
+                            <SelectValue placeholder="From" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {timeSlots.map((slot) => (
+                          {hours.map((slot) => (
                             <SelectItem key={slot.value} value={slot.value}>
                               {slot.label}
                             </SelectItem>
@@ -270,7 +309,55 @@ export default function ConsultationForm() {
                     </FormItem>
                   )}
                 />
+                
+                <FormField
+                  control={form.control}
+                  name="toHour"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Time</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="To" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {hours.map((slot) => (
+                            <SelectItem 
+                              key={slot.value} 
+                              value={slot.value}
+                              disabled={fromHour && parseInt(slot.value) <= parseInt(fromHour)}
+                            >
+                              {slot.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
+              
+              {/* Price display */}
+              {fromHour && toHour && toHour > fromHour && (
+                <div className="bg-primary/5 p-4 rounded-lg border border-primary/10 mt-2">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Consultation Duration:</p>
+                      <p className="text-lg font-semibold">{duration} {duration === 1 ? "hour" : "hours"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Price:</p>
+                      <p className="text-lg font-semibold">₹{price}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <FormField
                 control={form.control}
