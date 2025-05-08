@@ -38,12 +38,7 @@ const Contact = () => {
       />
       
       {/* Conversion tracking for marketing campaigns */}
-      <ConversionTracker 
-        trackingId="UA-XXXXXXXX-X" // Replace with actual Google Analytics ID
-        pixelId="XXXXXXXXXX" // Replace with actual Facebook Pixel ID
-        uetTagId="XXXXXXXX" // Replace with actual Microsoft UET Tag ID
-        adsTrackerId={1} // ID for internal tracking system
-      />
+      <ConversionTracker adsTrackerId={1} />
 
       <div className="pt-16 pb-24">
         {/* Hero Section */}
@@ -157,30 +152,51 @@ const Contact = () => {
                     <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">
                       Connect with Me
                     </h2>
-                    <div className="flex space-x-4">
+                    <div className="flex flex-wrap gap-4">
                       <a 
-                        href="https://linkedin.com/in/" 
+                        href="https://www.linkedin.com/in/samuel-marndi/" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-700 dark:text-gray-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary-foreground transition-colors"
+                        aria-label="LinkedIn Profile"
                       >
                         <FaLinkedin className="h-5 w-5" />
                       </a>
                       <a 
-                        href="https://twitter.com/" 
+                        href="https://twitter.com/SamuelMarndi" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-700 dark:text-gray-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary-foreground transition-colors"
+                        aria-label="Twitter Profile"
                       >
                         <FaTwitter className="h-5 w-5" />
                       </a>
                       <a 
-                        href="https://instagram.com/" 
+                        href="https://github.com/6samuel" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-700 dark:text-gray-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary-foreground transition-colors"
+                        aria-label="GitHub Profile"
                       >
-                        <FaInstagram className="h-5 w-5" />
+                        <FaGithub className="h-5 w-5" />
+                      </a>
+                      <a 
+                        href="https://www.facebook.com/samuel.marndi/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-700 dark:text-gray-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary-foreground transition-colors"
+                        aria-label="Facebook Profile"
+                      >
+                        <FaFacebook className="h-5 w-5" />
+                      </a>
+                      <a 
+                        href="https://wa.me/918280320550" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-700 dark:text-gray-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary-foreground transition-colors"
+                        aria-label="WhatsApp Contact"
+                      >
+                        <FaWhatsapp className="h-5 w-5" />
                       </a>
                     </div>
                   </motion.div>
