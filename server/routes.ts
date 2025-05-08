@@ -1829,6 +1829,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Client-facing consultation endpoints
   
+  // Public endpoint to get consultation details by ID (needed for payment page)
+  app.get(`${apiRoute}/consultations/:id`, async (req, res) => {
+    try {
+      const consultationId = parseInt(req.params.id);
+      
+      if (isNaN(consultationId)) {
+        return res.status(400).json({ message: "Invalid consultation ID" });
+      }
+
+      const consultation = await storage.getConsultationById(consultationId);
+      
+      if (!consultation) {
+        return res.status(404).json({ message: "Consultation not found" });
+      }
+
+      res.json({ consultation });
+    } catch (error) {
+      console.error("Error fetching consultation:", error);
+      res.status(500).json({ message: "Failed to fetch consultation" });
+    }
+  });
+  
   // Client-facing consultation payment endpoint
   app.post(`${apiRoute}/consultations/:id/process-payment`, processConsultationPayment);
 

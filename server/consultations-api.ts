@@ -31,9 +31,11 @@ export const getConsultationById = async (req: Request, res: Response) => {
     }
 
     // Check if user is the consultation owner (admin check is done in middleware)
-    if (!req.user.role === "admin" && 
-        (!req.isAuthenticated() || req.user.email !== consultation.email)) {
-      return res.status(403).json({ message: "Unauthorized access" });
+    if (req.isAuthenticated()) {
+      // If user is authenticated, check if they are either an admin or the owner
+      if (req.user.role !== "admin" && req.user.email !== consultation.email) {
+        return res.status(403).json({ message: "Unauthorized access" });
+      }
     }
 
     res.json(consultation);
@@ -78,7 +80,8 @@ export const createConsultation = async (req: Request, res: Response) => {
       paymentAmount, // Use the dynamic amount based on duration
       paymentMethod: null,
       paymentId: null,
-      notes: `Duration: ${duration} hour(s)`
+      notes: `Duration: ${duration} hour(s)`,
+      duration: duration // Store the duration directly in the duration field
     });
 
     res.status(201).json({ 
