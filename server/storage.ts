@@ -12,7 +12,8 @@ import {
   campaignResults, CampaignResult, InsertCampaignResult,
   adTrackers, AdTracker, InsertAdTracker,
   adTrackerHits, AdTrackerHit, InsertAdTrackerHit,
-  trackingSettings, TrackingSettings, InsertTrackingSettings
+  trackingSettings, TrackingSettings, InsertTrackingSettings,
+  consultations, Consultation, InsertConsultation
 } from "@shared/schema";
 import { sampleData } from "./sample-data";
 
@@ -165,6 +166,15 @@ export interface IStorage {
   recordABTestImpression(variantId: number, data: any): Promise<any>;
   recordABTestConversion(variantId: number, sessionId: string): Promise<any | undefined>;
   getABTestResults(testId: number): Promise<any>;
+  
+  // Consultation operations
+  getConsultations(): Promise<Consultation[]>;
+  getConsultationById(id: number): Promise<Consultation | undefined>;
+  createConsultation(consultation: InsertConsultation): Promise<Consultation>;
+  updateConsultation(id: number, consultation: Partial<InsertConsultation>): Promise<Consultation | undefined>;
+  updateConsultationStatus(id: number, status: string): Promise<Consultation | undefined>;
+  updateConsultationPaymentStatus(id: number, paymentStatus: string, paymentId?: string, paymentMethod?: string): Promise<Consultation | undefined>;
+  deleteConsultation(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -181,6 +191,7 @@ export class MemStorage implements IStorage {
   private campaignResults: Map<number, CampaignResult>;
   private adTrackers: Map<number, AdTracker>;
   private adTrackerHits: Map<number, AdTrackerHit>;
+  private consultations: Map<number, Consultation>;
   
   private userId: number = 1;
   private serviceId: number = 1;
@@ -195,6 +206,7 @@ export class MemStorage implements IStorage {
   private campaignResultId: number = 1;
   private adTrackerId: number = 1;
   private adTrackerHitId: number = 1;
+  private consultationId: number = 1;
 
   constructor() {
     this.users = new Map();
@@ -210,6 +222,7 @@ export class MemStorage implements IStorage {
     this.campaignResults = new Map();
     this.adTrackers = new Map();
     this.adTrackerHits = new Map();
+    this.consultations = new Map();
     
     // Initialize with sample data
     this.initializeData();
