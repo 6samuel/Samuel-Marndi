@@ -32,6 +32,7 @@ import {
   initPaymentGateways,
   getPaymentGatewaysStatus,
   createPaymentIntent,
+  createPaymentIntentDirect,
   handleWebhook as handleStripeWebhook,
   createPaypalOrder,
   capturePaypalOrder,
@@ -1918,15 +1919,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Process payment based on the payment method
       switch (paymentMethod) {
         case 'stripe':
-          // Create the Stripe payment intent
-          if (typeof createPaymentIntent === 'function') {
-            paymentData = await createPaymentIntent(
-              amount,
-              'inr',
-              { consultationId: id.toString() }
-            );
-          } else {
-            throw new Error("Stripe payment handler is not properly configured");
+          // Create the Stripe payment intent using the direct method
+          paymentData = await createPaymentIntentDirect(
+            amount,
+            'inr',
+            { consultationId: id.toString() }
+          );
+          
+          if (!paymentData) {
+            throw new Error("Failed to create Stripe payment intent");
           }
           break;
         case 'paypal':
@@ -1966,20 +1967,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         case 'upi':
           // Create temporary response to get UPI information
           const upiTempRes = {
-            json: (data: any) => { paymentData = { upiInfo: data }; }
+            json: (data: any) => { 
+              // Store response data
+              const upiResponse = data;
+              
+              // Create the payment data object with UPI info
+              paymentData = {
+                upiInfo: upiResponse,
+                referenceId: `CONSULT-${id}-${Date.now()}`,
+                amount,
+                currency: 'INR'
+              };
+            }
           } as Response;
           
+          // Call the UPI handler to get payment info
           await upiHandler.getUpiInfo(req, upiTempRes);
-          
-          // Add additional information if paymentData exists
-          if (paymentData && paymentData.upiInfo) {
-            paymentData = {
-              upiInfo: paymentData.upiInfo,
-              referenceId: `CONSULT-${id}-${Date.now()}`,
-              amount,
-              currency: 'INR'
-            };
-          }
           break;
         default:
           return res.status(400).json({ message: "Invalid payment method" });
