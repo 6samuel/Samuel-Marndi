@@ -487,12 +487,6 @@ const SiteHeader = () => {
                       </div>
                     </div>
                     <div className="mt-8 space-y-2">
-                      <Link href="/payment" onClick={handleLinkClick} className="w-full">
-                        <Button variant="outline" className="w-full flex items-center justify-center gap-1">
-                          <CreditCard className="h-4 w-4" />
-                          <span>Make a Payment</span>
-                        </Button>
-                      </Link>
                       <Link href="/consultation" onClick={handleLinkClick} className="w-full">
                         <Button variant="outline" className="w-full flex items-center justify-center gap-1">
                           <Calendar className="h-4 w-4" />
