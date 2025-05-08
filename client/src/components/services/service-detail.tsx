@@ -308,6 +308,9 @@ const ServiceDetail = ({ service }: ServiceDetailProps) => {
         </div>
       </div>
 
+      {/* Technology Icons Section */}
+      <TechIcons />
+
       {/* Service Request Form */}
       <div id="request-service" className="py-16 bg-gray-50 dark:bg-gray-900/50">
         <div className="container px-4 mx-auto">

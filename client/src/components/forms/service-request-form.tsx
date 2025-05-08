@@ -38,6 +38,7 @@ export type ServiceRequestFormValues = z.infer<typeof serviceRequestSchema>;
 interface ServiceRequestFormProps {
   onSubmitSuccess?: () => void;
   serviceId?: string;
+  serviceName?: string;
   services?: { id: number; title: string }[];
   onClose?: () => void;
 }
@@ -45,6 +46,7 @@ interface ServiceRequestFormProps {
 export default function ServiceRequestForm({ 
   onSubmitSuccess, 
   serviceId, 
+  serviceName,
   services = [],
   onClose
 }: ServiceRequestFormProps) {
