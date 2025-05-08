@@ -7,6 +7,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { trackConversion } from "@/components/tracking/tracking-scripts";
 import { useConversionTracking } from "@/components/tracking/conversion-tracker";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import {
   Form,
   FormControl,
@@ -14,6 +16,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,11 +33,9 @@ import { Loader2 } from "lucide-react";
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  phone: z.string().optional(),
-  subject: z.string().optional(),
+  phone: z.string().min(10, { message: "Phone number is required" }),
   message: z.string().min(10, { message: "Message must be at least 10 characters" }),
   serviceInterest: z.string().optional(),
-  source: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -44,6 +45,7 @@ const ContactForm = () => {
   const [submitted, setSubmitted] = useState(false);
   // Get conversion tracking function
   const { trackConversionEvent } = useConversionTracking(1); // Assuming tracker ID 1 for contact form
+  const [phoneValue, setPhoneValue] = useState("");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -51,10 +53,8 @@ const ContactForm = () => {
       name: "",
       email: "",
       phone: "",
-      subject: "",
       message: "",
       serviceInterest: "",
-      source: "website",
     },
   });
 
@@ -77,7 +77,7 @@ const ContactForm = () => {
         {
           category: 'lead_generation',
           service_interest: form.getValues().serviceInterest || 'general',
-          lead_source: form.getValues().source || 'website'
+          lead_source: 'website'
         }
       );
       
@@ -157,35 +157,55 @@ const ContactForm = () => {
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone (Optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Your phone number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="subject"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Subject</FormLabel>
-                <FormControl>
-                  <Input placeholder="What's this about?" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <div className="phone-input-container">
+                  <PhoneInput
+                    country={'in'}
+                    value={phoneValue}
+                    onChange={(phone) => {
+                      setPhoneValue(phone);
+                      field.onChange(phone);
+                    }}
+                    inputClass="phone-input"
+                    containerClass="phone-container w-full"
+                    buttonClass="country-dropdown"
+                    inputStyle={{
+                      width: '100%',
+                      height: '40px',
+                      fontSize: '16px',
+                      paddingLeft: '48px',
+                      borderRadius: '0.375rem',
+                      borderColor: 'hsl(var(--input))',
+                      backgroundColor: 'hsl(var(--background))',
+                      color: 'hsl(var(--foreground))',
+                    }}
+                    buttonStyle={{
+                      borderRadius: '0.375rem 0 0 0.375rem',
+                      borderColor: 'hsl(var(--input))',
+                      backgroundColor: 'hsl(var(--background))',
+                    }}
+                    dropdownStyle={{
+                      color: 'hsl(var(--foreground))',
+                      backgroundColor: 'hsl(var(--background))',
+                    }}
+                  />
+                </div>
+              </FormControl>
+              <FormDescription>
+                Enter your phone number with country code
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -205,11 +225,15 @@ const ContactForm = () => {
                 <SelectContent>
                   <SelectItem value="web-development">Web Development</SelectItem>
                   <SelectItem value="digital-marketing">Digital Marketing</SelectItem>
-                  <SelectItem value="ui-ux-design">UI/UX Design</SelectItem>
-                  <SelectItem value="seo-optimization">SEO Optimization</SelectItem>
-                  <SelectItem value="ecommerce-solutions">E-commerce Solutions</SelectItem>
                   <SelectItem value="mobile-app-development">Mobile App Development</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="ui-ux-design">UI/UX Design</SelectItem>
+                  <SelectItem value="ai-integration">AI Integration</SelectItem>
+                  <SelectItem value="web-maintenance">Website Maintenance</SelectItem>
+                  <SelectItem value="ecommerce-solutions">E-commerce Solutions</SelectItem>
+                  <SelectItem value="clone-app-development">Clone App Development</SelectItem>
+                  <SelectItem value="api-integration">API Integration</SelectItem>
+                  <SelectItem value="seo-optimization">SEO Optimization</SelectItem>
+                  <SelectItem value="other">Other Service</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -225,38 +249,11 @@ const ContactForm = () => {
               <FormLabel>Message</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Tell me about your project or inquiry..."
+                  placeholder="Tell me about your project or inquiry. Include any details about your budget, timeline, or specific requirements."
                   className="min-h-[120px]"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="source"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>How did you hear about me?</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an option" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="search">Search Engine</SelectItem>
-                  <SelectItem value="social">Social Media</SelectItem>
-                  <SelectItem value="referral">Referral</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -273,7 +270,7 @@ const ContactForm = () => {
               Sending...
             </>
           ) : (
-            "Send Message"
+            "Get Quote"
           )}
         </Button>
       </form>

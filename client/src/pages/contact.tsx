@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
-import { FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
+import { FaLinkedin, FaTwitter, FaGithub, FaFacebook, FaWhatsapp } from "react-icons/fa";
 import ContactForm from "@/components/forms/contact-form";
 import { SEO } from "@/lib/seo-utils";
 import ConversionTracker from "@/components/tracking/conversion-tracker";
@@ -114,10 +114,10 @@ const Contact = () => {
                         <div>
                           <h3 className="font-medium text-gray-900 dark:text-white">Email</h3>
                           <a 
-                            href="mailto:hello@samuelmarndi.com" 
+                            href="mailto:samuelmarandi6@gmail.com" 
                             className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground transition-colors"
                           >
-                            hello@samuelmarndi.com
+                            samuelmarandi6@gmail.com
                           </a>
                         </div>
                       </div>
@@ -125,12 +125,12 @@ const Contact = () => {
                       <div className="flex items-start">
                         <Phone className="h-5 w-5 text-primary mt-1 mr-3" />
                         <div>
-                          <h3 className="font-medium text-gray-900 dark:text-white">Phone</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-white">Phone / WhatsApp</h3>
                           <a 
-                            href="tel:+1234567890" 
+                            href="tel:+918280320550" 
                             className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground transition-colors"
                           >
-                            +1 (234) 567-890
+                            +91 8280320550
                           </a>
                         </div>
                       </div>
@@ -140,7 +140,9 @@ const Contact = () => {
                         <div>
                           <h3 className="font-medium text-gray-900 dark:text-white">Location</h3>
                           <p className="text-gray-600 dark:text-gray-300">
-                            New York, United States
+                            Dhobanijoda, P.O-Kandalia, P.S-Bangriposi,<br />
+                            Mayurbhanj, Odisha-757092<br />
+                            India
                           </p>
                         </div>
                       </div>
