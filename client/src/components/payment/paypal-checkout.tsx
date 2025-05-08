@@ -43,40 +43,42 @@ export default function PayPalCheckout({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>PayPal Checkout</CardTitle>
-        <CardDescription>
-          Complete your payment securely with PayPal
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-6">
-          <p className="text-sm text-muted-foreground">Amount to pay</p>
-          <p className="text-xl font-bold">₹{amount.toLocaleString()}</p>
-        </div>
-        
-        <div className="w-full flex flex-col items-center">
-          <PayPalButton
-            amount={amount.toString()}
-            currency={currency}
-            intent={intent}
-          />
-          <p className="text-sm text-muted-foreground mt-4">
-            Click the PayPal button above to complete your payment
-          </p>
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-end border-t pt-6">
-        {onCancel && (
-          <Button 
-            variant="outline" 
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
+    <div className="mx-auto max-w-md">
+      <Card>
+        <CardHeader>
+          <CardTitle>PayPal Checkout</CardTitle>
+          <CardDescription>
+            Complete your payment securely with PayPal
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-6">
+            <p className="text-sm text-muted-foreground">Amount to pay</p>
+            <p className="text-xl font-bold">₹{amount.toLocaleString()}</p>
+          </div>
+          
+          <div className="w-full flex flex-col items-center">
+            <PayPalButton
+              amount={amount.toString()}
+              currency={currency}
+              intent={intent}
+            />
+            <p className="text-sm text-muted-foreground mt-4">
+              Click the PayPal button above to complete your payment
+            </p>
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-end border-t pt-6">
+          {onCancel && (
+            <Button 
+              variant="outline" 
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    </div>
   );
 }
