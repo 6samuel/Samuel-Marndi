@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import PayPalButton from '../PayPalButton';
+import PayPalButton from './paypal-button';
 
 interface PayPalCheckoutProps {
   orderId: string;
