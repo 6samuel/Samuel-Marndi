@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, CheckCircle } from "lucide-react";
 import ServiceRequestForm from "@/components/forms/service-request-form";
+import TechIcons from "./tech-icons";
 
 interface ServiceDetailProps {
   service: Service;
@@ -113,11 +114,17 @@ const ServiceDetail = ({ service }: ServiceDetailProps) => {
               {service.shortDescription}
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="#request-service">
-                <Button size="lg">
-                  Request This Service
-                </Button>
-              </Link>
+              <Button 
+                size="lg"
+                onClick={() => {
+                  const formSection = document.getElementById('request-service');
+                  if (formSection) {
+                    formSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                Request This Service
+              </Button>
               <Link href="/portfolio">
                 <Button variant="outline" size="lg">
                   View Related Projects
@@ -257,11 +264,17 @@ const ServiceDetail = ({ service }: ServiceDetailProps) => {
                     Call for Inquiry
                   </Button>
                 </a>
-                <Link href="#request-service">
-                  <Button className="w-full">
-                    Request Quote
-                  </Button>
-                </Link>
+                <Button 
+                  className="w-full"
+                  onClick={() => {
+                    const formSection = document.getElementById('request-service');
+                    if (formSection) {
+                      formSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  Request Quote
+                </Button>
               </div>
             </div>
 
@@ -314,7 +327,7 @@ const ServiceDetail = ({ service }: ServiceDetailProps) => {
             variants={itemVariants}
             className="max-w-3xl mx-auto"
           >
-            <ServiceRequestForm serviceId={service.id} serviceName={service.title} />
+            <ServiceRequestForm serviceId={service.id.toString()} serviceName={service.title} />
           </motion.div>
         </div>
       </div>
