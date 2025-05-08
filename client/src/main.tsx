@@ -2,6 +2,20 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { optimizeFontLoading, preloadCriticalFonts } from "@/lib/font-optimization";
+
+// Initialize font optimization
+if (typeof window !== 'undefined') {
+  // Execute after the window loads to not block initial rendering
+  window.addEventListener('load', () => {
+    optimizeFontLoading();
+    
+    // Preload most important fonts
+    preloadCriticalFonts([
+      'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
+    ]);
+  });
+}
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>

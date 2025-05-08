@@ -100,11 +100,9 @@ const PortfolioPreview = () => {
                 variants={itemVariants}
               >
                 <div className="aspect-video overflow-hidden bg-gray-200 dark:bg-gray-800">
-                  <img 
+                  <OptimizedImage 
                     src={item.imageUrl} 
                     alt={item.title} 
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
