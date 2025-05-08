@@ -4,6 +4,7 @@ import {
   CreditCard, Code, ClipboardCheck, CheckCircle,
   HeartHandshake, Calendar, Clock, Headphones
 } from "lucide-react";
+import QuickQuoteModal from "@/components/forms/quick-quote-modal";
 
 const workflowSteps = [
   {

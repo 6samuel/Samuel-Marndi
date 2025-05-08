@@ -188,7 +188,7 @@ export default function ProjectRoadmap() {
                     </div>
                     
                     {/* Step Number */}
-                    <div className="absolute top-0 right-1/3 -mt-1 bg-white dark:bg-gray-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20">
+                    <div className="absolute top-0 right-1/4 -mt-2 -mr-2 bg-white dark:bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20 shadow-sm">
                       {step.step}
                     </div>
 
@@ -253,7 +253,7 @@ export default function ProjectRoadmap() {
                         </div>
                         
                         {/* Step Number */}
-                        <div className="absolute top-0 right-1/3 -mt-1 bg-white dark:bg-gray-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20">
+                        <div className="absolute top-0 right-1/4 -mt-2 -mr-2 bg-white dark:bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20 shadow-sm">
                           {step.step}
                         </div>
 
