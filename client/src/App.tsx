@@ -32,6 +32,7 @@ import AdminServices from "@/pages/admin/services";
 import AdminPortfolio from "@/pages/admin/portfolio";
 import AdminBlog from "@/pages/admin/blog";
 import AdminTestimonials from "@/pages/admin/testimonials";
+import AdminConsultations from "@/pages/admin/consultations";
 import AdminForms from "@/pages/admin/forms";
 import AdminCampaigns from "@/pages/admin/campaigns";
 import AdminAdTrackers from "@/pages/admin/ad-trackers";
@@ -54,6 +55,7 @@ function Router() {
         <ProtectedRoute path="/admin/portfolio" component={AdminPortfolio} adminOnly />
         <ProtectedRoute path="/admin/blog" component={AdminBlog} adminOnly />
         <ProtectedRoute path="/admin/testimonials" component={AdminTestimonials} adminOnly />
+        <ProtectedRoute path="/admin/consultations" component={AdminConsultations} adminOnly />
         <ProtectedRoute path="/admin/forms" component={AdminForms} adminOnly />
         <ProtectedRoute path="/admin/campaigns" component={AdminCampaigns} adminOnly />
         <ProtectedRoute path="/admin/ad-trackers" component={AdminAdTrackers} adminOnly />
