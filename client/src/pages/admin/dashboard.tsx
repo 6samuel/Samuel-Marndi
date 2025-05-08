@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   Code,
   Briefcase,
+  LayoutPanelLeft,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,17 @@ export default function AdminDashboard() {
     queryFn: async () => {
       try {
         return { count: 6 }; // Mock count until API is implemented
+      } catch (error) {
+        return { count: 0 };
+      }
+    },
+  });
+  
+  const { data: mediaCount } = useQuery({
+    queryKey: ["/api/admin/stats/media"],
+    queryFn: async () => {
+      try {
+        return { count: 15 }; // Mock count until API is implemented
       } catch (error) {
         return { count: 0 };
       }
@@ -115,7 +127,7 @@ export default function AdminDashboard() {
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -131,7 +143,7 @@ export default function AdminDashboard() {
             </CardContent>
             <CardFooter>
               <Button variant="ghost" size="sm" asChild className="w-full">
-                <Link href="/admin/services">Manage Services</Link>
+                <Link href="/admin/content">Manage Services</Link>
               </Button>
             </CardFooter>
           </Card>
@@ -151,7 +163,7 @@ export default function AdminDashboard() {
             </CardContent>
             <CardFooter>
               <Button variant="ghost" size="sm" asChild className="w-full">
-                <Link href="/admin/portfolio">Manage Portfolio</Link>
+                <Link href="/admin/content">Manage Portfolio</Link>
               </Button>
             </CardFooter>
           </Card>
@@ -171,7 +183,27 @@ export default function AdminDashboard() {
             </CardContent>
             <CardFooter>
               <Button variant="ghost" size="sm" asChild className="w-full">
-                <Link href="/admin/blog">Manage Blog</Link>
+                <Link href="/admin/content">Manage Blog</Link>
+              </Button>
+            </CardFooter>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Media Library
+              </CardTitle>
+              <LayoutPanelLeft className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{mediaCount?.count || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                Total media assets
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button variant="ghost" size="sm" asChild className="w-full">
+                <Link href="/admin/content">Manage Media</Link>
               </Button>
             </CardFooter>
           </Card>
@@ -236,6 +268,12 @@ export default function AdminDashboard() {
                 <Link href="/admin/tracking">
                   <ChartLine className="mr-2 h-4 w-4" />
                   View Analytics
+                </Link>
+              </Button>
+              <Button variant="outline" className="justify-start" asChild>
+                <Link href="/admin/content">
+                  <LayoutPanelLeft className="mr-2 h-4 w-4" />
+                  Content Manager
                 </Link>
               </Button>
               <Button variant="outline" className="justify-start" asChild>
