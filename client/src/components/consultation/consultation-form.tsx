@@ -6,6 +6,8 @@ import { z } from "zod";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { QRCodeSVG } from "qrcode.react";
+import { useToast } from "@/hooks/use-toast";
 
 import {
   Form,
@@ -310,29 +312,56 @@ export default function ConsultationForm() {
 
 // Payment component for consultation
 function ConsultationPayment({ consultationId }: { consultationId: number | null }) {
+  const { toast } = useToast();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("");
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [paymentData, setPaymentData] = useState<any>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  // Process payment mutation
+  // Process payment mutation with error handling
   const processPaymentMutation = useMutation({
     mutationFn: async (paymentMethod: string) => {
-      const response = await apiRequest(
-        "POST", 
-        `/api/consultations/${consultationId}/process-payment`,
-        { paymentMethod }
-      );
-      return await response.json();
+      try {
+        if (!consultationId) {
+          throw new Error("Consultation ID is missing");
+        }
+        
+        const response = await apiRequest(
+          "POST", 
+          `/api/consultations/${consultationId}/process-payment`,
+          { paymentMethod }
+        );
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Payment processing failed");
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("API request error:", error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       console.log("Payment initiated:", data);
       setPaymentData(data.paymentData);
       setPaymentProcessing(false);
+      toast({
+        title: "Payment Initiated",
+        description: "Your payment has been initiated successfully. Please complete the payment process.",
+        variant: "default",
+      });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Payment error:", error);
-      setPaymentError("Failed to process payment. Please try again.");
+      const errorMessage = error.message || "Failed to process payment. Please try again.";
+      setPaymentError(errorMessage);
+      toast({
+        title: "Payment Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
       setPaymentProcessing(false);
     },
   });
@@ -340,7 +369,13 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
   // Function to process payment
   const handlePayment = () => {
     if (!selectedPaymentMethod) {
-      setPaymentError("Please select a payment method");
+      const errorMessage = "Please select a payment method";
+      setPaymentError(errorMessage);
+      toast({
+        title: "Payment Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
       return;
     }
     
@@ -422,29 +457,76 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
         <div className="bg-primary/5 p-4 rounded-lg">
           <h3 className="font-semibold mb-2">Payment Information</h3>
           <div className="text-sm">
-            {selectedPaymentMethod === "stripe" && (
-              <p>Proceed to Stripe checkout to complete your payment</p>
+            {selectedPaymentMethod === "stripe" && paymentData.clientSecret && (
+              <div>
+                <p className="mb-3">Proceed to Stripe checkout to complete your payment:</p>
+                <Button 
+                  className="w-full" 
+                  onClick={() => {
+                    // Open Stripe checkout in a new window
+                    window.open(
+                      `https://checkout.stripe.com/pay/${paymentData.clientSecret}`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  Open Stripe Checkout
+                </Button>
+              </div>
             )}
             
-            {selectedPaymentMethod === "paypal" && (
-              <p>Proceed to PayPal to complete your payment</p>
+            {selectedPaymentMethod === "paypal" && paymentData.id && (
+              <div>
+                <p className="mb-3">Proceed to PayPal to complete your payment:</p>
+                <Button 
+                  className="w-full" 
+                  onClick={() => {
+                    // Open PayPal checkout
+                    window.open(
+                      `https://www.paypal.com/checkoutnow?token=${paymentData.id}`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  Open PayPal Checkout
+                </Button>
+              </div>
             )}
             
-            {selectedPaymentMethod === "razorpay" && (
-              <p>Proceed to Razorpay to complete your payment</p>
+            {selectedPaymentMethod === "razorpay" && paymentData.id && (
+              <div>
+                <p className="mb-3">Proceed to Razorpay to complete your payment:</p>
+                <Button 
+                  className="w-full"
+                  onClick={() => {
+                    // In a real implementation, you would use the Razorpay JS SDK here
+                    alert("Razorpay integration will open the payment window");
+                  }}
+                >
+                  Open Razorpay Checkout
+                </Button>
+              </div>
             )}
             
             {selectedPaymentMethod === "upi" && paymentData.upiInfo && (
               <div className="text-center">
                 <p className="mb-2">Scan the QR code or use the UPI ID below:</p>
                 <div className="bg-white p-4 mb-2 inline-block">
-                  {/* Placeholder for QR code - in real implementation, generate QR code */}
-                  <div className="border border-gray-300 h-32 w-32 flex items-center justify-center">
-                    QR Code
-                  </div>
+                  {/* Using QRCodeSVG component for a real QR code */}
+                  {paymentData.upiInfo.upiId && (
+                    <QRCodeSVG 
+                      value={`upi://pay?pa=${paymentData.upiInfo.upiId}&am=1000&cu=INR&tn=Consultation`}
+                      size={128}
+                      bgColor={"#ffffff"}
+                      fgColor={"#000000"}
+                      level={"L"}
+                      includeMargin={false}
+                    />
+                  )}
                 </div>
                 <p className="font-medium">UPI ID: {paymentData.upiInfo.upiId}</p>
                 <p className="mt-1 text-xs">Reference: {paymentData.referenceId}</p>
+                <p className="mt-2 text-xs">Amount: ₹1000</p>
               </div>
             )}
           </div>
