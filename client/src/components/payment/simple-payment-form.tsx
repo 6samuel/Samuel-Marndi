@@ -108,17 +108,14 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
     onSuccess: (data) => {
       toast({
         title: 'Payment Initialized',
-        description: 'Redirecting to payment gateway...',
+        description: 'Payment gateway ready',
       });
       
-      // Here you would handle the specific payment gateway response
-      // This would include redirecting to payment page or handling client-side SDK
-      console.log('Payment initialized:', data);
+      // Save the payment data for the checkout components
+      setPaymentData(data);
       
-      // Note: In a production app, you would:
-      // - For Stripe: Handle with Elements/PaymentElement component
-      // - For PayPal: Handle with PayPal JS SDK
-      // - For Razorpay: Handle with Razorpay JS SDK
+      // Move to payment step
+      setCurrentStep(3);
     },
     onError: (error: any) => {
       toast({
@@ -132,7 +129,7 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
   function onSubmit(data: SimplePaymentFormValues) {
     if (currentStep === 1) {
       setCurrentStep(2); // Move to review step
-    } else {
+    } else if (currentStep === 2) {
       initializePayment(data);
     }
   }
@@ -280,7 +277,50 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
     );
   }
   
-  // Review step
+  // Check if we're in the payment step (step 3)
+  if (currentStep === 3 && paymentData) {
+    const formValues = form.getValues();
+    const amount = parseFloat(formValues.amount);
+    
+    // Show appropriate payment component based on selected method
+    if (formValues.paymentMethod === 'stripe' && paymentData.clientSecret) {
+      return (
+        <div className="space-y-6">
+          <StripeCheckout 
+            clientSecret={paymentData.clientSecret} 
+            amount={amount}
+            onCancel={() => setCurrentStep(2)}
+          />
+        </div>
+      );
+    }
+    
+    if (formValues.paymentMethod === 'paypal' && paymentData.id) {
+      return (
+        <div className="space-y-6">
+          <PayPalCheckout 
+            orderId={paymentData.id} 
+            amount={amount}
+            onCancel={() => setCurrentStep(2)}
+          />
+        </div>
+      );
+    }
+    
+    // Razorpay would be handled here
+    
+    // Fallback if something went wrong
+    return (
+      <div className="space-y-6">
+        <div className="text-center p-8 border rounded-md">
+          <p className="text-red-500 mb-4">There was an issue initializing the payment gateway.</p>
+          <Button onClick={() => setCurrentStep(2)}>Go Back</Button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Review step (step 2)
   const formValues = form.getValues();
   return (
     <div className="space-y-6">
