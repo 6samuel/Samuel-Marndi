@@ -89,6 +89,8 @@ export default function ConsultationForm() {
   });
 
   // Create consultation mutation
+  const { toast } = useToast();
+  
   const createConsultationMutation = useMutation({
     mutationFn: async (values: FormValues) => {
       const response = await apiRequest("POST", "/api/consultations", {
@@ -115,6 +117,11 @@ export default function ConsultationForm() {
     },
     onSuccess: (data) => {
       console.log("Consultation booked:", data);
+      toast({
+        title: "Booking Successful",
+        description: "Your consultation has been booked. Please proceed to payment.",
+        variant: "default",
+      });
       setConsultationId(data.id);
       setIsPaymentStep(true);
     },
