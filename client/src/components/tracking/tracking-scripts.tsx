@@ -1,6 +1,53 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
+// Global tracking helpers for use in other components
+export const trackConversion = {
+  googleAnalytics: (eventName: string, category?: string, label?: string, value?: number) => {
+    try {
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', eventName, {
+          'event_category': category,
+          'event_label': label,
+          'value': value
+        });
+      }
+    } catch (error) {
+      console.error('Error tracking Google Analytics event:', error);
+    }
+  },
+  
+  facebookPixel: (eventName: string, data?: Record<string, any>) => {
+    try {
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', eventName, data);
+      }
+    } catch (error) {
+      console.error('Error tracking Facebook Pixel event:', error);
+    }
+  },
+  
+  twitterPixel: (eventName: string, data?: Record<string, any>) => {
+    try {
+      if (typeof window.twq === 'function') {
+        window.twq('track', eventName, data);
+      }
+    } catch (error) {
+      console.error('Error tracking Twitter Pixel event:', error);
+    }
+  }
+};
+
+// Declare global window interfaces for type safety
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+    fbq?: (...args: any[]) => void;
+    twq?: (...args: any[]) => void; 
+    clarity?: (command: string, value: string, options?: any) => void;
+  }
+}
+
 interface TrackingSettings {
   id: number;
   googleAnalyticsId: string | null;
