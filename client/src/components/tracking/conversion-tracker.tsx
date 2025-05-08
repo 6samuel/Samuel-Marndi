@@ -74,14 +74,6 @@ const ConversionTracker: React.FC<ConversionTrackerProps> = ({
   return null;
 };
 
-// Declare global window interfaces for type safety
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void;
-    fbq?: (...args: any[]) => void;
-    twq?: (...args: any[]) => void; 
-    clarity?: (command: string, value: string, options?: any) => void;
-  }
-}
+// Note: Window interface is already declared in tracking-scripts.tsx
 
 export default ConversionTracker;
