@@ -134,7 +134,7 @@ export default function StripeCheckout({ clientSecret, amount, onSuccess, onCanc
     );
   }
 
-  const appearance = {
+  const appearance: { theme: 'flat' | 'stripe' | 'night' } = {
     theme: 'stripe',
   };
   const options = {
