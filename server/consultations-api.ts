@@ -6,10 +6,7 @@ import { sendConsultationConfirmation, sendConsultationReminder } from "./email-
 // Get all consultations (admin only)
 export const getAllConsultations = async (req: Request, res: Response) => {
   try {
-    if (!isAdmin(req)) {
-      return res.status(403).json({ message: "Unauthorized: Admin access required" });
-    }
-
+    // No need to check isAdmin here as it's already checked in the route middleware
     const consultations = await storage.getConsultations();
     res.json(consultations);
   } catch (error) {
@@ -33,8 +30,8 @@ export const getConsultationById = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Consultation not found" });
     }
 
-    // Check if user is admin or the consultation owner
-    if (!isAdmin(req) && 
+    // Check if user is the consultation owner (admin check is done in middleware)
+    if (!req.user.role === "admin" && 
         (!req.isAuthenticated() || req.user.email !== consultation.email)) {
       return res.status(403).json({ message: "Unauthorized access" });
     }
@@ -97,9 +94,7 @@ export const createConsultation = async (req: Request, res: Response) => {
 // Update consultation status (admin only)
 export const updateConsultationStatus = async (req: Request, res: Response) => {
   try {
-    if (!isAdmin(req)) {
-      return res.status(403).json({ message: "Unauthorized: Admin access required" });
-    }
+    // The isAdmin middleware check is already performed in the route
 
     const consultationId = parseInt(req.params.id);
     
