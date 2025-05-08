@@ -189,13 +189,10 @@ export default function WorkflowProcess() {
                 <Phone className="mr-2 h-5 w-5" />
                 Call +91 8280320550
               </a>
-              <a
-                href="#quick-quote"
-                className="inline-flex items-center px-5 py-3 rounded-lg bg-white dark:bg-gray-700 text-primary dark:text-white border border-primary/20 dark:border-gray-600 font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-600"
-              >
-                <MessageSquare className="mr-2 h-5 w-5" />
-                Request a Quote
-              </a>
+              <QuickQuoteModal 
+                triggerClassName="inline-flex items-center px-5 py-3 rounded-lg bg-white dark:bg-gray-700 text-primary dark:text-white border border-primary/20 dark:border-gray-600 font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-600"
+                buttonVariant={null}
+              />
             </div>
           </div>
         </div>

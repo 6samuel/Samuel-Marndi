@@ -119,6 +119,29 @@ async function main() {
         status TEXT NOT NULL DEFAULT 'new'
       );
     `);
+
+    // Create consultations table for paid consultation bookings
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS consultations (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        date DATE NOT NULL,
+        time_slot TEXT NOT NULL,
+        topic TEXT NOT NULL,
+        message TEXT,
+        payment_status TEXT NOT NULL DEFAULT 'pending',
+        payment_id TEXT,
+        payment_amount INTEGER NOT NULL DEFAULT 1000,
+        payment_method TEXT,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+        status TEXT NOT NULL DEFAULT 'scheduled',
+        meeting_link TEXT,
+        notes TEXT
+      );
+    `);
     
     console.log('Migration completed successfully');
   } catch (error) {

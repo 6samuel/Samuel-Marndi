@@ -6,6 +6,7 @@ import {
   HeartHandshake, Headphones, Wrench, RotateCcw,
   ArrowRight, ChevronRight
 } from "lucide-react";
+import QuickQuoteModal from "@/components/forms/quick-quote-modal";
 
 const projectSteps = [
   {
@@ -297,12 +298,12 @@ export default function ProjectRoadmap() {
               I'll guide you through each step of the process, ensuring clear communication and exceptional results.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a
-                href="#quick-quote"
-                className="px-5 py-2.5 rounded-lg bg-primary text-white font-medium transition-all hover:shadow-lg hover:bg-primary/90"
-              >
-                Get a Quote
-              </a>
+              <QuickQuoteModal 
+                triggerClassName="px-5 py-2.5 rounded-lg bg-primary text-white font-medium transition-all hover:shadow-lg hover:bg-primary/90"
+                icon={false}
+                triggerText="Get a Quote"  
+                buttonVariant={null}
+              />
               <a
                 href="tel:+918280320550"
                 className="px-5 py-2.5 rounded-lg bg-white dark:bg-gray-800 text-primary dark:text-primary/80 border border-primary/30 font-medium transition-all hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700"
