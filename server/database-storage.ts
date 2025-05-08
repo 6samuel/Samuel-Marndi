@@ -19,7 +19,8 @@ import {
   marketingActivities, InsertMarketingActivity, MarketingActivity,
   abTests, InsertABTest, ABTest,
   abTestVariants, InsertABTestVariant, ABTestVariant,
-  abTestHits, InsertABTestHit, ABTestHit
+  abTestHits, InsertABTestHit, ABTestHit,
+  consultations, Consultation, InsertConsultation
 } from "@shared/schema";
 import { IStorage } from "./storage";
 
