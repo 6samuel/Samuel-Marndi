@@ -23,6 +23,18 @@ import {
 } from "./email-service";
 import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 
+// Import consultation management endpoints
+import {
+  getAllConsultations,
+  getConsultationById,
+  updateConsultationStatus,
+  updateConsultationPaymentStatus,
+  updateConsultation,
+  deleteConsultation,
+  processConsultationPayment,
+  sendReminder
+} from './consultations-api';
+
 // Import sitemap generator functions
 import { generateSitemap, generateRobotsTxt } from './sitemap-generator';
 import { getAnalyticsOverview, getTrackerAnalytics, getAnalyticsDashboardData, getConversionAnalytics } from './analytics';
@@ -1806,223 +1818,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get all consultations (admin only)
-  app.get(`${apiRoute}/consultations`, isAuthenticated, isAdmin, async (_req, res) => {
-    try {
-      const consultations = await storage.getConsultations();
-      res.json(consultations);
-    } catch (error) {
-      console.error("Error fetching consultations:", error);
-      res.status(500).json({ message: "Failed to fetch consultations" });
-    }
-  });
+  // Admin consultation management endpoints
+  app.get(`${apiRoute}/admin/consultations`, isAuthenticated, isAdmin, getAllConsultations);
+  app.get(`${apiRoute}/admin/consultations/:id`, isAuthenticated, isAdmin, getConsultationById);
+  app.patch(`${apiRoute}/admin/consultations/:id/status`, isAuthenticated, isAdmin, updateConsultationStatus);
+  app.patch(`${apiRoute}/admin/consultations/:id/payment-status`, isAuthenticated, isAdmin, updateConsultationPaymentStatus);
+  app.patch(`${apiRoute}/admin/consultations/:id`, isAuthenticated, isAdmin, updateConsultation);
+  app.delete(`${apiRoute}/admin/consultations/:id`, isAuthenticated, isAdmin, deleteConsultation);
+  app.post(`${apiRoute}/admin/consultations/:id/send-reminder`, isAuthenticated, isAdmin, sendReminder);
   
-  // Get consultation by ID
-  app.get(`${apiRoute}/consultations/:id`, isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid ID format" });
-      }
-      
-      const consultation = await storage.getConsultationById(id);
-      if (!consultation) {
-        return res.status(404).json({ message: "Consultation not found" });
-      }
-      
-      res.json(consultation);
-    } catch (error) {
-      console.error(`Error fetching consultation with ID ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to fetch consultation" });
-    }
-  });
+  // Client-facing consultation endpoints
   
-  // Update consultation status
-  app.patch(`${apiRoute}/consultations/:id/status`, isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid ID format" });
-      }
-      
-      const { status } = req.body;
-      if (!status || typeof status !== 'string') {
-        return res.status(400).json({ message: "Status is required" });
-      }
-      
-      const updatedConsultation = await storage.updateConsultationStatus(id, status);
-      if (!updatedConsultation) {
-        return res.status(404).json({ message: "Consultation not found" });
-      }
-      
-      res.json(updatedConsultation);
-    } catch (error) {
-      console.error(`Error updating consultation status with ID ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to update consultation status" });
-    }
-  });
-  
-  // Update consultation payment status
-  app.patch(`${apiRoute}/consultations/:id/payment`, isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid ID format" });
-      }
-      
-      const { paymentStatus, paymentId, paymentMethod } = req.body;
-      if (!paymentStatus || typeof paymentStatus !== 'string') {
-        return res.status(400).json({ message: "Payment status is required" });
-      }
-      
-      const updatedConsultation = await storage.updateConsultationPaymentStatus(
-        id, 
-        paymentStatus, 
-        paymentId, 
-        paymentMethod
-      );
-      
-      if (!updatedConsultation) {
-        return res.status(404).json({ message: "Consultation not found" });
-      }
-      
-      res.json(updatedConsultation);
-    } catch (error) {
-      console.error(`Error updating consultation payment status with ID ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to update consultation payment status" });
-    }
-  });
-  
-  // Process consultation booking payment
-  app.post(`${apiRoute}/consultations/:id/process-payment`, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid ID format" });
-      }
-      
-      const consultation = await storage.getConsultationById(id);
-      if (!consultation) {
-        return res.status(404).json({ message: "Consultation not found" });
-      }
-      
-      // Fixed price for consultation (₹1000/hour)
-      const amount = 1000;
-      const { paymentMethod } = req.body;
-      
-      if (!paymentMethod) {
-        return res.status(400).json({ message: "Payment method is required" });
-      }
-      
-      let paymentData;
-      
-      // Process payment based on the payment method
-      switch (paymentMethod) {
-        case 'stripe':
-          // Create the Stripe payment intent using the direct method
-          paymentData = await createPaymentIntentDirect(
-            amount,
-            'inr',
-            { consultationId: id.toString() }
-          );
-          
-          if (!paymentData) {
-            throw new Error("Failed to create Stripe payment intent");
-          }
-          break;
-        case 'paypal':
-          // Create temporary response to get PayPal information
-          const tempRes = {
-            json: (data: any) => { paymentData = data; }
-          } as Response;
-          
-          // Create mock request with the necessary data
-          const mockPaypalReq = {
-            body: {
-              amount: amount.toString(),
-              currency: 'INR',
-              intent: 'CAPTURE',
-              metadata: { consultationId: id.toString() }
-            }
-          } as Request;
-          
-          await createPaypalOrder(mockPaypalReq, tempRes);
-          break;
-        case 'razorpay':
-          // Create temporary response to get Razorpay information
-          const razorpayTempRes = {
-            json: (data: any) => { paymentData = data; }
-          } as Response;
-          
-          // Create mock request with the necessary data
-          const mockRazorpayReq = {
-            body: {
-              amount: amount * 100,
-              metadata: { consultationId: id.toString() }
-            }
-          } as Request;
-          
-          await createRazorpayOrder(mockRazorpayReq, razorpayTempRes);
-          break;
-        case 'upi':
-          // Create temporary response to get UPI information
-          const upiTempRes = {
-            json: (data: any) => { 
-              // Store response data
-              const upiResponse = data;
-              
-              // Create the payment data object with UPI info
-              paymentData = {
-                upiInfo: upiResponse,
-                referenceId: `CONSULT-${id}-${Date.now()}`,
-                amount,
-                currency: 'INR'
-              };
-            }
-          } as Response;
-          
-          // Call the UPI handler to get payment info
-          await upiHandler.getUpiInfo(req, upiTempRes);
-          break;
-        default:
-          return res.status(400).json({ message: "Invalid payment method" });
-      }
-      
-      res.json({ 
-        success: true, 
-        paymentData, 
-        consultationId: id 
-      });
-      
-    } catch (error) {
-      console.error(`Error processing payment for consultation ID ${req.params.id}:`, error);
-      let errorMessage = "Failed to process payment";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      res.status(500).json({ message: "Failed to process payment", error: errorMessage });
-    }
-  });
-  
-  // Delete consultation (admin only)
-  app.delete(`${apiRoute}/consultations/:id`, isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid ID format" });
-      }
-      
-      const success = await storage.deleteConsultation(id);
-      if (!success) {
-        return res.status(404).json({ message: "Consultation not found or already deleted" });
-      }
-      
-      res.json({ success: true, message: "Consultation deleted successfully" });
-    } catch (error) {
-      console.error(`Error deleting consultation with ID ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to delete consultation" });
-    }
-  });
+  // Client-facing consultation payment endpoint
+  app.post(`${apiRoute}/consultations/:id/process-payment`, processConsultationPayment);
 
   const httpServer = createServer(app);
   return httpServer;
