@@ -359,7 +359,7 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
         </CardContent>
       </Card>
       
-      <div className="flex space-x-4">
+      <div className="flex space-x-4 justify-center">
         <Button variant="outline" onClick={() => setCurrentStep(1)}>
           Back
         </Button>

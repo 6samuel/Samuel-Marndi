@@ -70,7 +70,7 @@ export default function UpiPayment({ upiId }: UpiPaymentProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mx-auto max-w-md">
       <Card>
         <CardHeader>
           <CardTitle>Direct UPI Payment</CardTitle>
