@@ -24,6 +24,10 @@ import BlogPost from "@/pages/blog-post";
 import Contact from "@/pages/contact";
 import Payment from "@/pages/payment";
 import Consultation from "@/pages/consultation";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import TermsConditions from "@/pages/terms-conditions";
+import RefundPolicy from "@/pages/refund-policy";
+import CookiePolicy from "@/pages/cookie-policy";
 
 // Admin Pages
 import AdminLogin from "@/pages/admin/login";
@@ -80,6 +84,10 @@ function Router() {
               <Route path="/contact" component={Contact} />
               <Route path="/payment" component={Payment} />
               <Route path="/consultation" component={Consultation} />
+              <Route path="/privacy-policy" component={PrivacyPolicy} />
+              <Route path="/terms-conditions" component={TermsConditions} />
+              <Route path="/refund-policy" component={RefundPolicy} />
+              <Route path="/cookie-policy" component={CookiePolicy} />
               <Route component={NotFound} />
             </Switch>
           </main>
