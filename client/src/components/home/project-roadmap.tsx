@@ -140,7 +140,7 @@ export default function ProjectRoadmap() {
                   <div className={`${step.color} w-10 h-10 rounded-full flex items-center justify-center shadow-lg relative z-10`}>
                     <step.icon className="w-5 h-5" />
                   </div>
-                  <div className="absolute -top-1 -right-1 bg-white dark:bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20">
+                  <div className="absolute -top-1 left-7 bg-white dark:bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20">
                     {step.step}
                   </div>
                 </div>
@@ -189,7 +189,7 @@ export default function ProjectRoadmap() {
                     </div>
                     
                     {/* Step Number */}
-                    <div className="absolute top-0 right-1/4 -mt-2 -mr-2 bg-white dark:bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20 shadow-sm">
+                    <div className="absolute top-0 right-8 -mt-2 -mr-2 bg-white dark:bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20 shadow-sm">
                       {step.step}
                     </div>
 
@@ -254,7 +254,7 @@ export default function ProjectRoadmap() {
                         </div>
                         
                         {/* Step Number */}
-                        <div className="absolute top-0 right-1/4 -mt-2 -mr-2 bg-white dark:bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20 shadow-sm">
+                        <div className="absolute top-0 right-8 -mt-2 -mr-2 bg-white dark:bg-gray-800 rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold border-2 border-primary text-primary z-20 shadow-sm">
                           {step.step}
                         </div>
 
