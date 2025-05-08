@@ -541,7 +541,7 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
             <div>
               <p className="text-lg font-semibold">₹{consultation.paymentAmount || 1000}</p>
               <p className="text-sm text-muted-foreground">
-                for {consultation.notes?.match(/Duration: (\d+) hour/)?.[1] || 1} hour(s) consultation
+                for {consultation.duration || 1} hour{consultation.duration !== 1 ? 's' : ''} consultation
               </p>
             </div>
             <div className="text-sm text-muted-foreground">
@@ -724,7 +724,7 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
                 {paymentData.upiInfo.upiId && (
                   <div className="bg-white p-3 border rounded-md inline-block shadow-sm">
                     <QRCodeSVG 
-                      value={`upi://pay?pa=${paymentData.upiInfo.upiId}&am=${consultation?.paymentAmount || 1000}&cu=INR&tn=Consultation`}
+                      value={`upi://pay?pa=${paymentData.upiInfo.upiId}&am=${consultation?.paymentAmount || 1000}&cu=INR&tn=Consultation ${consultation?.duration || 1}hr`}
                       size={150}
                       bgColor={"#ffffff"}
                       fgColor={"#000000"}
