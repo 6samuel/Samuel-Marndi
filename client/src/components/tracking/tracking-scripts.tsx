@@ -38,13 +38,15 @@ export const trackConversion = {
   }
 };
 
-// Declare global window interfaces for type safety
+// Global window interface declarations
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
-    fbq?: (...args: any[]) => void;
-    twq?: (...args: any[]) => void; 
-    clarity?: (command: string, value: string, options?: any) => void;
+    gtag: (...args: any[]) => void;
+    fbq: (...args: any[]) => void;
+    twq: (...args: any[]) => void; 
+    clarity: (command: string, value: string, options?: any) => void;
+    _linkedin_data_partner_ids: any[];
+    lintrk: any;
   }
 }
 
