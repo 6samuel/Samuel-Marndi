@@ -80,14 +80,16 @@ const TrackingScripts: React.FC<TrackingScriptsProps> = () => {
 
   return (
     <>
-      {/* Google Analytics 4 */}
+      {/* Google Analytics 4 - Deferred loading */}
       {GA_MEASUREMENT_ID ? (
         <>
           <script
             async
+            defer
             src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           />
           <script
+            defer
             dangerouslySetInnerHTML={{
               __html: `
                 window.dataLayer = window.dataLayer || [];
