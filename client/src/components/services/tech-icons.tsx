@@ -3,16 +3,17 @@ import {
   SiReact, SiAngular, SiVuedotjs, SiNextdotjs, SiVercel, SiTailwindcss,
   SiNodedotjs, SiExpress, SiNestjs, SiDjango, SiFlask, SiLaravel,
   SiMongodb, SiPostgresql, SiMysql, SiFirebase, SiSupabase, SiAmazon,
-  SiMicrosoft, SiGooglecloud, SiDigitalocean, SiDocker, SiKubernetes,
-  SiTypescript, SiJavascript, SiPython, SiPhp, SiRuby, SiGo, SiJavascript as SiJava, SiSharp as SiCsharp,
+  SiGooglecloud, SiDigitalocean, SiDocker, SiKubernetes,
+  SiTypescript, SiJavascript, SiPython, SiPhp, SiRuby, SiGo, SiJavascript as SiJava, SiSharp,
   SiAndroid, SiSwift, SiKotlin, SiFlutter, SiReact as SiReactnative, SiElectron,
   SiGraphql, SiPrisma, SiSequelize, SiRedux, SiSass, SiWebpack,
   SiGatsby, SiNuxtdotjs, SiSvelte, SiStorybook, SiCypress, SiJest,
-  SiVisualstudio, SiGit, SiGithub, SiAdobexd, SiFigma, SiSketch,
+  SiGit, SiGithub, SiAdobexd, SiFigma, SiSketch,
   SiStripe, SiPaypal, SiTwilio, SiSendgrid, SiMailchimp, SiOpenai,
   SiWordpress, SiShopify, SiWoocommerce, SiMagento, SiSalesforce,
   SiGoogleanalytics, SiGoogletagmanager, SiGooglesearchconsole, SiHubspot
 } from "react-icons/si";
+import { FaAws, FaMicrosoft, FaCode, FaDesktop } from "react-icons/fa";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const iconsConfig = [
@@ -43,8 +44,8 @@ const iconsConfig = [
   { icon: SiSupabase, name: "Supabase" },
 
   // Cloud & Deployment
-  { icon: SiAmazon, name: "AWS" },
-  { icon: SiMicrosoft, name: "Azure" },
+  { icon: FaAws, name: "AWS" },
+  { icon: FaMicrosoft, name: "Azure" },
   { icon: SiGooglecloud, name: "Google Cloud" },
   { icon: SiDigitalocean, name: "DigitalOcean" },
   { icon: SiDocker, name: "Docker" },
@@ -58,7 +59,7 @@ const iconsConfig = [
   { icon: SiRuby, name: "Ruby" },
   { icon: SiGo, name: "Go" },
   { icon: SiJava, name: "Java" },
-  { icon: SiCsharp, name: "C#" },
+  { icon: SiSharp, name: "C#" },
 
   // Mobile Development
   { icon: SiAndroid, name: "Android" },
@@ -85,7 +86,7 @@ const iconsConfig = [
   { icon: SiJest, name: "Jest" },
 
   // Development Tools
-  { icon: SiVisualstudiocode, name: "VS Code" },
+  { icon: FaCode, name: "VS Code" },
   { icon: SiGit, name: "Git" },
   { icon: SiGithub, name: "GitHub" },
   { icon: SiWebpack, name: "Webpack" },
