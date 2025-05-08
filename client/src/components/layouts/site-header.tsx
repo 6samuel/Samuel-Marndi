@@ -25,7 +25,7 @@ import {
   CreditCard, ChevronDown, Briefcase, PaintBucket, Bot, Database,
   CloudLightning, BrainCircuit, GanttChart, LayoutGrid, Languages,
   Presentation, ScrollText, ScanFace, Zap, Bolt, Heart, Code2, Wrench,
-  ChevronRight
+  ChevronRight, Calendar
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
@@ -72,6 +72,7 @@ const SiteHeader = () => {
   // Additional navigation items that will appear in mobile menu only
   const mobileNavItems = [
     ...navItems,
+    { name: "Consultation", href: "/consultation" },
     { name: "Payment", href: "/payment" },
   ];
   
@@ -389,6 +390,12 @@ const SiteHeader = () => {
                       <span>Payment</span>
                     </Button>
                   </Link>
+                  <Link href="/consultation" className="mr-2">
+                    <Button variant="outline" size="sm" className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>Consultation</span>
+                    </Button>
+                  </Link>
                   <Link href="/contact">
                     <Button>Get a Quote</Button>
                   </Link>
@@ -484,6 +491,12 @@ const SiteHeader = () => {
                         <Button variant="outline" className="w-full flex items-center justify-center gap-1">
                           <CreditCard className="h-4 w-4" />
                           <span>Make a Payment</span>
+                        </Button>
+                      </Link>
+                      <Link href="/consultation" onClick={handleLinkClick} className="w-full">
+                        <Button variant="outline" className="w-full flex items-center justify-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>Book Consultation</span>
                         </Button>
                       </Link>
                       <div className="flex space-x-2">
