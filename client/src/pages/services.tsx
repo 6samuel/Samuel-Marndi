@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
@@ -19,8 +20,14 @@ import {
   Palette, 
   Search, 
   ShoppingCart, 
-  Smartphone
+  Smartphone,
+  Brain,
+  Link2,
+  Copy,
+  Wrench,
+  Share2
 } from "lucide-react";
+import ServiceRequestModal from "@/components/modals/service-request-modal";
 
 // Service icon mapping
 const ServiceIcon = ({ name }: { name: string }) => {
@@ -30,13 +37,26 @@ const ServiceIcon = ({ name }: { name: string }) => {
     "Palette": <Palette className="h-5 w-5" />,
     "Search": <Search className="h-5 w-5" />,
     "ShoppingCart": <ShoppingCart className="h-5 w-5" />,
-    "Smartphone": <Smartphone className="h-5 w-5" />
+    "Smartphone": <Smartphone className="h-5 w-5" />,
+    "Brain": <Brain className="h-5 w-5" />,
+    "Link": <Link2 className="h-5 w-5" />,
+    "Copy": <Copy className="h-5 w-5" />,
+    "Wrench": <Wrench className="h-5 w-5" />,
+    "Share2": <Share2 className="h-5 w-5" />
   };
   
   return icons[name as keyof typeof icons] || <Code className="h-5 w-5" />;
 };
 
 const Services = () => {
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
+  
+  const openRequestModal = (serviceId: number) => {
+    setSelectedServiceId(serviceId.toString());
+    setIsRequestModalOpen(true);
+  };
+  
   const { data: services, isLoading, error } = useQuery<Service[]>({
     queryKey: ['/api/services'],
     queryFn: async () => {

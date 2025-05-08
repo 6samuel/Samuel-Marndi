@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import ServiceRequestModal from "@/components/modals/service-request-modal";
 
 const ServiceIcon = ({ name }: { name: string }) => {
   const icons = {
@@ -38,6 +40,14 @@ const ServiceIcon = ({ name }: { name: string }) => {
 };
 
 const ServicesOverview = () => {
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
+  
+  const openRequestModal = (serviceId: number) => {
+    setSelectedServiceId(serviceId.toString());
+    setIsRequestModalOpen(true);
+  };
+  
   const { data: services, isLoading, error } = useQuery<Service[]>({
     queryKey: ['/api/services/featured'],
     queryFn: async () => {
@@ -137,12 +147,22 @@ const ServicesOverview = () => {
                     {/* Display a truncated version of the full description */}
                     {service.fullDescription.split(' ').slice(0, 20).join(' ')}...
                   </CardContent>
-                  <CardFooter>
-                    <Link href={`/services/${service.slug}`}>
-                      <Button variant="ghost" size="sm" className="text-primary dark:text-primary-foreground">
-                        Learn more <ChevronRight className="ml-1 h-4 w-4" />
+                  <CardFooter className="flex flex-col space-y-2">
+                    <div className="flex justify-between w-full">
+                      <Link href={`/services/${service.slug}`}>
+                        <Button variant="ghost" size="sm" className="text-primary dark:text-primary-foreground">
+                          Learn more <ChevronRight className="ml-1 h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-primary border-primary/30 hover:bg-primary/5"
+                        onClick={() => openRequestModal(service.id)}
+                      >
+                        Request this service
                       </Button>
-                    </Link>
+                    </div>
                   </CardFooter>
                 </Card>
               </motion.div>
@@ -158,6 +178,13 @@ const ServicesOverview = () => {
           </Link>
         </div>
       </div>
+      
+      {/* Service Request Modal */}
+      <ServiceRequestModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+        serviceId={selectedServiceId}
+      />
     </section>
   );
 };
