@@ -5,6 +5,7 @@ import { PortfolioItem } from "@shared/schema";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const PortfolioPreview = () => {
   const { data: portfolioItems, isLoading, error } = useQuery<PortfolioItem[]>({
@@ -102,6 +103,8 @@ const PortfolioPreview = () => {
                   <img 
                     src={item.imageUrl} 
                     alt={item.title} 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
