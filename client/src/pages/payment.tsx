@@ -33,78 +33,86 @@ export default function PaymentPage() {
       />
 
       <div className="container max-w-5xl pb-20">
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Payment Options</CardTitle>
-            <CardDescription>
-              Choose between a simple payment or use the advanced calculator to estimate project costs
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PaymentGatewayStatus 
-              status={gatewayStatus} 
-              isLoading={isStatusLoading} 
-            />
-            
-            <Tabs defaultValue="upi" className="mt-6">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="upi">UPI Payment</TabsTrigger>
-                <TabsTrigger value="simple">Simple Payment</TabsTrigger>
-                <TabsTrigger value="advanced">Calculator</TabsTrigger>
-              </TabsList>
-              <TabsContent value="upi" className="mt-4">
-                <UpiPayment upiId="8280320550@axisb" />
-              </TabsContent>
-              <TabsContent value="simple" className="mt-4">
-                <SimplePaymentForm gatewayStatus={gatewayStatus} />
-              </TabsContent>
-              <TabsContent value="advanced" className="mt-4">
-                <AdvancedPaymentForm gatewayStatus={gatewayStatus} />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main payment section - takes up 2/3 of the screen on desktop */}
+          <div className="lg:col-span-2">
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Payment Options</CardTitle>
+                <CardDescription>
+                  Choose your preferred payment method below
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PaymentGatewayStatus 
+                  status={gatewayStatus} 
+                  isLoading={isStatusLoading} 
+                />
+                
+                <Tabs defaultValue="upi" className="mt-6">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="upi">UPI Payment</TabsTrigger>
+                    <TabsTrigger value="simple">Direct Payment</TabsTrigger>
+                    <TabsTrigger value="advanced">Calculator</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="upi" className="mt-4">
+                    <UpiPayment upiId="8280320550@axisb" />
+                  </TabsContent>
+                  <TabsContent value="simple" className="mt-4">
+                    <SimplePaymentForm gatewayStatus={gatewayStatus} />
+                  </TabsContent>
+                  <TabsContent value="advanced" className="mt-4">
+                    <AdvancedPaymentForm gatewayStatus={gatewayStatus} />
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Security</CardTitle>
-            <CardDescription>Information about secure payment processing</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-medium mb-2">Secure Transactions</h3>
-                <p className="text-muted-foreground">
-                  All payment transactions are securely processed through established payment gateways 
-                  with industry-standard encryption. Your payment information is never stored on our servers.
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-medium mb-2">Multiple Payment Options</h3>
-                <p className="text-muted-foreground">
-                  For your convenience, I offer multiple payment options including credit cards, 
-                  debit cards, net banking, UPI, and international payment methods.
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-medium mb-2">Receipt and Invoice</h3>
-                <p className="text-muted-foreground">
-                  You will receive a confirmation email with your payment receipt. 
-                  For business payments requiring a GST invoice, please mention this in your 
-                  project requirements or contact me directly.
-                </p>
-              </div>
-              
-              <div className="flex justify-center pt-4">
-                <Button variant="outline" asChild>
-                  <a href="/contact">Have Questions? Contact Me</a>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Payment information sidebar - takes up 1/3 of the screen on desktop */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-24">
+              <CardHeader>
+                <CardTitle>Payment Security</CardTitle>
+                <CardDescription>Information about secure payment processing</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Secure Transactions</h3>
+                    <p className="text-muted-foreground text-sm">
+                      All payment transactions are securely processed through established payment gateways 
+                      with industry-standard encryption. Your payment information is never stored on our servers.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Multiple Payment Options</h3>
+                    <p className="text-muted-foreground text-sm">
+                      For your convenience, I offer multiple payment options including credit cards, 
+                      debit cards, net banking, UPI, and international payment methods.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Receipt and Invoice</h3>
+                    <p className="text-muted-foreground text-sm">
+                      You will receive a confirmation email with your payment receipt. 
+                      For business payments requiring a GST invoice, please mention this in your 
+                      project requirements or contact me directly.
+                    </p>
+                  </div>
+                  
+                  <div className="flex justify-center pt-4">
+                    <Button variant="outline" asChild>
+                      <a href="/contact">Have Questions? Contact Me</a>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </>
   );
