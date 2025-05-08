@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,50 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
 import { 
   Menu, Code, BarChart2, Palette, Search, ShoppingCart, Smartphone, 
   Sun, Moon, Phone, Mail, Linkedin, Twitter, Github, Facebook,
-  CreditCard, ChevronDown
+  CreditCard, ChevronDown, Briefcase, PaintBucket, Bot, Database,
+  CloudLightning, BrainCircuit, GanttChart, LayoutGrid, Languages,
+  Presentation, ScrollText, ScanFace, Zap, Bolt, Heart, Code2, Wrench,
+  ChevronRight
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  )
+});
+ListItem.displayName = "ListItem";
 
 const SiteHeader = () => {
   const [location] = useLocation();
@@ -26,7 +64,7 @@ const SiteHeader = () => {
 
   const navItems = [
     { name: "Home", href: "/" },
-    { name: "Services", href: "/services" },
+    { name: "IT Services", href: "/services" },
     { name: "Partner", href: "/partners" },
     { name: "Contact", href: "/contact" },
   ];
@@ -35,6 +73,75 @@ const SiteHeader = () => {
   const mobileNavItems = [
     ...navItems,
     { name: "Payment", href: "/payment" },
+  ];
+  
+  // Service categories for mega menu
+  const serviceCategories = [
+    {
+      name: "Web Development",
+      description: "Custom website and web application development",
+      href: "/services/web-development",
+      icon: <Code className="h-5 w-5 text-blue-500" />,
+      services: [
+        { name: "Full-Stack Development", href: "/services/web-development#full-stack" },
+        { name: "Front-End Development", href: "/services/web-development#front-end" },
+        { name: "Back-End Development", href: "/services/web-development#back-end" },
+        { name: "E-commerce Development", href: "/services/ecommerce-solutions" },
+        { name: "CMS Development", href: "/services/web-development#cms" },
+      ]
+    },
+    {
+      name: "Digital Marketing",
+      description: "Comprehensive digital marketing solutions",
+      href: "/services/digital-marketing",
+      icon: <BarChart2 className="h-5 w-5 text-green-500" />,
+      services: [
+        { name: "SEO Optimization", href: "/services/seo-optimization" },
+        { name: "Social Media Marketing", href: "/services/digital-marketing#social" },
+        { name: "Content Marketing", href: "/services/digital-marketing#content" },
+        { name: "Email Marketing", href: "/services/digital-marketing#email" },
+        { name: "PPC Campaigns", href: "/services/digital-marketing#ppc" },
+      ]
+    },
+    {
+      name: "App Development",
+      description: "Mobile and desktop application development",
+      href: "/services/mobile-app-development",
+      icon: <Smartphone className="h-5 w-5 text-purple-500" />,
+      services: [
+        { name: "iOS Development", href: "/services/mobile-app-development#ios" },
+        { name: "Android Development", href: "/services/mobile-app-development#android" },
+        { name: "Cross-Platform Apps", href: "/services/mobile-app-development#cross-platform" },
+        { name: "Desktop Applications", href: "/services/mobile-app-development#desktop" },
+        { name: "PWA Development", href: "/services/mobile-app-development#pwa" },
+      ]
+    },
+    {
+      name: "Design Services",
+      description: "Creative design solutions for digital products",
+      href: "/services/ui-ux-design",
+      icon: <Palette className="h-5 w-5 text-pink-500" />,
+      services: [
+        { name: "UI/UX Design", href: "/services/ui-ux-design" },
+        { name: "Brand Identity", href: "/services/ui-ux-design#brand" },
+        { name: "Logo Design", href: "/services/ui-ux-design#logo" },
+        { name: "Prototyping", href: "/services/ui-ux-design#prototype" },
+        { name: "Wireframing", href: "/services/ui-ux-design#wireframe" },
+      ]
+    },
+    {
+      name: "AI & Cloud Services",
+      description: "Advanced AI integration and cloud solutions",
+      href: "/services/ai-services",
+      icon: <BrainCircuit className="h-5 w-5 text-orange-500" />,
+      services: [
+        { name: "AI Integration", href: "/services/ai-services" },
+        { name: "Cloud Architecture", href: "/services/cloud-services" },
+        { name: "DevOps Services", href: "/services/devops-services" },
+        { name: "Database Management", href: "/services/database-services" },
+        { name: "API Development", href: "/services/api-development" },
+      ]
+    }
   ];
 
   useEffect(() => {
@@ -58,7 +165,7 @@ const SiteHeader = () => {
   };
 
   return (
-    <header className="w-full z-40">
+    <header className="w-full z-50 sticky top-0">
       {/* Top Contact Bar */}
       <div className="bg-gray-100 dark:bg-gray-800 py-2 text-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,8 +202,8 @@ const SiteHeader = () => {
       {/* Main Navigation */}
       <div className={`transition-all duration-200 ${
         isScrolled
-          ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b shadow-sm"
-          : "bg-white dark:bg-gray-900"
+          ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b shadow-md"
+          : "bg-white dark:bg-gray-900 border-b"
       }`}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
@@ -107,24 +214,153 @@ const SiteHeader = () => {
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation with Mega Menu */}
             {!isMobile && (
-              <nav className="hidden md:flex md:space-x-8">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={handleLinkClick}
-                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors ${
-                      location === item.href
-                        ? "text-primary border-b-2 border-primary"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </nav>
+              <NavigationMenu className="hidden md:flex">
+                <NavigationMenuList>
+                  {/* Home Link */}
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link 
+                        href="/"
+                        className={cn(
+                          "inline-flex items-center px-4 py-2 text-sm font-medium transition-colors",
+                          location === "/" 
+                            ? "text-primary"
+                            : "text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+                        )}
+                      >
+                        Home
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  
+                  {/* IT Services Mega Menu */}
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger 
+                      className={cn(
+                        "text-sm bg-transparent hover:bg-transparent hover:text-primary dark:hover:text-primary focus:bg-transparent",
+                        location === "/services" || location.includes("/services/")
+                          ? "text-primary"
+                          : "text-gray-600 dark:text-gray-300"
+                      )}
+                    >
+                      IT Services
+                    </NavigationMenuTrigger>
+                    
+                    <NavigationMenuContent className="bg-white dark:bg-gray-900 shadow-lg">
+                      <div className="grid grid-cols-5 w-[850px] gap-0 p-4">
+                        <div className="col-span-2 border-r border-gray-100 dark:border-gray-800 p-4">
+                          <div className="mb-2 mt-1 text-lg font-medium leading-none text-gray-900 dark:text-gray-100">
+                            All Services
+                          </div>
+                          <p className="mb-4 text-sm leading-snug text-gray-500 dark:text-gray-400">
+                            Comprehensive IT solutions for businesses of all sizes
+                          </p>
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            {serviceCategories.map((category) => (
+                              <Link 
+                                key={category.name} 
+                                href={category.href}
+                                className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 group transition-all"
+                                onClick={handleLinkClick}
+                              >
+                                <div className="flex-shrink-0">
+                                  {category.icon}
+                                </div>
+                                <div>
+                                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary">
+                                    {category.name}
+                                  </div>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                                    {category.description}
+                                  </p>
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="col-span-3 p-4">
+                          <div className="grid grid-cols-3 gap-4">
+                            {serviceCategories.map((category) => (
+                              <div key={category.name} className="space-y-2">
+                                <div className="flex items-center mb-2">
+                                  {category.icon}
+                                  <h3 className="text-sm font-semibold ml-2 text-gray-900 dark:text-gray-100">
+                                    {category.name}
+                                  </h3>
+                                </div>
+                                <ul className="space-y-1">
+                                  {category.services.map((service) => (
+                                    <li key={service.name}>
+                                      <Link
+                                        href={service.href}
+                                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-foreground"
+                                        onClick={handleLinkClick}
+                                      >
+                                        {service.name}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-gray-50 dark:bg-gray-800 w-full p-3 border-t border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            Need a custom solution?
+                          </div>
+                          <Link 
+                            href="/contact" 
+                            className="text-sm flex items-center font-medium text-primary hover:text-primary/80"
+                          >
+                            Get a free consultation
+                            <ChevronRight className="h-3 w-3 ml-1" />
+                          </Link>
+                        </div>
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                  
+                  {/* Partner Link */}
+                  <NavigationMenuItem>
+                    <Link href="/partners" passHref legacyBehavior>
+                      <NavigationMenuLink 
+                        className={cn(
+                          "inline-flex items-center px-4 py-2 text-sm font-medium transition-colors",
+                          location === "/partners" 
+                            ? "text-primary"
+                            : "text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+                        )}
+                      >
+                        Partner
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  
+                  {/* Contact Link */}
+                  <NavigationMenuItem>
+                    <Link href="/contact" passHref legacyBehavior>
+                      <NavigationMenuLink 
+                        className={cn(
+                          "inline-flex items-center px-4 py-2 text-sm font-medium transition-colors",
+                          location === "/contact" 
+                            ? "text-primary"
+                            : "text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+                        )}
+                      >
+                        Contact
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
             )}
 
             {/* Theme Toggle and Mobile Menu */}
