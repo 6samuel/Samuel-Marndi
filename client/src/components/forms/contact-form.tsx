@@ -69,16 +69,11 @@ const ContactForm = () => {
       });
       
       // Track form submission as conversion in all platforms
+      // Use the trackEvent from useConversionTracking hook
       trackEvent(
         'contact_form_submission', 
         'lead_generation',
-        'contact_form',
-        undefined,
-        'USD',
-        {
-          service_interest: form.getValues().serviceInterest || 'general',
-          lead_source: 'website'
-        }
+        'contact_form'
       );
       
       // Track in Google Analytics
