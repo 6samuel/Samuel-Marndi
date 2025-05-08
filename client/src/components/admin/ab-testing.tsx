@@ -1,26 +1,70 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Loader2,
+  PlusCircle,
+  Trash2,
+  Edit,
+  ArrowRightLeft,
+  FileBarChart,
+  CheckIcon,
+  PlusIcon,
+  RefreshCw,
+  Trophy,
+  ChevronUp,
+  ChevronDown,
+  Check,
+  Beaker,
+  AlertCircle,
+  Eye,
+  BarChart2,
+  BarChart3,
+  Play,
+  Pause,
+  Clock,
+  ArrowRight,
+  Terminal,
+  Pencil,
+  XIcon,
+  LayoutPanelTop,
+  PieChart,
+  Copy,
+  Zap,
+  Flag
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardHeader,
   CardTitle,
-  CardFooter
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Form, 
-  FormControl, 
-  FormDescription, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -28,588 +72,1100 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  BarChartHorizontal,
-  Copy,
-  Edit, 
-  FilePieChart, 
-  Plus, 
-  Play,
-  Pause,
-  RotateCcw,
-  ScrollText,
-  Trash 
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { apiRequest, queryClient } from '@/lib/queryClient';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { LineChart, BarChart } from '@/components/charts/chart-components';
+import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { DatePicker } from "@/components/ui/date-picker";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CodeHighlightTabs } from "@/components/ui/code-tabs";
+import { cn } from "@/lib/utils";
 
-// A/B Test schema
-const abTestSchema = z.object({
-  id: z.number().optional(),
-  name: z.string().min(1, 'Test name is required'),
+const testSchema = z.object({
+  name: z.string().min(3, "Test name must be at least 3 characters"),
   description: z.string().optional(),
-  type: z.enum(['landing', 'cta', 'headline', 'image', 'content', 'layout', 'color', 'custom']),
-  status: z.enum(['draft', 'running', 'paused', 'completed']).default('draft'),
-  trackerId: z.number().optional().nullable(),
-  pageUrl: z.string().min(1, 'Page URL is required'),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  conversionMetric: z.enum(['clicks', 'forms', 'signups', 'purchases', 'custom']),
-  targetSampleSize: z.number().min(1).default(1000),
-  minimumConfidence: z.number().min(70).max(99.9).default(95),
+  type: z.string(),
+  targetSampleSize: z.coerce.number().positive("Sample size must be positive"),
+  minimumConfidence: z.coerce.number().min(50, "Confidence must be at least 50%").max(99.9, "Confidence cannot exceed 99.9%"),
+  status: z.string().default("draft"),
+  metric: z.string(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  page: z.string().optional(),
+  element: z.string().optional(),
+  conversionPage: z.string().optional(),
+  conversionEvent: z.string().optional(),
+  trafficAllocation: z.coerce.number().min(1).max(100).default(100),
 });
 
-// Test variant schema
 const variantSchema = z.object({
-  id: z.number().optional(),
-  testId: z.number().optional(),
-  name: z.string().min(1, 'Variant name is required'),
+  name: z.string().min(1, "Variant name is required"),
   description: z.string().optional(),
   isControl: z.boolean().default(false),
   content: z.string().optional(),
   customProperties: z.record(z.string(), z.string()).optional(),
-  // Stats
-  impressions: z.number().default(0),
-  conversions: z.number().default(0),
-  conversionRate: z.number().default(0),
 });
 
-type ABTest = z.infer<typeof abTestSchema>;
-type NewABTest = Omit<ABTest, 'id'> & { id?: number };
+type TestFormValues = z.infer<typeof testSchema>;
+type VariantFormValues = z.infer<typeof variantSchema>;
 
-type Variant = z.infer<typeof variantSchema>;
-type NewVariant = Omit<Variant, 'id' | 'testId'> & { id?: number, testId?: number };
-
-// Results data
-interface TestResults {
-  testId: number;
-  totalImpressions: number;
-  totalConversions: number;
-  averageConversionRate: number;
-  confidenceLevel: number;
-  winner: number | null;
-  variants: {
-    id: number;
-    name: string;
-    impressions: number;
-    conversions: number;
-    conversionRate: number;
-    improvement: number | null;
-  }[];
-  timeline: {
-    date: string;
-    variantId: number;
-    impressions: number;
-    conversions: number;
-  }[];
+function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return "Not set";
+  
+  if (typeof date === 'string') {
+    date = new Date(date);
+  }
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(date);
 }
 
-const ABTestingDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('active');
-  const [selectedTest, setSelectedTest] = useState<number | null>(null);
-  const [testDialogOpen, setTestDialogOpen] = useState(false);
-  const [variantDialogOpen, setVariantDialogOpen] = useState(false);
-  const [editTest, setEditTest] = useState<ABTest | null>(null);
-  const [editVariant, setEditVariant] = useState<Variant | null>(null);
+interface TestCardProps {
+  test: any;
+  onEdit: (test: any) => void;
+  onDelete: (id: number) => void;
+  onViewResults: (test: any) => void;
+  onManageVariants: (test: any) => void;
+  onStatusChange: (id: number, status: string) => void;
+}
+
+function TestCard({ test, onEdit, onDelete, onViewResults, onManageVariants, onStatusChange }: TestCardProps) {
+  const startDate = test.startDate ? new Date(test.startDate) : null;
+  const endDate = test.endDate ? new Date(test.endDate) : null;
+  const today = new Date();
+  
+  const isActive = test.status === 'active';
+  const isPaused = test.status === 'paused';
+  const isCompleted = test.status === 'completed';
+  const isDraft = test.status === 'draft';
+  
+  const hasStarted = startDate && startDate <= today;
+  const hasEnded = endDate && endDate <= today;
+  
+  let statusColor = "bg-gray-500";
+  if (isActive) statusColor = "bg-green-500";
+  if (isPaused) statusColor = "bg-amber-500";
+  if (isCompleted) statusColor = "bg-blue-500";
+  if (isDraft) statusColor = "bg-gray-500";
+  
+  return (
+    <Card className="mb-4">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-xl mb-1">
+              {test.name}
+            </CardTitle>
+            <CardDescription className="text-sm flex items-center">
+              <Badge variant="outline" className="mr-2">
+                {test.type === 'ab' ? 'A/B Test' : 
+                  test.type === 'multivariate' ? 'Multivariate Test' : 
+                  test.type === 'split' ? 'Split Test' : 
+                  'Other Test'}
+              </Badge>
+              <span>Metric: {test.metric}</span>
+            </CardDescription>
+          </div>
+          <Badge className={statusColor}>{test.status}</Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="py-2">
+        {test.description && (
+          <p className="text-sm mb-3 text-gray-700">{test.description}</p>
+        )}
+        <div className="text-sm space-y-1 mb-2">
+          <div className="flex justify-between">
+            <span className="text-gray-500">Sample Size:</span>
+            <span className="font-medium">{test.targetSampleSize.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Min. Confidence:</span>
+            <span className="font-medium">{test.minimumConfidence}%</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Variants:</span>
+            <span className="font-medium">{test.variantCount || 0}</span>
+          </div>
+          {test.trafficAllocation < 100 && (
+            <div className="flex justify-between">
+              <span className="text-gray-500">Traffic:</span>
+              <span className="font-medium">{test.trafficAllocation}%</span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span className="text-gray-500">Dates:</span>
+            <span className="font-medium">
+              {startDate ? formatDate(startDate) : 'Not started'} 
+              {endDate ? ` - ${formatDate(endDate)}` : ''}
+            </span>
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="pt-2 flex justify-between items-center">
+        <div>
+          {isActive && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onStatusChange(test.id, 'paused')}
+            >
+              <Pause className="h-4 w-4 mr-1" /> Pause
+            </Button>
+          )}
+          {isPaused && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onStatusChange(test.id, 'active')}
+            >
+              <Play className="h-4 w-4 mr-1" /> Resume
+            </Button>
+          )}
+          {isDraft && (
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={() => onStatusChange(test.id, 'active')}
+            >
+              <Play className="h-4 w-4 mr-1" /> Start
+            </Button>
+          )}
+          {(isActive || isPaused) && (
+            <Button 
+              variant="outline"
+              size="sm"
+              className="ml-2"
+              onClick={() => onStatusChange(test.id, 'completed')}
+            >
+              <Check className="h-4 w-4 mr-1" /> Complete
+            </Button>
+          )}
+        </div>
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => onManageVariants(test)}
+          >
+            <ArrowRightLeft className="h-4 w-4 mr-1" /> Variants
+          </Button>
+          {!isDraft && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onViewResults(test)}
+            >
+              <BarChart2 className="h-4 w-4 mr-1" /> Results
+            </Button>
+          )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => onEdit(test)}
+          >
+            <Edit className="h-4 w-4 mr-1" /> Edit
+          </Button>
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={() => onDelete(test.id)}
+          >
+            <Trash2 className="h-4 w-4 mr-1" /> Delete
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function VariantCard({ variant, onEdit, onDelete, isInactive }: { 
+  variant: any; 
+  onEdit: (variant: any) => void; 
+  onDelete: (id: number) => void;
+  isInactive: boolean;
+}) {
+  return (
+    <Card className={cn("mb-4", isInactive && "opacity-70")}>
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg mb-1 flex items-center">
+            {variant.name}
+            {variant.isControl && (
+              <Badge className="ml-2 bg-blue-500">Control</Badge>
+            )}
+          </CardTitle>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onEdit(variant)}
+              disabled={isInactive}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={() => onDelete(variant.id)}
+              disabled={isInactive || variant.isControl}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="py-2">
+        {variant.description && (
+          <p className="text-sm mb-3 text-gray-700">{variant.description}</p>
+        )}
+        {variant.impressions != null && variant.conversions != null && (
+          <div className="space-y-1 mb-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Impressions:</span>
+              <span className="font-medium">{variant.impressions.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Conversions:</span>
+              <span className="font-medium">{variant.conversions.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Conversion Rate:</span>
+              <span className="font-medium">{(variant.conversionRate || 0).toFixed(2)}%</span>
+            </div>
+          </div>
+        )}
+        {variant.content && (
+          <div className="mt-3 pt-3 border-t">
+            <h4 className="text-sm font-medium mb-1">Content:</h4>
+            <div className="text-xs bg-gray-50 p-2 rounded-md border overflow-auto max-h-32">
+              {variant.content}
+            </div>
+          </div>
+        )}
+        {variant.customProperties && Object.keys(variant.customProperties).length > 0 && (
+          <div className="mt-3 pt-3 border-t">
+            <h4 className="text-sm font-medium mb-1">Custom Properties:</h4>
+            <div className="space-y-1">
+              {Object.entries(variant.customProperties).map(([key, value]) => (
+                <div key={key} className="flex justify-between text-xs">
+                  <span className="text-gray-500">{key}:</span>
+                  <span className="font-medium">{String(value)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function TestResults({ test, onClose }: { test: any; onClose: () => void }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [results, setResults] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  
   const { toast } = useToast();
-
-  // Fetch trackers
-  const { data: trackers } = useQuery<Array<{ id: number; name: string; platform: string }>>({
-    queryKey: ['/api/ad-trackers'],
-  });
-
-  // Fetch tests
-  const { data: tests, isLoading: isLoadingTests } = useQuery<ABTest[]>({
-    queryKey: ['/api/ab-tests'],
-    queryFn: async () => {
-      // If API endpoint doesn't exist yet, return empty array
-      try {
-        const res = await apiRequest('GET', '/api/ab-tests');
-        return await res.json();
-      } catch (error) {
-        console.error('Error fetching A/B tests:', error);
-        return [];
-      }
-    }
-  });
-
-  // Fetch variants for selected test
-  const { data: variants, isLoading: isLoadingVariants } = useQuery<Variant[]>({
-    queryKey: ['/api/ab-tests', selectedTest, 'variants'],
-    queryFn: async () => {
-      if (!selectedTest) return [];
-      // If API endpoint doesn't exist yet, return empty array
-      try {
-        const res = await apiRequest('GET', `/api/ab-tests/${selectedTest}/variants`);
-        return await res.json();
-      } catch (error) {
-        console.error(`Error fetching variants for test ${selectedTest}:`, error);
-        return [];
-      }
-    },
-    enabled: !!selectedTest
-  });
-
-  // Fetch test results
-  const { data: testResults, isLoading: isLoadingResults } = useQuery<TestResults>({
-    queryKey: ['/api/ab-tests', selectedTest, 'results'],
-    queryFn: async () => {
-      if (!selectedTest) return null as any;
-      // If API endpoint doesn't exist yet, return empty results
-      try {
-        const res = await apiRequest('GET', `/api/ab-tests/${selectedTest}/results`);
-        return await res.json();
-      } catch (error) {
-        console.error(`Error fetching results for test ${selectedTest}:`, error);
-        return {
-          testId: selectedTest,
-          totalImpressions: 0,
-          totalConversions: 0,
-          averageConversionRate: 0,
-          confidenceLevel: 0,
-          winner: null,
-          variants: [],
-          timeline: []
-        };
-      }
-    },
-    enabled: !!selectedTest
-  });
   
-  // Forms
-  const testForm = useForm<NewABTest>({
-    resolver: zodResolver(abTestSchema.omit({ id: true })),
+  React.useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch(`/api/ab-tests/${test.id}/results`);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch results: ${res.statusText}`);
+        }
+        const data = await res.json();
+        setResults(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+        toast({
+          title: "Error fetching results",
+          description: err instanceof Error ? err.message : String(err),
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchResults();
+  }, [test.id, toast]);
+  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            Failed to load test results: {error}
+          </AlertDescription>
+        </Alert>
+        <div className="flex justify-end mt-4">
+          <Button onClick={onClose}>Close</Button>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!results) {
+    return (
+      <div className="p-6">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>No Results Available</AlertTitle>
+          <AlertDescription>
+            There are no results available for this test yet.
+          </AlertDescription>
+        </Alert>
+        <div className="flex justify-end mt-4">
+          <Button onClick={onClose}>Close</Button>
+        </div>
+      </div>
+    );
+  }
+  
+  const { metrics, variants, status } = results;
+  const isSignificant = metrics?.isSignificant;
+  const bestVariant = metrics?.bestVariant;
+  const controlVariant = variants?.find((v: any) => v.isControl);
+  
+  const formatPercentage = (value: number) => `${value.toFixed(2)}%`;
+  
+  return (
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">{test.name} - Results</h2>
+      
+      {status === 'completed' && isSignificant && (
+        <Alert className="mb-6 bg-green-50 border-green-200">
+          <Trophy className="h-4 w-4 text-green-600" />
+          <AlertTitle className="text-green-600">Significant Result Found!</AlertTitle>
+          <AlertDescription>
+            The test reached statistical significance with {metrics.confidenceLevel.toFixed(1)}% confidence.
+            {bestVariant && ` "${bestVariant.name}" is the winner with a ${formatPercentage(metrics.improvement)} improvement over the control.`}
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {status === 'completed' && !isSignificant && (
+        <Alert className="mb-6 bg-amber-50 border-amber-200">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertTitle className="text-amber-600">No Significant Result</AlertTitle>
+          <AlertDescription>
+            The test completed but did not reach statistical significance with the required confidence level ({test.minimumConfidence}%).
+            Current confidence level: {metrics.confidenceLevel.toFixed(1)}%.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {status !== 'completed' && (
+        <Alert className="mb-6">
+          <Clock className="h-4 w-4" />
+          <AlertTitle>Test in Progress</AlertTitle>
+          <AlertDescription>
+            This test is still running. Results are preliminary and may change.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      <div className="grid md:grid-cols-2 gap-6 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Total Impressions:</span>
+                <span className="font-medium">{metrics.totalImpressions.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Total Conversions:</span>
+                <span className="font-medium">{metrics.totalConversions.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Overall Conversion Rate:</span>
+                <span className="font-medium">{formatPercentage(metrics.overallConversionRate)}</span>
+              </div>
+              {metrics.improvement !== 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Best vs Control:</span>
+                  <span className={`font-medium ${metrics.improvement > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {metrics.improvement > 0 ? '+' : ''}{formatPercentage(metrics.improvement)}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-gray-500">Status:</span>
+                <span className="font-medium capitalize">{status}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Significance Level:</span>
+                <span className="font-medium">{metrics.confidenceLevel.toFixed(1)}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Required Sample Size:</span>
+                <span className="font-medium">{test.targetSampleSize.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Dates:</span>
+                <span className="font-medium">
+                  {formatDate(test.startDate)} - {test.endDate ? formatDate(test.endDate) : 'Present'}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Variant Performance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {variants.map((variant: any) => (
+                <div key={variant.id} className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <span className="font-medium mr-2">{variant.name}</span>
+                      {variant.isControl && <Badge variant="outline">Control</Badge>}
+                      {bestVariant && bestVariant.id === variant.id && !variant.isControl && (
+                        <Badge className="ml-1 bg-green-500">Winner</Badge>
+                      )}
+                    </div>
+                    <span className="font-medium">{formatPercentage(variant.conversionRate)}</span>
+                  </div>
+                  <Progress 
+                    value={variant.conversionRate} 
+                    max={Math.max(...variants.map((v: any) => v.conversionRate)) * 1.2} 
+                    className={cn(
+                      bestVariant && bestVariant.id === variant.id && !variant.isControl ? "bg-green-500" : "",
+                      variant.isControl ? "bg-blue-500" : ""
+                    )}
+                  />
+                  <div className="flex text-xs text-gray-500 justify-between">
+                    <span>{variant.impressions.toLocaleString()} impressions</span>
+                    <span>{variant.conversions.toLocaleString()} conversions</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Detailed Metrics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Variant</TableHead>
+                  <TableHead>Impressions</TableHead>
+                  <TableHead>Conversions</TableHead>
+                  <TableHead>Conversion Rate</TableHead>
+                  {controlVariant && <TableHead>vs Control</TableHead>}
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {variants.map((variant: any) => {
+                  let improvement = 0;
+                  if (controlVariant && !variant.isControl) {
+                    improvement = controlVariant.conversionRate > 0 
+                      ? ((variant.conversionRate - controlVariant.conversionRate) / controlVariant.conversionRate) * 100
+                      : 0;
+                  }
+                  
+                  return (
+                    <TableRow key={variant.id}>
+                      <TableCell className="font-medium">
+                        {variant.name}
+                        {variant.isControl && <Badge className="ml-2" variant="outline">Control</Badge>}
+                      </TableCell>
+                      <TableCell>{variant.impressions.toLocaleString()}</TableCell>
+                      <TableCell>{variant.conversions.toLocaleString()}</TableCell>
+                      <TableCell>{formatPercentage(variant.conversionRate)}</TableCell>
+                      {controlVariant && (
+                        <TableCell>
+                          {variant.isControl ? (
+                            "—"
+                          ) : (
+                            <span className={improvement > 0 ? "text-green-600" : improvement < 0 ? "text-red-600" : ""}>
+                              {improvement > 0 ? "+" : ""}{formatPercentage(improvement)}
+                            </span>
+                          )}
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        {bestVariant && bestVariant.id === variant.id && !variant.isControl ? (
+                          <Badge className="bg-green-500">Winner</Badge>
+                        ) : variant.impressions < test.targetSampleSize / variants.length ? (
+                          <Badge variant="outline">Needs more data</Badge>
+                        ) : (
+                          <Badge variant="outline">Completed</Badge>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="flex justify-end mt-4">
+        <Button onClick={onClose}>Close</Button>
+      </div>
+    </div>
+  );
+}
+
+function getTestTrackerCode(test: any, variants: any[]) {
+  if (!variants || variants.length === 0) {
+    return {
+      javascript: '// No variants defined for this test yet',
+      html: '<!-- No variants defined for this test yet -->'
+    };
+  }
+  
+  // Generate JavaScript code
+  const jsCode = `
+// A/B Test Tracking Code for "${test.name}"
+document.addEventListener('DOMContentLoaded', function() {
+  // Generate a session ID if one doesn't exist
+  if (!sessionStorage.getItem('abTestSessionId')) {
+    sessionStorage.setItem('abTestSessionId', 
+      Math.random().toString(36).substring(2, 15) + 
+      Math.random().toString(36).substring(2, 15)
+    );
+  }
+  
+  const sessionId = sessionStorage.getItem('abTestSessionId');
+  const testId = ${test.id};
+  const variants = ${JSON.stringify(variants.map(v => ({ 
+    id: v.id, 
+    name: v.name,
+    isControl: v.isControl 
+  })))};
+  
+  // Check if user is already in a variant for this test
+  const variantId = sessionStorage.getItem('abTestVariant_' + testId);
+  
+  if (variantId) {
+    // User already assigned to a variant
+    console.log('User already in variant:', variantId);
+    applyVariant(parseInt(variantId));
+  } else {
+    // Assign user to a variant
+    // In a real implementation, you would call your API to get the assigned variant
+    // For simplicity, randomly assign here
+    const selectedVariant = variants[Math.floor(Math.random() * variants.length)];
+    
+    // Store the assignment
+    sessionStorage.setItem('abTestVariant_' + testId, selectedVariant.id);
+    
+    // Record impression in your analytics system
+    fetch('/api/ab-tests/variants/' + selectedVariant.id + '/impression', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        sessionId: sessionId,
+        referrer: document.referrer,
+        device: navigator.userAgent
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Impression recorded:', data);
+      // Apply the variant changes
+      applyVariant(selectedVariant.id);
+    })
+    .catch(error => {
+      console.error('Error recording impression:', error);
+    });
+  }
+  
+  function applyVariant(variantId) {
+    // Apply the changes for the variant
+    const variant = variants.find(v => v.id === variantId);
+    console.log('Applying variant:', variant.name);
+    
+    // This is where you would apply the changes based on the variant
+    // For example, changing text, styles, etc.
+    
+    // When a conversion happens, call this function
+    function recordConversion() {
+      fetch('/api/ab-tests/variants/' + variantId + '/conversion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sessionId: sessionId
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Conversion recorded:', data);
+      })
+      .catch(error => {
+        console.error('Error recording conversion:', error);
+      });
+    }
+    
+    // Example: Track conversion on button click
+    // document.querySelector('#signup-button').addEventListener('click', recordConversion);
+    
+    // Example: Track conversion on page load (if this is a conversion page)
+    // recordConversion();
+  }
+});`;
+
+  // Generate HTML code
+  const htmlCode = `
+<!-- A/B Test Tracking Code for "${test.name}" -->
+<script>
+${jsCode}
+</script>
+
+<!-- Example: Add this to the conversion element -->
+<button id="signup-button">Sign Up Now</button>
+`;
+
+  return {
+    javascript: jsCode,
+    html: htmlCode
+  };
+}
+
+export default function ABTesting() {
+  const { toast } = useToast();
+  const [isNewTestDialogOpen, setIsNewTestDialogOpen] = useState(false);
+  const [isUpdateTestDialogOpen, setIsUpdateTestDialogOpen] = useState(false);
+  const [selectedTest, setSelectedTest] = useState<any>(null);
+  const [isManageVariantsOpen, setIsManageVariantsOpen] = useState(false);
+  const [isNewVariantDialogOpen, setIsNewVariantDialogOpen] = useState(false);
+  const [isUpdateVariantDialogOpen, setIsUpdateVariantDialogOpen] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [isViewResultsOpen, setIsViewResultsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
+  const [isIntegrationDialogOpen, setIsIntegrationDialogOpen] = useState(false);
+  
+  const queryClient = useQueryClient();
+  
+  const testForm = useForm<TestFormValues>({
+    resolver: zodResolver(testSchema),
     defaultValues: {
-      name: '',
-      type: 'landing',
-      status: 'draft',
-      trackerId: null,
-      pageUrl: '/',
-      conversionMetric: 'clicks',
+      name: "",
+      description: "",
+      type: "ab",
       targetSampleSize: 1000,
-      minimumConfidence: 95
-    }
-  });
-  
-  const variantForm = useForm<NewVariant>({
-    resolver: zodResolver(variantSchema.omit({ id: true, testId: true })),
-    defaultValues: {
-      name: '',
-      isControl: false,
-      impressions: 0,
-      conversions: 0,
-      conversionRate: 0
-    }
+      minimumConfidence: 95,
+      status: "draft",
+      metric: "conversion",
+      trafficAllocation: 100,
+    },
   });
 
-  // Mutations
-  const createTestMutation = useMutation({
-    mutationFn: async (data: NewABTest) => {
-      const res = await apiRequest('POST', '/api/ab-tests', data);
-      return await res.json();
+  const updateTestForm = useForm<TestFormValues>({
+    resolver: zodResolver(testSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      type: "ab",
+      targetSampleSize: 1000,
+      minimumConfidence: 95,
+      status: "draft",
+      metric: "conversion",
+      trafficAllocation: 100,
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ab-tests'] });
-      toast({
-        title: 'Test created',
-        description: 'A/B test has been created successfully'
-      });
-      setTestDialogOpen(false);
-      setSelectedTest(data.id);
-      testForm.reset();
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error creating test',
-        description: error.message,
-        variant: 'destructive'
-      });
-    }
   });
   
-  const updateTestMutation = useMutation({
-    mutationFn: async (data: ABTest) => {
-      const res = await apiRequest('PUT', `/api/ab-tests/${data.id}`, data);
+  const variantForm = useForm<VariantFormValues>({
+    resolver: zodResolver(variantSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      isControl: false,
+      content: "",
+    },
+  });
+  
+  const updateVariantForm = useForm<VariantFormValues>({
+    resolver: zodResolver(variantSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      isControl: false,
+      content: "",
+    },
+  });
+  
+  const { data: tests, isLoading, error } = useQuery({
+    queryKey: ["/api/ab-tests"],
+    refetchOnWindowFocus: false,
+  });
+  
+  const { data: variants, isLoading: isLoadingVariants } = useQuery({
+    queryKey: ["/api/ab-tests", selectedTest?.id, "variants"],
+    enabled: !!selectedTest?.id && isManageVariantsOpen,
+    refetchOnWindowFocus: false,
+  });
+  
+  const createTestMutation = useMutation({
+    mutationFn: async (data: TestFormValues) => {
+      const res = await apiRequest("POST", "/api/ab-tests", data);
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ab-tests'] });
       toast({
-        title: 'Test updated',
-        description: 'A/B test has been updated successfully'
+        title: "Test created",
+        description: "Your A/B test has been created successfully.",
       });
-      setTestDialogOpen(false);
-      setEditTest(null);
       testForm.reset();
+      setIsNewTestDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/ab-tests"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
-        title: 'Error updating test',
-        description: error.message,
-        variant: 'destructive'
+        title: "Error creating test",
+        description: error.message || "An error occurred while creating the test.",
+        variant: "destructive",
       });
-    }
+    },
+  });
+  
+  const updateTestMutation = useMutation({
+    mutationFn: async (data: TestFormValues & { id: number }) => {
+      const { id, ...testData } = data;
+      const res = await apiRequest("PUT", `/api/ab-tests/${id}`, testData);
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Test updated",
+        description: "Your A/B test has been updated successfully.",
+      });
+      updateTestForm.reset();
+      setIsUpdateTestDialogOpen(false);
+      setSelectedTest(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/ab-tests"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error updating test",
+        description: error.message || "An error occurred while updating the test.",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const updateTestStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      const res = await apiRequest("PATCH", `/api/ab-tests/${id}/status`, { status });
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Status updated",
+        description: "The test status has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/ab-tests"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error updating status",
+        description: error.message || "An error occurred while updating the status.",
+        variant: "destructive",
+      });
+    },
   });
   
   const deleteTestMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest('DELETE', `/api/ab-tests/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ab-tests'] });
-      toast({
-        title: 'Test deleted',
-        description: 'A/B test has been deleted successfully'
-      });
-      if (selectedTest === id) {
-        setSelectedTest(null);
-      }
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error deleting test',
-        description: error.message,
-        variant: 'destructive'
-      });
-    }
-  });
-  
-  const updateTestStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: ABTest['status'] }) => {
-      const res = await apiRequest('PATCH', `/api/ab-tests/${id}/status`, { status });
+      const res = await apiRequest("DELETE", `/api/ab-tests/${id}`);
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ab-tests'] });
       toast({
-        title: 'Status updated',
-        description: 'Test status has been updated successfully'
+        title: "Test deleted",
+        description: "The A/B test has been deleted.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/ab-tests"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error deleting test",
+        description: error.message || "An error occurred while deleting the test.",
+        variant: "destructive",
       });
     },
-    onError: (error) => {
-      toast({
-        title: 'Error updating status',
-        description: error.message,
-        variant: 'destructive'
-      });
-    }
   });
   
   const createVariantMutation = useMutation({
-    mutationFn: async (data: NewVariant & { testId: number }) => {
-      const res = await apiRequest('POST', `/api/ab-tests/${data.testId}/variants`, data);
+    mutationFn: async (data: VariantFormValues & { testId: number }) => {
+      const { testId, ...variantData } = data;
+      const res = await apiRequest("POST", `/api/ab-tests/${testId}/variants`, variantData);
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ab-tests', selectedTest, 'variants'] });
       toast({
-        title: 'Variant created',
-        description: 'Test variant has been created successfully'
+        title: "Variant created",
+        description: "Your test variant has been created successfully.",
       });
-      setVariantDialogOpen(false);
       variantForm.reset();
+      setIsNewVariantDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/ab-tests", selectedTest?.id, "variants"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
-        title: 'Error creating variant',
-        description: error.message,
-        variant: 'destructive'
+        title: "Error creating variant",
+        description: error.message || "An error occurred while creating the variant.",
+        variant: "destructive",
       });
-    }
+    },
   });
   
   const updateVariantMutation = useMutation({
-    mutationFn: async (data: Variant & { testId: number }) => {
-      const res = await apiRequest('PUT', `/api/ab-tests/${data.testId}/variants/${data.id}`, data);
+    mutationFn: async (data: VariantFormValues & { id: number; testId: number }) => {
+      const { id, testId, ...variantData } = data;
+      const res = await apiRequest("PUT", `/api/ab-tests/${testId}/variants/${id}`, variantData);
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ab-tests', selectedTest, 'variants'] });
       toast({
-        title: 'Variant updated',
-        description: 'Test variant has been updated successfully'
+        title: "Variant updated",
+        description: "Your test variant has been updated successfully.",
       });
-      setVariantDialogOpen(false);
-      setEditVariant(null);
-      variantForm.reset();
+      updateVariantForm.reset();
+      setIsUpdateVariantDialogOpen(false);
+      setSelectedVariant(null);
+      queryClient.invalidateQueries({ queryKey: ["/api/ab-tests", selectedTest?.id, "variants"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
-        title: 'Error updating variant',
-        description: error.message,
-        variant: 'destructive'
+        title: "Error updating variant",
+        description: error.message || "An error occurred while updating the variant.",
+        variant: "destructive",
       });
-    }
+    },
   });
   
   const deleteVariantMutation = useMutation({
-    mutationFn: async ({ testId, id }: { testId: number; id: number }) => {
-      await apiRequest('DELETE', `/api/ab-tests/${testId}/variants/${id}`);
+    mutationFn: async ({ id, testId }: { id: number; testId: number }) => {
+      const res = await apiRequest("DELETE", `/api/ab-tests/${testId}/variants/${id}`);
+      return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ab-tests', selectedTest, 'variants'] });
       toast({
-        title: 'Variant deleted',
-        description: 'Test variant has been deleted successfully'
+        title: "Variant deleted",
+        description: "The test variant has been deleted.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/ab-tests", selectedTest?.id, "variants"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error deleting variant",
+        description: error.message || "An error occurred while deleting the variant.",
+        variant: "destructive",
       });
     },
-    onError: (error) => {
-      toast({
-        title: 'Error deleting variant',
-        description: error.message,
-        variant: 'destructive'
-      });
-    }
   });
-
-  // Handlers
-  const onTestSubmit = (data: NewABTest) => {
-    if (editTest) {
-      updateTestMutation.mutate({ ...data, id: editTest.id });
-    } else {
-      createTestMutation.mutate(data);
+  
+  const handleCreateTest = (values: TestFormValues) => {
+    createTestMutation.mutate(values);
+  };
+  
+  const handleUpdateTest = (values: TestFormValues) => {
+    if (selectedTest) {
+      updateTestMutation.mutate({ ...values, id: selectedTest.id });
     }
   };
   
-  const onVariantSubmit = (data: NewVariant) => {
-    if (!selectedTest) return;
-    
-    if (editVariant) {
-      updateVariantMutation.mutate({ 
-        ...data, 
-        id: editVariant.id, 
-        testId: selectedTest,
-        impressions: editVariant.impressions,
-        conversions: editVariant.conversions,
-        conversionRate: editVariant.conversionRate
-      });
-    } else {
-      createVariantMutation.mutate({ ...data, testId: selectedTest });
-    }
-  };
-  
-  const handleEditTest = (test: ABTest) => {
-    setEditTest(test);
-    testForm.reset({
+  const handleEditTest = (test: any) => {
+    setSelectedTest(test);
+    updateTestForm.reset({
       name: test.name,
-      description: test.description,
+      description: test.description || "",
       type: test.type,
-      status: test.status,
-      trackerId: test.trackerId,
-      pageUrl: test.pageUrl,
-      startDate: test.startDate,
-      endDate: test.endDate,
-      conversionMetric: test.conversionMetric,
       targetSampleSize: test.targetSampleSize,
-      minimumConfidence: test.minimumConfidence
+      minimumConfidence: test.minimumConfidence,
+      status: test.status,
+      metric: test.metric,
+      page: test.page || "",
+      element: test.element || "",
+      conversionPage: test.conversionPage || "",
+      conversionEvent: test.conversionEvent || "",
+      trafficAllocation: test.trafficAllocation || 100,
+      startDate: test.startDate ? new Date(test.startDate) : undefined,
+      endDate: test.endDate ? new Date(test.endDate) : undefined,
     });
-    setTestDialogOpen(true);
+    setIsUpdateTestDialogOpen(true);
   };
   
-  const handleEditVariant = (variant: Variant) => {
-    setEditVariant(variant);
-    variantForm.reset({
-      name: variant.name,
-      description: variant.description,
-      isControl: variant.isControl,
-      content: variant.content,
-      customProperties: variant.customProperties
-    });
-    setVariantDialogOpen(true);
+  const handleDeleteTest = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this A/B test? This will delete all variants and results.")) {
+      deleteTestMutation.mutate(id);
+    }
   };
   
-  const handleDuplicateVariant = (variant: Variant) => {
-    if (!selectedTest) return;
-    
-    const newVariant: NewVariant & { testId: number } = {
-      name: `${variant.name} (Copy)`,
-      description: variant.description,
-      isControl: false,
-      content: variant.content,
-      customProperties: variant.customProperties,
-      testId: selectedTest
-    };
-    
-    createVariantMutation.mutate(newVariant);
-  };
-
-  const handleStatusChange = (id: number, status: ABTest['status']) => {
+  const handleStatusChange = (id: number, status: string) => {
     updateTestStatusMutation.mutate({ id, status });
   };
   
-  const handleTestSelect = (id: number | null) => {
-    setSelectedTest(id);
+  const handleManageVariants = (test: any) => {
+    setSelectedTest(test);
+    setIsManageVariantsOpen(true);
   };
   
-  // Reset forms when closing dialogs
-  const handleTestDialogClose = () => {
-    setTestDialogOpen(false);
-    setEditTest(null);
-    testForm.reset();
+  const handleViewResults = (test: any) => {
+    setSelectedTest(test);
+    setIsViewResultsOpen(true);
   };
   
-  const handleVariantDialogClose = () => {
-    setVariantDialogOpen(false);
-    setEditVariant(null);
-    variantForm.reset();
+  const handleCreateVariant = (values: VariantFormValues) => {
+    if (selectedTest) {
+      createVariantMutation.mutate({ ...values, testId: selectedTest.id });
+    }
   };
-
-  // Format data for charts
-  const formatResultsData = () => {
-    if (!testResults || !testResults.variants.length) return null;
-    
-    const barData = {
-      labels: testResults.variants.map(v => v.name),
-      datasets: [
-        {
-          label: 'Conversion Rate (%)',
-          data: testResults.variants.map(v => v.conversionRate),
-          backgroundColor: testResults.variants.map(v => 
-            v.id === testResults.winner 
-              ? 'rgba(34, 197, 94, 0.8)' 
-              : 'rgba(59, 130, 246, 0.8)'
-          ),
-        }
-      ]
-    };
-    
-    // Group timeline data by date
-    const timelineMap = new Map<string, { [key: string]: number }>();
-    testResults.timeline.forEach(entry => {
-      const variant = testResults.variants.find(v => v.id === entry.variantId);
-      if (!variant) return;
-      
-      if (!timelineMap.has(entry.date)) {
-        timelineMap.set(entry.date, {});
-      }
-      
-      const dateEntry = timelineMap.get(entry.date)!;
-      dateEntry[variant.name] = entry.conversions > 0 && entry.impressions > 0
-        ? (entry.conversions / entry.impressions) * 100
-        : 0;
+  
+  const handleUpdateVariant = (values: VariantFormValues) => {
+    if (selectedTest && selectedVariant) {
+      updateVariantMutation.mutate({ 
+        ...values, 
+        id: selectedVariant.id, 
+        testId: selectedTest.id 
+      });
+    }
+  };
+  
+  const handleEditVariant = (variant: any) => {
+    setSelectedVariant(variant);
+    updateVariantForm.reset({
+      name: variant.name,
+      description: variant.description || "",
+      isControl: variant.isControl,
+      content: variant.content || "",
+      customProperties: variant.customProperties || {},
     });
-    
-    // Convert to array and sort by date
-    const timelineData = Array.from(timelineMap.entries())
-      .map(([date, rates]) => ({ date, ...rates }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    
-    const lineData = {
-      labels: timelineData.map(entry => {
-        const date = new Date(entry.date);
-        return `${date.getMonth() + 1}/${date.getDate()}`;
-      }),
-      datasets: testResults.variants.map((variant, index) => ({
-        label: variant.name,
-        data: timelineData.map(entry => entry[variant.name] || 0),
-        borderColor: [
-          'rgb(59, 130, 246)',
-          'rgb(249, 115, 22)',
-          'rgb(234, 179, 8)',
-          'rgb(16, 185, 129)',
-          'rgb(168, 85, 247)',
-          'rgb(239, 68, 68)'
-        ][index % 6],
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.5)',
-          'rgba(249, 115, 22, 0.5)',
-          'rgba(234, 179, 8, 0.5)',
-          'rgba(16, 185, 129, 0.5)',
-          'rgba(168, 85, 247, 0.5)',
-          'rgba(239, 68, 68, 0.5)'
-        ][index % 6],
-        tension: 0.3,
-      }))
-    };
-    
-    return { barData, lineData };
+    setIsUpdateVariantDialogOpen(true);
   };
-
-  // Filter tests by status
-  const filteredTests = tests?.filter(test => {
-    if (activeTab === 'active') return ['running', 'paused'].includes(test.status);
-    if (activeTab === 'draft') return test.status === 'draft';
-    if (activeTab === 'completed') return test.status === 'completed';
-    return true;
-  });
-
-  // Format status badge
-  const getStatusBadge = (status: ABTest['status']) => {
-    const statusConfig = {
-      draft: { color: 'bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200' },
-      running: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' },
-      paused: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100' },
-      completed: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100' }
-    };
-    
-    return (
-      <Badge className={`font-medium ${statusConfig[status].color}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Badge>
-    );
+  
+  const handleDeleteVariant = (id: number) => {
+    if (selectedTest && window.confirm("Are you sure you want to delete this variant?")) {
+      deleteVariantMutation.mutate({ id, testId: selectedTest.id });
+    }
   };
-
-  const chartsData = formatResultsData();
-
-  // Get currently active test info
-  const activeTest = tests?.find(test => test.id === selectedTest);
-
+  
+  const handleShowIntegration = (test: any) => {
+    setSelectedTest(test);
+    setIsIntegrationDialogOpen(true);
+  };
+  
+  // Filter tests based on status
+  const filteredTests = tests 
+    ? tests.filter((test: any) => activeTab === "all" || test.status === activeTab)
+    : [];
+  
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+    <div>
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold">A/B Testing</h2>
-          <p className="text-muted-foreground">Create and manage A/B tests to optimize your website</p>
+          <h2 className="text-3xl font-bold tracking-tight">A/B Testing</h2>
+          <p className="text-muted-foreground">
+            Create and manage A/B tests to optimize your website and marketing
+          </p>
         </div>
-        
-        <Dialog open={testDialogOpen} onOpenChange={setTestDialogOpen}>
+        <Dialog open={isNewTestDialogOpen} onOpenChange={setIsNewTestDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => {
-              setEditTest(null);
-              testForm.reset({
-                name: '',
-                type: 'landing',
-                status: 'draft',
-                trackerId: null,
-                pageUrl: '/',
-                conversionMetric: 'clicks',
-                targetSampleSize: 1000,
-                minimumConfidence: 95
-              });
-            }}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Test
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New Test
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[700px]">
+          <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>{editTest ? 'Edit A/B Test' : 'Create New A/B Test'}</DialogTitle>
+              <DialogTitle>Create new A/B test</DialogTitle>
+              <DialogDescription>
+                Set up a new A/B test to optimize your website or marketing campaigns
+              </DialogDescription>
             </DialogHeader>
             <Form {...testForm}>
-              <form onSubmit={testForm.handleSubmit(onTestSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={testForm.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Test Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. Homepage Hero Test" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
+              <form onSubmit={testForm.handleSubmit(handleCreateTest)} className="space-y-4">
+                <FormField
+                  control={testForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Test Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Homepage Headline Test" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={testForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Describe the test purpose and hypothesis..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={testForm.control}
                     name="type"
@@ -619,55 +1175,15 @@ const ABTestingDashboard: React.FC = () => {
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select test type" />
+                              <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="landing">Landing Page</SelectItem>
-                            <SelectItem value="cta">Call-to-Action</SelectItem>
-                            <SelectItem value="headline">Headline</SelectItem>
-                            <SelectItem value="image">Image</SelectItem>
-                            <SelectItem value="content">Content</SelectItem>
-                            <SelectItem value="layout">Layout</SelectItem>
-                            <SelectItem value="color">Color Scheme</SelectItem>
-                            <SelectItem value="custom">Custom Element</SelectItem>
+                            <SelectItem value="ab">A/B Test</SelectItem>
+                            <SelectItem value="multivariate">Multivariate</SelectItem>
+                            <SelectItem value="split">Split URL Test</SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={testForm.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Describe the purpose and hypothesis of this test"
-                          className="min-h-[80px]"
-                          {...field}
-                          value={field.value || ''}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={testForm.control}
-                    name="pageUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Page URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="/page-path" {...field} />
-                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -675,41 +1191,10 @@ const ABTestingDashboard: React.FC = () => {
                   
                   <FormField
                     control={testForm.control}
-                    name="trackerId"
+                    name="metric"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tracking Campaign</FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(value === "null" ? null : parseInt(value))} 
-                          defaultValue={field.value?.toString() || "null"}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select campaign" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="null">All Traffic</SelectItem>
-                            {trackers?.map(tracker => (
-                              <SelectItem key={tracker.id} value={tracker.id.toString()}>
-                                {tracker.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={testForm.control}
-                    name="conversionMetric"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Conversion Metric</FormLabel>
+                        <FormLabel>Primary Metric</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -717,35 +1202,10 @@ const ABTestingDashboard: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="clicks">Clicks</SelectItem>
-                            <SelectItem value="forms">Form Submissions</SelectItem>
-                            <SelectItem value="signups">Sign-ups</SelectItem>
-                            <SelectItem value="purchases">Purchases</SelectItem>
-                            <SelectItem value="custom">Custom Goal</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={testForm.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="draft">Draft</SelectItem>
-                            <SelectItem value="running">Running</SelectItem>
-                            <SelectItem value="paused">Paused</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="conversion">Conversion Rate</SelectItem>
+                            <SelectItem value="revenue">Revenue</SelectItem>
+                            <SelectItem value="engagement">Engagement</SelectItem>
+                            <SelectItem value="clicks">Click Rate</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -754,7 +1214,7 @@ const ABTestingDashboard: React.FC = () => {
                   />
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={testForm.control}
                     name="targetSampleSize"
@@ -762,14 +1222,10 @@ const ABTestingDashboard: React.FC = () => {
                       <FormItem>
                         <FormLabel>Target Sample Size</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            {...field} 
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                          />
+                          <Input type="number" {...field} min={100} />
                         </FormControl>
-                        <FormDescription>
-                          Minimum number of visitors needed
+                        <FormDescription className="text-xs">
+                          Minimum number of visitors needed for statistical significance
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -783,17 +1239,10 @@ const ABTestingDashboard: React.FC = () => {
                       <FormItem>
                         <FormLabel>Minimum Confidence (%)</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            min="70"
-                            max="99.9"
-                            step="0.1"
-                            {...field} 
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                          />
+                          <Input type="number" {...field} min={50} max={99.9} step={0.1} />
                         </FormControl>
-                        <FormDescription>
-                          Statistical confidence level for results
+                        <FormDescription className="text-xs">
+                          Statistical confidence threshold (usually 95%)
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -801,15 +1250,15 @@ const ABTestingDashboard: React.FC = () => {
                   />
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={testForm.control}
-                    name="startDate"
+                    name="page"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Start Date</FormLabel>
+                        <FormLabel>Test Page URL</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} value={field.value || ''} />
+                          <Input placeholder="/homepage" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -818,12 +1267,12 @@ const ABTestingDashboard: React.FC = () => {
                   
                   <FormField
                     control={testForm.control}
-                    name="endDate"
+                    name="element"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>End Date</FormLabel>
+                        <FormLabel>Target Element</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} value={field.value || ''} />
+                          <Input placeholder="#hero-headline" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -831,633 +1280,784 @@ const ABTestingDashboard: React.FC = () => {
                   />
                 </div>
                 
-                <div className="flex justify-end space-x-4 pt-4">
-                  <Button type="button" variant="outline" onClick={handleTestDialogClose}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    {editTest ? 'Update Test' : 'Create Test'}
-                  </Button>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={testForm.control}
+                    name="conversionPage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Conversion Page</FormLabel>
+                        <FormControl>
+                          <Input placeholder="/thank-you" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={testForm.control}
+                    name="conversionEvent"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Conversion Event</FormLabel>
+                        <FormControl>
+                          <Input placeholder="form-submit" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
+                
+                <FormField
+                  control={testForm.control}
+                  name="trafficAllocation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Traffic Allocation (%)</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} min={1} max={100} />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        Percentage of traffic to include in the test
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <DialogFooter>
+                  <Button 
+                    type="submit" 
+                    disabled={createTestMutation.isPending}
+                  >
+                    {createTestMutation.isPending && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Create Test
+                  </Button>
+                </DialogFooter>
               </form>
             </Form>
           </DialogContent>
         </Dialog>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Test list panel */}
-        <div className="lg:col-span-1 space-y-4">
-          <Tabs defaultValue="active" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full">
-              <TabsTrigger value="active" className="flex-1">Active</TabsTrigger>
-              <TabsTrigger value="draft" className="flex-1">Draft</TabsTrigger>
-              <TabsTrigger value="completed" className="flex-1">Completed</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
-          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-            {isLoadingTests ? (
-              <p>Loading tests...</p>
-            ) : (
-              <>
-                {filteredTests?.length ? (
-                  filteredTests.map((test) => (
-                    <Card 
-                      key={test.id} 
-                      className={`cursor-pointer transition-all hover:border-primary ${
-                        selectedTest === test.id ? 'border-primary ring-1 ring-primary' : ''
-                      }`}
-                      onClick={() => handleTestSelect(test.id)}
-                    >
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                          <CardTitle className="text-base">{test.name}</CardTitle>
-                          {getStatusBadge(test.status)}
-                        </div>
-                        <CardDescription className="text-xs">
-                          {test.type.charAt(0).toUpperCase() + test.type.slice(1)} test 
-                          on {test.pageUrl}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="pb-2 pt-0">
-                        <div className="text-xs text-muted-foreground line-clamp-2">
-                          {test.description || 'No description provided.'}
-                        </div>
-                      </CardContent>
-                      <CardFooter className="flex justify-between pt-0">
-                        <div className="text-xs text-muted-foreground">
-                          {test.startDate ? `Started: ${new Date(test.startDate).toLocaleDateString()}` : 'Not started'}
-                        </div>
-                        <div className="flex gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-7 w-7"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditTest(test);
-                            }}
-                          >
-                            <Edit className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteTestMutation.mutate(test.id!);
-                            }}
-                          >
-                            <Trash className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  ))
-                ) : (
-                  <Card>
-                    <CardContent className="pt-6 text-center">
-                      <p className="text-muted-foreground">No tests found. Create your first A/B test to get started.</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-        
-        {/* Test details panel */}
-        <div className="lg:col-span-2 space-y-4">
-          {selectedTest && activeTest ? (
-            <>
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    <FilePieChart className="h-5 w-5" />
-                    {activeTest.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {activeTest.description || `Testing different ${activeTest.type} variations`}
-                  </p>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  {activeTest.status === 'draft' && (
-                    <Button 
-                      size="sm"
-                      onClick={() => handleStatusChange(activeTest.id!, 'running')}
-                    >
-                      <Play className="mr-2 h-4 w-4" />
-                      Start Test
-                    </Button>
-                  )}
+
+        {/* Update Test Dialog */}
+        <Dialog open={isUpdateTestDialogOpen} onOpenChange={setIsUpdateTestDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Update A/B test</DialogTitle>
+              <DialogDescription>
+                Edit your existing A/B test
+              </DialogDescription>
+            </DialogHeader>
+            {selectedTest && (
+              <Form {...updateTestForm}>
+                <form onSubmit={updateTestForm.handleSubmit(handleUpdateTest)} className="space-y-4">
+                  <FormField
+                    control={updateTestForm.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Test Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   
-                  {activeTest.status === 'running' && (
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleStatusChange(activeTest.id!, 'paused')}
-                    >
-                      <Pause className="mr-2 h-4 w-4" />
-                      Pause
-                    </Button>
-                  )}
+                  <FormField
+                    control={updateTestForm.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   
-                  {activeTest.status === 'paused' && (
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleStatusChange(activeTest.id!, 'running')}
-                    >
-                      <Play className="mr-2 h-4 w-4" />
-                      Resume
-                    </Button>
-                  )}
-                  
-                  {(activeTest.status === 'running' || activeTest.status === 'paused') && (
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleStatusChange(activeTest.id!, 'completed')}
-                    >
-                      <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Complete
-                    </Button>
-                  )}
-                  
-                  {activeTest.status === 'completed' && (
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleStatusChange(activeTest.id!, 'draft')}
-                    >
-                      <RotateCcw className="mr-2 h-4 w-4" />
-                      Reset
-                    </Button>
-                  )}
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Status</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(activeTest.status)}
-                      {activeTest.status === 'running' && (
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={updateTestForm.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Test Type</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="ab">A/B Test</SelectItem>
+                              <SelectItem value="multivariate">Multivariate</SelectItem>
+                              <SelectItem value="split">Split URL Test</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Conversion Metric</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="capitalize">
-                      {activeTest.conversionMetric.replace('_', ' ')}
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Target Sample</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div>
-                      {activeTest.targetSampleSize.toLocaleString()} visitors
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <Tabs defaultValue="variants">
-                <TabsList>
-                  <TabsTrigger value="variants">Variants</TabsTrigger>
-                  <TabsTrigger value="results">Results</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="variants" className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-lg font-semibold">Test Variants</h4>
+                    />
                     
-                    <Dialog open={variantDialogOpen} onOpenChange={setVariantDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button 
-                          size="sm"
-                          onClick={() => {
-                            setEditVariant(null);
-                            variantForm.reset({
-                              name: '',
-                              isControl: variants?.length === 0,
-                              impressions: 0,
-                              conversions: 0,
-                              conversionRate: 0
-                            });
-                          }}
-                        >
-                          <Plus className="mr-2 h-4 w-4" />
-                          Add Variant
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[500px]">
-                        <DialogHeader>
-                          <DialogTitle>{editVariant ? 'Edit Variant' : 'Create New Variant'}</DialogTitle>
-                        </DialogHeader>
-                        <Form {...variantForm}>
-                          <form onSubmit={variantForm.handleSubmit(onVariantSubmit)} className="space-y-4">
-                            <FormField
-                              control={variantForm.control}
-                              name="name"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Variant Name</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="e.g. Variation A" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            
-                            <FormField
-                              control={variantForm.control}
-                              name="description"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Description</FormLabel>
-                                  <FormControl>
-                                    <Textarea
-                                      placeholder="Describe this variant"
-                                      className="min-h-[80px]"
-                                      {...field}
-                                      value={field.value || ''}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            
-                            <FormField
-                              control={variantForm.control}
-                              name="content"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Content/Code</FormLabel>
-                                  <FormControl>
-                                    <Textarea
-                                      placeholder="HTML, CSS, or text content for this variant"
-                                      className="min-h-[120px] font-mono text-sm"
-                                      {...field}
-                                      value={field.value || ''}
-                                    />
-                                  </FormControl>
-                                  <FormDescription>
-                                    For layouts, use HTML. For copy tests, enter text only.
-                                  </FormDescription>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            
-                            <FormField
-                              control={variantForm.control}
-                              name="isControl"
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                                  <FormControl>
-                                    <input
-                                      type="checkbox"
-                                      checked={field.value}
-                                      onChange={field.onChange}
-                                      disabled={editVariant?.isControl}
-                                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
-                                    />
-                                  </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                    <FormLabel>Control Variant</FormLabel>
-                                    <FormDescription>
-                                      This is the original/current version
-                                    </FormDescription>
-                                  </div>
-                                </FormItem>
-                              )}
-                            />
-                            
-                            <div className="flex justify-end space-x-4 pt-4">
-                              <Button type="button" variant="outline" onClick={handleVariantDialogClose}>
-                                Cancel
-                              </Button>
-                              <Button type="submit">
-                                {editVariant ? 'Update Variant' : 'Create Variant'}
-                              </Button>
-                            </div>
-                          </form>
-                        </Form>
-                      </DialogContent>
-                    </Dialog>
+                    <FormField
+                      control={updateTestForm.control}
+                      name="metric"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Primary Metric</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select metric" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="conversion">Conversion Rate</SelectItem>
+                              <SelectItem value="revenue">Revenue</SelectItem>
+                              <SelectItem value="engagement">Engagement</SelectItem>
+                              <SelectItem value="clicks">Click Rate</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                   
-                  {isLoadingVariants ? (
-                    <p>Loading variants...</p>
-                  ) : (
-                    <>
-                      {variants?.length ? (
-                        <div className="space-y-4">
-                          {variants.map((variant) => (
-                            <Card key={variant.id}>
-                              <CardHeader className="pb-2">
-                                <div className="flex justify-between items-start">
-                                  <div className="flex items-center">
-                                    <CardTitle className="text-lg">
-                                      {variant.name}
-                                      {variant.isControl && (
-                                        <Badge className="ml-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                                          Control
-                                        </Badge>
-                                      )}
-                                    </CardTitle>
-                                  </div>
-                                  <div className="flex space-x-1">
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon"
-                                      onClick={() => handleEditVariant(variant)}
-                                    >
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon"
-                                      onClick={() => handleDuplicateVariant(variant)}
-                                    >
-                                      <Copy className="h-4 w-4" />
-                                    </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon"
-                                      onClick={() => deleteVariantMutation.mutate({ testId: selectedTest, id: variant.id! })}
-                                      disabled={variant.isControl && variants.length > 1}
-                                    >
-                                      <Trash className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                                {variant.description && (
-                                  <CardDescription>
-                                    {variant.description}
-                                  </CardDescription>
-                                )}
-                              </CardHeader>
-                              <CardContent>
-                                {variant.content ? (
-                                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md font-mono text-sm overflow-x-auto max-h-[200px] overflow-y-auto">
-                                    <pre>{variant.content}</pre>
-                                  </div>
-                                ) : (
-                                  <p className="text-muted-foreground text-sm italic">No content specified</p>
-                                )}
-                              </CardContent>
-                              <CardFooter className="pt-0 flex justify-between text-sm">
-                                <div className="text-muted-foreground">
-                                  {variant.impressions > 0 ? (
-                                    <span>
-                                      {variant.impressions.toLocaleString()} impressions, 
-                                      {' '}{variant.conversions.toLocaleString()} conversions
-                                      {' '}({variant.conversionRate.toFixed(2)}%)
-                                    </span>
-                                  ) : (
-                                    <span>No data yet</span>
-                                  )}
-                                </div>
-                              </CardFooter>
-                            </Card>
-                          ))}
-                        </div>
-                      ) : (
-                        <Card>
-                          <CardContent className="pt-6">
-                            <Alert>
-                              <AlertDescription>
-                                This test needs at least two variants - a control and a test variation.
-                                Click "Add Variant" to create them.
-                              </AlertDescription>
-                            </Alert>
-                          </CardContent>
-                        </Card>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={updateTestForm.control}
+                      name="targetSampleSize"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Target Sample Size</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} min={100} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </>
-                  )}
-                </TabsContent>
+                    />
+                    
+                    <FormField
+                      control={updateTestForm.control}
+                      name="minimumConfidence"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Minimum Confidence (%)</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} min={50} max={99.9} step={0.1} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={updateTestForm.control}
+                      name="page"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Test Page URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="/homepage" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={updateTestForm.control}
+                      name="element"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Target Element</FormLabel>
+                          <FormControl>
+                            <Input placeholder="#hero-headline" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={updateTestForm.control}
+                      name="conversionPage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Conversion Page</FormLabel>
+                          <FormControl>
+                            <Input placeholder="/thank-you" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={updateTestForm.control}
+                      name="conversionEvent"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Conversion Event</FormLabel>
+                          <FormControl>
+                            <Input placeholder="form-submit" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={updateTestForm.control}
+                      name="startDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Start Date</FormLabel>
+                          <DatePicker
+                            date={field.value}
+                            setDate={field.onChange}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={updateTestForm.control}
+                      name="endDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>End Date</FormLabel>
+                          <DatePicker
+                            date={field.value}
+                            setDate={field.onChange}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={updateTestForm.control}
+                    name="trafficAllocation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Traffic Allocation (%)</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} min={1} max={100} />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          Percentage of traffic to include in the test
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={updateTestForm.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="paused">Paused</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <DialogFooter>
+                    <Button 
+                      type="submit" 
+                      disabled={updateTestMutation.isPending}
+                    >
+                      {updateTestMutation.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      Update Test
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            )}
+          </DialogContent>
+        </Dialog>
+        
+        {/* Manage Variants Dialog */}
+        <Dialog 
+          open={isManageVariantsOpen} 
+          onOpenChange={setIsManageVariantsOpen}
+          modal={false}
+        >
+          <DialogContent className="sm:max-w-[700px] max-h-screen overflow-auto">
+            <DialogHeader>
+              <DialogTitle>Manage Test Variants</DialogTitle>
+              <DialogDescription>
+                {selectedTest?.name} - Create and manage test variants
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Variants</h3>
                 
-                <TabsContent value="results" className="space-y-4">
-                  {isLoadingResults ? (
-                    <p>Loading results...</p>
-                  ) : (
-                    <>
-                      {testResults && variants?.length > 0 ? (
-                        <>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <Card>
-                              <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium">Total Traffic</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="text-2xl font-bold">
-                                  {testResults.totalImpressions.toLocaleString()}
-                                </div>
-                                <Progress 
-                                  value={(testResults.totalImpressions / activeTest.targetSampleSize) * 100} 
-                                  className="h-2 mt-2" 
-                                />
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {Math.min(Math.round((testResults.totalImpressions / activeTest.targetSampleSize) * 100), 100)}% 
-                                  of target ({activeTest.targetSampleSize.toLocaleString()})
-                                </p>
-                              </CardContent>
-                            </Card>
-                            
-                            <Card>
-                              <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium">Conversions</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="text-2xl font-bold">
-                                  {testResults.totalConversions.toLocaleString()}
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  Average rate: {testResults.averageConversionRate.toFixed(2)}%
-                                </p>
-                              </CardContent>
-                            </Card>
-                            
-                            <Card>
-                              <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium">Confidence</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="text-2xl font-bold">
-                                  {testResults.confidenceLevel.toFixed(2)}%
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  {testResults.confidenceLevel >= activeTest.minimumConfidence 
-                                    ? 'Statistically significant' 
-                                    : 'Not significant yet'}
-                                </p>
-                              </CardContent>
-                            </Card>
-                          </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleShowIntegration(selectedTest)}
+                  >
+                    <Terminal className="h-4 w-4 mr-1" /> Integration Code
+                  </Button>
+                  
+                  <Dialog open={isNewVariantDialogOpen} onOpenChange={setIsNewVariantDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" disabled={selectedTest?.status === 'completed'}>
+                        <PlusCircle className="h-4 w-4 mr-1" /> New Variant
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px]">
+                      <DialogHeader>
+                        <DialogTitle>Create new variant</DialogTitle>
+                        <DialogDescription>
+                          Add a new variant for "{selectedTest?.name}"
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Form {...variantForm}>
+                        <form onSubmit={variantForm.handleSubmit(handleCreateVariant)} className="space-y-4">
+                          <FormField
+                            control={variantForm.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Variant Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Variant B" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                           
-                          {testResults.winner !== null && (
-                            <Alert className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-900">
-                              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                              <AlertDescription className="text-green-800 dark:text-green-300">
-                                Winner detected: 
-                                <span className="font-semibold"> 
-                                  {variants.find(v => v.id === testResults.winner)?.name}
-                                </span> 
-                                with 
-                                {testResults.variants.find(v => v.id === testResults.winner)?.improvement && (
-                                  <span> {testResults.variants.find(v => v.id === testResults.winner)?.improvement}% improvement</span>
-                                )}
-                              </AlertDescription>
-                            </Alert>
-                          )}
+                          <FormField
+                            control={variantForm.control}
+                            name="description"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                  <Textarea placeholder="Describe this variant..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                           
-                          {chartsData && (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                              <Card>
-                                <CardHeader>
-                                  <CardTitle className="text-lg">Conversion Rates</CardTitle>
-                                  <CardDescription>
-                                    Comparison of each variant's performance
-                                  </CardDescription>
-                                </CardHeader>
-                                <CardContent className="h-[300px]">
-                                  <BarChart data={chartsData.barData} />
-                                </CardContent>
-                              </Card>
-                              
-                              <Card>
-                                <CardHeader>
-                                  <CardTitle className="text-lg">Performance Over Time</CardTitle>
-                                  <CardDescription>
-                                    Conversion rates throughout the test
-                                  </CardDescription>
-                                </CardHeader>
-                                <CardContent className="h-[300px]">
-                                  <LineChart data={chartsData.lineData} />
-                                </CardContent>
-                              </Card>
-                            </div>
-                          )}
+                          <FormField
+                            control={variantForm.control}
+                            name="isControl"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                                <div className="space-y-0.5">
+                                  <FormLabel>Control Variant</FormLabel>
+                                  <FormDescription>
+                                    Is this the control (baseline) variant?
+                                  </FormDescription>
+                                </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    disabled={variants?.some((v: any) => v.isControl)}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
                           
-                          <Card>
-                            <CardHeader>
-                              <CardTitle className="text-lg">Variant Performance</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                  <thead>
-                                    <tr className="border-b dark:border-gray-700">
-                                      <th className="text-left py-3 px-4">Variant</th>
-                                      <th className="text-right py-3 px-4">Visitors</th>
-                                      <th className="text-right py-3 px-4">Conversions</th>
-                                      <th className="text-right py-3 px-4">Rate</th>
-                                      <th className="text-right py-3 px-4">Improvement</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {testResults.variants.map((variant) => (
-                                      <tr 
-                                        key={variant.id} 
-                                        className={`border-b dark:border-gray-700 ${
-                                          variant.id === testResults.winner 
-                                            ? 'bg-green-50 dark:bg-green-900/20' 
-                                            : ''
-                                        }`}
-                                      >
-                                        <td className="py-3 px-4 font-medium">{variant.name}</td>
-                                        <td className="py-3 px-4 text-right">{variant.impressions.toLocaleString()}</td>
-                                        <td className="py-3 px-4 text-right">{variant.conversions.toLocaleString()}</td>
-                                        <td className="py-3 px-4 text-right">{variant.conversionRate.toFixed(2)}%</td>
-                                        <td className="py-3 px-4 text-right">
-                                          {variant.improvement === null ? (
-                                            <span className="text-muted-foreground">Baseline</span>
-                                          ) : (
-                                            <span className={variant.improvement >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                                              {variant.improvement > 0 ? '+' : ''}{variant.improvement.toFixed(2)}%
-                                            </span>
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </CardContent>
-                            <CardFooter>
-                              <div className="text-xs text-muted-foreground">
-                                {testResults.confidenceLevel < activeTest.minimumConfidence ? (
-                                  <div className="flex items-center gap-2">
-                                    <BarChartHorizontal className="h-4 w-4" />
-                                    <p>
-                                      Test needs more data to reach {activeTest.minimumConfidence}% confidence level
-                                    </p>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-2">
-                                    <ScrollText className="h-4 w-4" />
-                                    <p>
-                                      Results are statistically significant at {activeTest.minimumConfidence}% confidence
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </CardFooter>
-                          </Card>
-                        </>
-                      ) : (
-                        <Card>
-                          <CardContent className="pt-6 text-center">
-                            <p className="text-muted-foreground">
-                              {variants?.length === 0 
-                                ? 'Add at least one control and one test variant to see results.' 
-                                : 'No test data available yet. Start the test to begin collecting data.'}
-                            </p>
-                          </CardContent>
-                        </Card>
+                          <FormField
+                            control={variantForm.control}
+                            name="content"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Content</FormLabel>
+                                <FormControl>
+                                  <Textarea 
+                                    placeholder="Content or code for this variant..." 
+                                    {...field} 
+                                    className="font-mono"
+                                    rows={5}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  HTML, text or code for this variant
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <DialogFooter>
+                            <Button 
+                              type="submit" 
+                              disabled={createVariantMutation.isPending}
+                            >
+                              {createVariantMutation.isPending && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              )}
+                              Create Variant
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+              
+              {isLoadingVariants ? (
+                <div className="flex justify-center items-center h-32">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              ) : variants && variants.length === 0 ? (
+                <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-md">
+                  <ArrowRightLeft className="h-10 w-10 mx-auto text-gray-400 mb-3" />
+                  <h3 className="text-base font-medium mb-2">No variants yet</h3>
+                  <p className="text-gray-500 mb-4 text-sm">Start by creating at least two variants for your test</p>
+                  <Button 
+                    size="sm" 
+                    onClick={() => setIsNewVariantDialogOpen(true)}
+                    disabled={selectedTest?.status === 'completed'}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" /> Create First Variant
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {variants && variants.map((variant: any) => (
+                    <VariantCard
+                      key={variant.id}
+                      variant={variant}
+                      onEdit={handleEditVariant}
+                      onDelete={handleDeleteVariant}
+                      isInactive={selectedTest?.status === 'completed'}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <DialogFooter className="mt-4">
+              <Button onClick={() => setIsManageVariantsOpen(false)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Update Variant Dialog */}
+        <Dialog open={isUpdateVariantDialogOpen} onOpenChange={setIsUpdateVariantDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Update variant</DialogTitle>
+              <DialogDescription>
+                Edit an existing variant
+              </DialogDescription>
+            </DialogHeader>
+            {selectedVariant && (
+              <Form {...updateVariantForm}>
+                <form onSubmit={updateVariantForm.handleSubmit(handleUpdateVariant)} className="space-y-4">
+                  <FormField
+                    control={updateVariantForm.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Variant Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={updateVariantForm.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={updateVariantForm.control}
+                    name="isControl"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel>Control Variant</FormLabel>
+                          <FormDescription>
+                            Is this the control (baseline) variant?
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            disabled={
+                              selectedVariant.isControl || 
+                              (variants?.some((v: any) => v.isControl && v.id !== selectedVariant.id))
+                            }
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={updateVariantForm.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Content</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            {...field} 
+                            className="font-mono"
+                            rows={5}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          HTML, text or code for this variant
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <DialogFooter>
+                    <Button 
+                      type="submit" 
+                      disabled={updateVariantMutation.isPending}
+                    >
+                      {updateVariantMutation.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       )}
-                    </>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </>
-          ) : (
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <p className="text-muted-foreground">
-                  Select a test from the list or create a new one to get started.
-                </p>
-              </CardContent>
-            </Card>
+                      Update Variant
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            )}
+          </DialogContent>
+        </Dialog>
+        
+        {/* View Results Dialog */}
+        <Dialog 
+          open={isViewResultsOpen} 
+          onOpenChange={setIsViewResultsOpen}
+          modal={false}
+        >
+          <DialogContent className="sm:max-w-[800px] max-h-screen overflow-auto">
+            {selectedTest && (
+              <TestResults 
+                test={selectedTest} 
+                onClose={() => setIsViewResultsOpen(false)} 
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+        
+        {/* Integration Code Dialog */}
+        <Dialog 
+          open={isIntegrationDialogOpen} 
+          onOpenChange={setIsIntegrationDialogOpen}
+          modal={false}
+        >
+          <DialogContent className="sm:max-w-[800px] max-h-screen overflow-auto">
+            <DialogHeader>
+              <DialogTitle>Integration Code</DialogTitle>
+              <DialogDescription>
+                Code to implement the A/B test on your website
+              </DialogDescription>
+            </DialogHeader>
+            
+            {selectedTest && variants && (
+              <div className="space-y-4">
+                <Alert className="bg-blue-50 border-blue-200">
+                  <AlertCircle className="h-4 w-4 text-blue-600" />
+                  <AlertTitle className="text-blue-600">Implementation Instructions</AlertTitle>
+                  <AlertDescription className="text-blue-700">
+                    <p className="mb-2">
+                      Copy and paste the code below into your website to implement the A/B test. The code will:
+                    </p>
+                    <ol className="list-decimal pl-5 space-y-1">
+                      <li>Assign visitors to a variant</li>
+                      <li>Apply the variant's changes to your page</li>
+                      <li>Track impressions and conversions</li>
+                    </ol>
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="rounded-md border">
+                  <CodeHighlightTabs
+                    defaultValue="javascript"
+                    code={getTestTrackerCode(selectedTest, variants)}
+                  />
+                </div>
+                
+                <div className="pt-4">
+                  <h3 className="text-lg font-semibold mb-2">Tracking Conversions</h3>
+                  <p className="text-sm text-gray-700 mb-3">
+                    To track conversions, call the <code className="bg-gray-100 px-1 py-0.5 rounded">recordConversion()</code> function on your conversion page or when a conversion event occurs.
+                    For example, when a user clicks a button or submits a form.
+                  </p>
+                  <div className="bg-gray-50 p-3 rounded-md border">
+                    <pre className="text-sm overflow-auto">
+                      <code>
+{`// Example: Record a conversion when a button is clicked
+document.querySelector('#signup-button').addEventListener('click', recordConversion);
+
+// Example: Record a conversion on page load (if this is a conversion page)
+window.addEventListener('load', recordConversion);`}
+                      </code>
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <DialogFooter className="mt-4">
+              <Button onClick={() => setIsIntegrationDialogOpen(false)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+      
+      {/* Status Filter Tabs */}
+      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="all">All Tests</TabsTrigger>
+          <TabsTrigger value="draft">Draft</TabsTrigger>
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="paused">Paused</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
+          <p>Error loading A/B tests: {(error as Error).message}</p>
+        </div>
+      ) : tests && tests.length === 0 ? (
+        <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-md">
+          <Beaker className="h-12 w-12 mx-auto text-gray-400 mb-3" />
+          <h3 className="text-lg font-medium mb-2">No A/B tests yet</h3>
+          <p className="text-gray-500 mb-4">Get started by creating your first A/B test</p>
+          <Button onClick={() => setIsNewTestDialogOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Create Your First Test
+          </Button>
+        </div>
+      ) : filteredTests.length === 0 ? (
+        <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-md">
+          <Beaker className="h-12 w-12 mx-auto text-gray-400 mb-3" />
+          <h3 className="text-lg font-medium mb-2">No {activeTab} tests found</h3>
+          <p className="text-gray-500 mb-4">
+            {activeTab === "active" ? "You don't have any active tests right now" :
+             activeTab === "paused" ? "You don't have any paused tests right now" :
+             activeTab === "completed" ? "You don't have any completed tests yet" :
+             activeTab === "draft" ? "You don't have any draft tests right now" :
+             "No tests match the current filter"}
+          </p>
+          {activeTab !== "all" && (
+            <Button variant="outline" onClick={() => setActiveTab("all")}>
+              <RefreshCw className="mr-2 h-4 w-4" /> Show All Tests
+            </Button>
           )}
         </div>
-      </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Active Tests Section - shown on All tab */}
+          {activeTab === "all" && filteredTests.some((t: any) => t.status === "active") && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Active Tests</h3>
+              {filteredTests
+                .filter((t: any) => t.status === "active")
+                .map((test: any) => (
+                  <TestCard
+                    key={test.id}
+                    test={test}
+                    onEdit={handleEditTest}
+                    onDelete={handleDeleteTest}
+                    onViewResults={handleViewResults}
+                    onManageVariants={handleManageVariants}
+                    onStatusChange={handleStatusChange}
+                  />
+                ))}
+            </div>
+          )}
+          
+          {/* Other Tests */}
+          <div>
+            {activeTab === "all" ? (
+              <h3 className="text-lg font-semibold mb-4">
+                {filteredTests.some((t: any) => t.status === "active") ? "Other Tests" : "All Tests"}
+              </h3>
+            ) : null}
+            
+            {filteredTests
+              .filter((t: any) => activeTab === "all" ? t.status !== "active" : true)
+              .map((test: any) => (
+                <TestCard
+                  key={test.id}
+                  test={test}
+                  onEdit={handleEditTest}
+                  onDelete={handleDeleteTest}
+                  onViewResults={handleViewResults}
+                  onManageVariants={handleManageVariants}
+                  onStatusChange={handleStatusChange}
+                />
+              ))}
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default ABTestingDashboard;
+}
