@@ -1918,20 +1918,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Process payment based on the payment method
       switch (paymentMethod) {
         case 'stripe':
-          paymentData = await createPaymentIntent(amount, 'inr', { consultationId: id });
+          paymentData = await createPaymentIntent({
+            amount,
+            currency: 'inr',
+            metadata: { consultationId: id.toString() }
+          });
           break;
         case 'paypal':
-          paymentData = await createPaypalOrder(req.body.amount || amount, 'INR', 'CAPTURE', { consultationId: id });
+          // Create temporary response to get PayPal information
+          const tempRes = {
+            json: (data: any) => { paymentData = data; }
+          } as any;
+          
+          await createPaypalOrder({
+            amount: amount.toString(),
+            currency: 'INR',
+            metadata: { consultationId: id.toString() }
+          }, tempRes);
           break;
         case 'razorpay':
-          paymentData = await createRazorpayOrder(amount * 100, { consultationId: id });
+          // Create temporary response to get Razorpay information
+          const razorpayTempRes = {
+            json: (data: any) => { paymentData = data; }
+          } as any;
+          
+          await createRazorpayOrder({
+            amount: amount * 100,
+            metadata: { consultationId: id.toString() }
+          }, razorpayTempRes);
           break;
         case 'upi':
-          paymentData = { 
-            upiInfo: upiHandler.getUpiDetails(),
+          // Create temporary response to get UPI information
+          const upiTempRes = {
+            json: (data: any) => { paymentData = { upiInfo: data }; }
+          } as any;
+          
+          await upiHandler.getUpiInfo(req, upiTempRes);
+          
+          // Add additional information
+          paymentData = {
+            ...paymentData,
             referenceId: `CONSULT-${id}-${Date.now()}`,
             amount,
-            currency: 'INR' 
+            currency: 'INR'
           };
           break;
         default:
@@ -1946,7 +1975,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
     } catch (error) {
       console.error(`Error processing payment for consultation ID ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to process payment", error: error.message });
+      let errorMessage = "Failed to process payment";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      res.status(500).json({ message: "Failed to process payment", error: errorMessage });
     }
   });
   
