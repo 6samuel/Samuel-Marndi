@@ -35,7 +35,7 @@ import AdminForms from "@/pages/admin/forms";
 import AdminCampaigns from "@/pages/admin/campaigns";
 import AdminAdTrackers from "@/pages/admin/ad-trackers";
 import AdminSettings from "@/pages/admin/settings";
-// Remove AdminTracking reference as we're using AdminAdTrackers now
+import AdminContentManagement from "@/pages/admin/content-management";
 
 // Layout components
 import SiteHeader from "@/components/layouts/site-header";
@@ -57,6 +57,7 @@ function Router() {
         <ProtectedRoute path="/admin/campaigns" component={AdminCampaigns} adminOnly />
         <ProtectedRoute path="/admin/ad-trackers" component={AdminAdTrackers} adminOnly />
         <ProtectedRoute path="/admin/settings" component={AdminSettings} adminOnly />
+        <ProtectedRoute path="/admin/content" component={AdminContentManagement} adminOnly />
         
         {/* Regular site routes - with header/footer */}
         <Route>
