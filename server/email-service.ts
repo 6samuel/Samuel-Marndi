@@ -86,6 +86,105 @@ export async function sendSMS(to: string, message: string): Promise<boolean> {
   }
 }
 
+// Email template for submission confirmations
+const generateSubmissionConfirmationEmail = (name: string, type: string, details: any) => {
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  
+  // Common template
+  let detailsHtml = '';
+  Object.entries(details).forEach(([key, value]) => {
+    if (key !== 'name' && key !== 'email' && value && typeof value === 'string') {
+      const formattedKey = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+      detailsHtml += `<p><strong>${formattedKey}:</strong> ${value}</p>`;
+    }
+  });
+  
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submission Confirmation</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; padding: 20px 0; }
+    .logo { max-width: 150px; height: auto; }
+    .content { background-color: #f9f9f9; padding: 20px; border-radius: 5px; }
+    .footer { margin-top: 20px; text-align: center; font-size: 12px; color: #888; }
+    .highlight { color: #f97316; font-weight: bold; }
+    .details { background-color: #fff; padding: 15px; border-left: 3px solid #f97316; margin: 15px 0; }
+    .button { display: inline-block; background-color: #f97316; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>Samuel Marndi <span class="highlight">Digital Services</span></h2>
+  </div>
+  
+  <div class="content">
+    <h2>Thank You for Your Submission!</h2>
+    <p>Hello ${name},</p>
+    <p>I've received your ${type} submission on ${currentDate}. Thank you for reaching out!</p>
+    <p>I'll review your request and get back to you as soon as possible - typically within 24-48 hours.</p>
+    
+    <div class="details">
+      <h3>Your submission details:</h3>
+      ${detailsHtml}
+    </div>
+    
+    <p>If you have any questions in the meantime, feel free to reply to this email or contact me directly at:</p>
+    <p>📞 +91 82803 20550 (WhatsApp also available)</p>
+    <p>I look forward to discussing how I can help with your project.</p>
+    
+    <p>Best regards,<br>
+    <strong>Samuel Marndi</strong><br>
+    Web Developer & Digital Marketer</p>
+    
+    <a href="https://samuelmarndi.in/services" class="button">Explore My Services</a>
+  </div>
+  
+  <div class="footer">
+    <p>© ${new Date().getFullYear()} Samuel Marndi. All rights reserved.</p>
+    <p>This is an automated confirmation of your submission. Please do not reply to this email with sensitive information.</p>
+  </div>
+</body>
+</html>`;
+};
+
+// Send confirmation email to the user who submitted a form
+export async function sendSubmissionConfirmation(submission: any): Promise<boolean> {
+  // Extract the data
+  const { name, email, type = 'contact form', subject } = submission;
+  
+  if (!email) {
+    console.error('Cannot send confirmation: No email provided');
+    return false;
+  }
+  
+  // Determine confirmation subject based on submission type
+  let confirmationSubject = 'Thank you for your submission';
+  if (type === 'quick-quote' || type === 'quote') {
+    confirmationSubject = 'Your Quote Request Has Been Received';
+  } else if (type === 'contact') {
+    confirmationSubject = 'Thank You for Contacting Samuel Marndi';
+  } else if (type === 'service-request') {
+    confirmationSubject = 'Your Service Request Has Been Received';
+  } else if (subject) {
+    confirmationSubject = `Regarding: ${subject}`;
+  }
+  
+  // Generate HTML email
+  const html = generateSubmissionConfirmationEmail(name, type, submission);
+  
+  // Send email
+  return sendEmail(email, confirmationSubject, html);
+}
+
 // Send notification to admin when contact form submitted
 export async function sendContactNotification(submission: InsertContactSubmission): Promise<boolean> {
   const subject = `New Contact Form Submission: ${submission.subject || 'No Subject'}`;
@@ -104,6 +203,13 @@ export async function sendContactNotification(submission: InsertContactSubmissio
   // Also send SMS notification
   const smsText = `New contact from ${submission.name}. Subject: ${submission.subject || 'None'}. Please check your dashboard.`;
   sendSMS(ADMIN_PHONE, smsText).catch(console.error);
+  
+  // Send confirmation email to the user
+  if (submission.email) {
+    sendSubmissionConfirmation(submission).catch(err => {
+      console.error('Failed to send confirmation email:', err);
+    });
+  }
 
   return sendEmail(ADMIN_EMAIL, subject, html);
 }
@@ -127,6 +233,16 @@ export async function sendServiceRequestNotification(request: InsertServiceReque
   // Also send SMS notification
   const smsText = `New service request from ${request.name}. Please check your dashboard.`;
   sendSMS(ADMIN_PHONE, smsText).catch(console.error);
+  
+  // Send confirmation email to the user
+  if (request.email) {
+    sendSubmissionConfirmation({
+      ...request,
+      type: 'service-request'
+    }).catch(err => {
+      console.error('Failed to send service request confirmation email:', err);
+    });
+  }
 
   return sendEmail(ADMIN_EMAIL, subject, html);
 }

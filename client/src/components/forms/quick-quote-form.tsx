@@ -91,88 +91,108 @@ export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps 
   }
 
   return (
-    <div className="w-full bg-card rounded-lg p-6 shadow-md">
-      <h3 className="text-xl font-bold mb-4">Get a Free Quote</h3>
-      <p className="text-muted-foreground mb-6">
-        Fill out this quick form and I'll get back to you with a custom quote for your project
-      </p>
-      
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input placeholder="Your Name *" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="w-full p-6">
+      <div className="glass-effect relative rounded-lg p-6 border border-gray-200/30 dark:border-gray-700/30 overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/10 rounded-full blur-2xl"></div>
+        
+        <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white relative z-10">Get a Free Quote</h3>
+        <div className="w-20 h-1 bg-primary mb-4 rounded-full"></div>
+        <p className="text-muted-foreground mb-6 relative z-10">
+          Fill out this quick form and I'll get back to you with a custom quote for your project
+        </p>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 relative z-10">
             <FormField
               control={form.control}
-              name="email"
+              name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Email Address *" type="email" {...field} />
+                    <Input 
+                      placeholder="Your Name *" 
+                      {...field} 
+                      className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50 focus:bg-white dark:focus:bg-gray-800" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input 
+                        placeholder="Email Address *" 
+                        type="email" 
+                        {...field} 
+                        className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50 focus:bg-white dark:focus:bg-gray-800" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input 
+                        placeholder="Phone Number *" 
+                        {...field} 
+                        className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50 focus:bg-white dark:focus:bg-gray-800" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
             <FormField
               control={form.control}
-              name="phone"
+              name="message"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Phone Number *" {...field} />
+                    <Textarea 
+                      placeholder="Briefly describe your project or requirements *" 
+                      className="min-h-[100px] bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50 focus:bg-white dark:focus:bg-gray-800"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
-          
-          <FormField
-            control={form.control}
-            name="message"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Briefly describe your project or requirements *" 
-                    className="min-h-[100px]"
-                    {...field} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={isPending}
-          >
-            {isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              'Get Quote'
-            )}
-          </Button>
-        </form>
-      </Form>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary transition-all duration-300" 
+              disabled={isPending}
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Get Your Free Quote'
+              )}
+            </Button>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }
