@@ -238,14 +238,17 @@ const SiteFooter = () => {
             &copy; {currentYear} Samuel Marndi. All rights reserved.
           </p>
           <div className="mt-4 sm:mt-0 flex space-x-6">
-            <Link href="/terms" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
+            <Link href="/terms-conditions" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
               Terms of Service
             </Link>
-            <Link href="/privacy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
+            <Link href="/privacy-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
               Privacy Policy
             </Link>
-            <Link href="/cookies" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
+            <Link href="/cookie-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
               Cookie Policy
+            </Link>
+            <Link href="/refund-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
+              Refund Policy
             </Link>
           </div>
         </div>
