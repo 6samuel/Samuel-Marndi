@@ -4,6 +4,8 @@ import ServicesOverview from "@/components/home/services-overview";
 import PortfolioPreview from "@/components/home/portfolio-preview";
 import TestimonialsSection from "@/components/home/testimonials-section";
 import CtaSection from "@/components/home/cta-section";
+import TechShowcase from "@/components/home/tech-showcase";
+import WorkflowProcess from "@/components/home/workflow-process";
 import { SEO } from "@/lib/seo-utils";
 import { trackConversion } from "@/components/tracking/tracking-scripts";
 
@@ -36,6 +38,8 @@ const Home = () => {
 
       <HeroSection />
       <ServicesOverview />
+      <TechShowcase />
+      <WorkflowProcess />
       <PortfolioPreview />
       <TestimonialsSection />
       <CtaSection />
