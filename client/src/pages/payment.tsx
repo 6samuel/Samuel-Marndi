@@ -32,7 +32,7 @@ export default function PaymentPage() {
         description="Secure and convenient payment options for my services"
       />
 
-      <div className="container max-w-5xl pb-20">
+      <div className="container max-w-5xl pb-20 mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main payment section - takes up 2/3 of the screen on desktop */}
           <div className="lg:col-span-2">
