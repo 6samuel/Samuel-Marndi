@@ -21,6 +21,8 @@ import { Loader2 } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import StripeCheckout from './stripe-checkout';
+import PayPalCheckout from './paypal-checkout';
 
 // Define form schema
 const simplePaymentSchema = z.object({
@@ -40,6 +42,7 @@ interface SimplePaymentFormProps {
 export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormProps) {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
+  const [paymentData, setPaymentData] = useState<any>(null);
   
   // Form definition
   const form = useForm<SimplePaymentFormValues>({
