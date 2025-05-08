@@ -143,22 +143,24 @@ export default function StripeCheckout({ clientSecret, amount, onSuccess, onCanc
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Secure Payment</CardTitle>
-        <CardDescription>
-          Complete your payment using our secure payment processor
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Elements stripe={stripePromise} options={options}>
-          <CheckoutForm 
-            amount={amount} 
-            onSuccess={onSuccess}
-            onCancel={onCancel}
-          />
-        </Elements>
-      </CardContent>
-    </Card>
+    <div className="mx-auto max-w-md">
+      <Card>
+        <CardHeader>
+          <CardTitle>Secure Payment</CardTitle>
+          <CardDescription>
+            Complete your payment using our secure payment processor
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Elements stripe={stripePromise} options={options}>
+            <CheckoutForm 
+              amount={amount} 
+              onSuccess={onSuccess}
+              onCancel={onCancel}
+            />
+          </Elements>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
