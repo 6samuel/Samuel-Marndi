@@ -1,9 +1,6 @@
-import logoDarkMode from "@assets/Samuel Marndi.png";
-import logoLightMode from "@assets/samuel marndi logo for light bg.png";
 import logoText from "@assets/Samuel Marndi Logo text.png";
 import logoIcon from "@assets/s.png";
 import { OptimizedImage } from "./optimized-image";
-import { useTheme } from "next-themes";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
@@ -12,9 +9,6 @@ interface LogoProps {
 }
 
 export function Logo({ size = "md", className = "", variant = "full" }: LogoProps) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-  
   const sizeClasses = {
     sm: "h-9",
     md: "h-12",
@@ -35,25 +29,11 @@ export function Logo({ size = "md", className = "", variant = "full" }: LogoProp
     );
   }
   
-  if (variant === "text") {
-    return (
-      <div className={`${className}`}>
-        <OptimizedImage
-          src={logoText}
-          alt="Samuel Marndi Logo"
-          className={`${sizeClasses[size]} w-auto object-contain`}
-          width={150}
-          height={40}
-        />
-      </div>
-    );
-  }
-
-  // Default full logo with theme-based selection
+  // Use text logo for all cases
   return (
     <div className={`${className}`}>
       <OptimizedImage
-        src={isDark ? logoDarkMode : logoLightMode}
+        src={logoText}
         alt="Samuel Marndi Logo"
         className={`${sizeClasses[size]} w-auto object-contain`}
         width={180}

@@ -92,21 +92,7 @@ const HeroSection = () => {
     <section className="relative py-20 overflow-hidden bg-white dark:bg-gray-900">
       {/* Custom Background with Your Image */}
       <div className="absolute inset-0 w-full h-full z-0">
-        {/* Samuel Image in Background - Larger Position */}
-        <div 
-          className="absolute opacity-90 dark:opacity-70 hidden md:block"
-          style={{
-            backgroundImage: `url('@assets/samuel_png_2.png')`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'right top',
-            backgroundRepeat: 'no-repeat',
-            width: '40%',
-            height: '90%',
-            right: '5%',
-            top: '5%',
-            zIndex: 2
-          }}
-        />
+
         
         {/* Background Image */}
         <div 
@@ -292,7 +278,6 @@ const HeroSection = () => {
             <div className="relative">
               {/* Advanced Background Animation */}
               <div className="absolute inset-0 overflow-hidden z-0">
-
                 
                 {/* Animated gradients */}
                 <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-300/20 to-purple-300/20 rounded-full blur-3xl animate-pulse"></div>
@@ -333,6 +318,36 @@ const HeroSection = () => {
                     />
                   ))}
                 </div>
+              </div>
+              
+              {/* Samuel's image prominently displayed next to the form */}
+              <div className="absolute -top-32 -right-20 w-80 h-80 z-20 hidden lg:block" style={{ transform: "translate(0, -10%)" }}>
+                <motion.img 
+                  src="@assets/samuel_png_2.png" 
+                  alt="Samuel Marndi" 
+                  className="w-full h-full object-contain transform scale-125"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1.25 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  style={{
+                    filter: "drop-shadow(0 25px 25px rgba(0, 0, 0, 0.15))"
+                  }}
+                />
+              </div>
+              
+              {/* Add a smaller version for mobile */}
+              <div className="absolute -top-20 right-0 w-40 h-40 z-20 block lg:hidden">
+                <motion.img 
+                  src="@assets/samuel_png_2.png" 
+                  alt="Samuel Marndi" 
+                  className="w-full h-full object-contain"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  style={{
+                    filter: "drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1))"
+                  }}
+                />
               </div>
               
               {/* Quick Quote Form - Translucent and stylish */}
