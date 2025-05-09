@@ -92,6 +92,22 @@ const HeroSection = () => {
     <section className="relative py-20 overflow-hidden bg-white dark:bg-gray-900">
       {/* Custom Background with Your Image */}
       <div className="absolute inset-0 w-full h-full z-0">
+        {/* Samuel Image in Background - Larger Position */}
+        <div 
+          className="absolute opacity-90 dark:opacity-70 hidden md:block"
+          style={{
+            backgroundImage: `url('@assets/samuel_png_2.png')`,
+            backgroundSize: 'contain',
+            backgroundPosition: 'right top',
+            backgroundRepeat: 'no-repeat',
+            width: '40%',
+            height: '90%',
+            right: '5%',
+            top: '5%',
+            zIndex: 2
+          }}
+        />
+        
         {/* Background Image */}
         <div 
           className="absolute inset-0 opacity-10 dark:opacity-5"
@@ -194,25 +210,7 @@ const HeroSection = () => {
         >
           {/* Hero Text and Samuel's Image */}
           <div className="flex-1 text-center lg:text-left relative">
-            {/* Samuel's image positioned to the right side of this column */}
-            <div className="absolute right-0 top-0 hidden lg:block" style={{
-              width: "280px",
-              height: "400px",
-              right: "-80px",
-              top: "-80px",
-              overflow: "visible",
-              zIndex: 5,
-            }}>
-              <img 
-                src="@assets/samuel_png_2.png" 
-                alt="Samuel Marndi" 
-                className="w-full h-full object-contain"
-                style={{
-                  transform: "scale(1.2)",
-                  filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1))"
-                }}
-              />
-            </div>
+
             
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-gray-900 dark:text-white mb-6"
