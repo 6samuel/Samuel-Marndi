@@ -1,21 +1,59 @@
+import logoImage from "@assets/Samuel Marndi Logo Final.png";
+import logoText from "@assets/Samuel Marndi Logo text.png";
+import logoIcon from "@assets/s.png";
+import { OptimizedImage } from "./optimized-image";
+
 interface LogoProps {
   size?: "sm" | "md" | "lg";
   className?: string;
+  variant?: "full" | "icon" | "text";
 }
 
-export function Logo({ size = "md", className = "" }: LogoProps) {
+export function Logo({ size = "md", className = "", variant = "full" }: LogoProps) {
   const sizeClasses = {
-    sm: "text-xl",
-    md: "text-2xl",
-    lg: "text-3xl",
+    sm: "h-8",
+    md: "h-10",
+    lg: "h-12",
   };
 
+  if (variant === "icon") {
+    return (
+      <div className={`${className}`}>
+        <OptimizedImage
+          src={logoIcon}
+          alt="Samuel Marndi Logo"
+          className={`${sizeClasses[size]} w-auto object-contain`}
+          width={32}
+          height={32}
+        />
+      </div>
+    );
+  }
+  
+  if (variant === "text") {
+    return (
+      <div className={`${className}`}>
+        <OptimizedImage
+          src={logoText}
+          alt="Samuel Marndi Logo"
+          className={`${sizeClasses[size]} w-auto object-contain`}
+          width={150}
+          height={40}
+        />
+      </div>
+    );
+  }
+
+  // Default full logo
   return (
-    <span className={`font-bold ${sizeClasses[size]} tracking-tighter ${className}`}>
-      <span className="text-primary">S</span>
-      <span className="text-gray-800 dark:text-gray-200">AMUEL</span>
-      <span className="mx-1 text-primary">⚡</span>
-      <span className="text-gray-800 dark:text-gray-200">MARNDI</span>
-    </span>
+    <div className={`${className}`}>
+      <OptimizedImage
+        src={logoImage}
+        alt="Samuel Marndi Logo"
+        className={`${sizeClasses[size]} w-auto object-contain`}
+        width={180}
+        height={50}
+      />
+    </div>
   );
 }

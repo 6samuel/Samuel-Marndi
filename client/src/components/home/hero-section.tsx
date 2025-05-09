@@ -90,8 +90,18 @@ const HeroSection = () => {
 
   return (
     <section className="relative py-20 overflow-hidden bg-white dark:bg-gray-900">
-      {/* Cool Animated Background */}
+      {/* Custom Background with Your Image */}
       <div className="absolute inset-0 w-full h-full z-0">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 opacity-10 dark:opacity-5"
+          style={{
+            backgroundImage: `url('@assets/simplebg2.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        
         {/* Animated grid pattern */}
         <div className="absolute top-0 right-0 w-full h-full opacity-5 select-none pointer-events-none">
           <svg 
@@ -125,9 +135,9 @@ const HeroSection = () => {
         <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-green-300/10 dark:bg-green-500/10 rounded-full blur-2xl animate-float-slower" />
         <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-orange-300/10 dark:bg-orange-500/10 rounded-full blur-2xl animate-float" />
         
-        {/* Animated gradient motion */}
+        {/* Animated gradient motion with reduced opacity */}
         <div 
-          className="absolute inset-0 opacity-30 dark:opacity-20"
+          className="absolute inset-0 opacity-20 dark:opacity-10"
           style={{
             backgroundImage: 'radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.3), transparent 30%), radial-gradient(circle at 70% 60%, rgba(16, 185, 129, 0.3), transparent 30%), radial-gradient(circle at 30% 70%, rgba(249, 115, 22, 0.3), transparent 25%), radial-gradient(circle at 80% 30%, rgba(99, 102, 241, 0.3), transparent 25%)',
             backgroundSize: '200% 200%',
@@ -137,7 +147,7 @@ const HeroSection = () => {
         
         {/* Animated particles */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          {Array.from({ length: 25 }).map((_, i) => (
+          {Array.from({ length: 15 }).map((_, i) => (
             <motion.div
               key={i}
               className="absolute rounded-full"
