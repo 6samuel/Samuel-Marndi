@@ -274,14 +274,26 @@ const HeroSection = () => {
             <div className="relative">
               {/* Advanced Background Animation */}
               <div className="absolute inset-0 overflow-hidden z-0">
+                {/* Custom Samuel Marndi Background Image */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `url('@assets/samuel_png_2.png')`,
+                    backgroundSize: '80%',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    transform: 'scale(1.1)',
+                    opacity: 0.7,
+                  }}
+                />
+                
                 {/* Animated gradients */}
-                <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-300/30 to-purple-300/30 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-indigo-300/30 to-pink-300/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '4s' }}></div>
-                <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-64 h-64 bg-gradient-to-r from-green-300/20 to-cyan-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s', animationDuration: '5s' }}></div>
+                <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-300/20 to-purple-300/20 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-indigo-300/20 to-pink-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '4s' }}></div>
                 
                 {/* Animated particles */}
                 <div className="absolute top-0 left-0 w-full h-full">
-                  {Array.from({ length: 15 }).map((_, i) => (
+                  {Array.from({ length: 10 }).map((_, i) => (
                     <motion.div
                       key={i}
                       className="absolute w-1 h-1 bg-primary/40 rounded-full"
