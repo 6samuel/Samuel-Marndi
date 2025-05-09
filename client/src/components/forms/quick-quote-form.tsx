@@ -94,23 +94,7 @@ export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps 
 
   return (
     <div className="w-full p-6">
-      <div className="glass-effect relative rounded-lg p-6 border border-gray-200/30 dark:border-gray-700/30 overflow-hidden shadow-xl">
-        {/* Samuel's image in the background */}
-        <div 
-          className="absolute z-0"
-          style={{
-            backgroundImage: `url('@assets/samuel_png_2.png')`,
-            backgroundSize: '120%',
-            backgroundPosition: 'right -10px top -120px',
-            backgroundRepeat: 'no-repeat',
-            opacity: 1,
-            width: '150%',
-            height: '180%',
-            right: '-10%',
-            top: '-40%',
-          }}
-        ></div>
-        
+      <div className="glass-effect relative rounded-lg p-6 border border-gray-200/30 dark:border-gray-700/30 overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/10 rounded-full blur-2xl"></div>

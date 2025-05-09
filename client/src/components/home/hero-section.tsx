@@ -90,20 +90,8 @@ const HeroSection = () => {
 
   return (
     <section className="relative py-20 overflow-hidden bg-white dark:bg-gray-900">
-      {/* Custom Background with Your Image */}
+      {/* Cool Animated Background */}
       <div className="absolute inset-0 w-full h-full z-0">
-
-        
-        {/* Background Image */}
-        <div 
-          className="absolute inset-0 opacity-10 dark:opacity-5"
-          style={{
-            backgroundImage: `url('@assets/simplebg2.png')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        
         {/* Animated grid pattern */}
         <div className="absolute top-0 right-0 w-full h-full opacity-5 select-none pointer-events-none">
           <svg 
@@ -137,9 +125,9 @@ const HeroSection = () => {
         <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-green-300/10 dark:bg-green-500/10 rounded-full blur-2xl animate-float-slower" />
         <div className="absolute bottom-1/4 left-1/3 w-48 h-48 bg-orange-300/10 dark:bg-orange-500/10 rounded-full blur-2xl animate-float" />
         
-        {/* Animated gradient motion with reduced opacity */}
+        {/* Animated gradient motion */}
         <div 
-          className="absolute inset-0 opacity-20 dark:opacity-10"
+          className="absolute inset-0 opacity-30 dark:opacity-20"
           style={{
             backgroundImage: 'radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.3), transparent 30%), radial-gradient(circle at 70% 60%, rgba(16, 185, 129, 0.3), transparent 30%), radial-gradient(circle at 30% 70%, rgba(249, 115, 22, 0.3), transparent 25%), radial-gradient(circle at 80% 30%, rgba(99, 102, 241, 0.3), transparent 25%)',
             backgroundSize: '200% 200%',
@@ -149,7 +137,7 @@ const HeroSection = () => {
         
         {/* Animated particles */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          {Array.from({ length: 15 }).map((_, i) => (
+          {Array.from({ length: 25 }).map((_, i) => (
             <motion.div
               key={i}
               className="absolute rounded-full"
@@ -194,10 +182,8 @@ const HeroSection = () => {
           initial="hidden"
           animate="visible"
         >
-          {/* Hero Text and Samuel's Image */}
-          <div className="flex-1 text-center lg:text-left relative">
-
-            
+          {/* Hero Text */}
+          <div className="flex-1 text-center lg:text-left">
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-gray-900 dark:text-white mb-6"
               variants={itemVariants}
@@ -278,14 +264,14 @@ const HeroSection = () => {
             <div className="relative">
               {/* Advanced Background Animation */}
               <div className="absolute inset-0 overflow-hidden z-0">
-                
                 {/* Animated gradients */}
-                <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-300/20 to-purple-300/20 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-indigo-300/20 to-pink-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '4s' }}></div>
+                <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-300/30 to-purple-300/30 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-indigo-300/30 to-pink-300/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '4s' }}></div>
+                <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-64 h-64 bg-gradient-to-r from-green-300/20 to-cyan-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s', animationDuration: '5s' }}></div>
                 
                 {/* Animated particles */}
                 <div className="absolute top-0 left-0 w-full h-full">
-                  {Array.from({ length: 10 }).map((_, i) => (
+                  {Array.from({ length: 15 }).map((_, i) => (
                     <motion.div
                       key={i}
                       className="absolute w-1 h-1 bg-primary/40 rounded-full"
@@ -318,36 +304,6 @@ const HeroSection = () => {
                     />
                   ))}
                 </div>
-              </div>
-              
-              {/* Samuel's image prominently displayed next to the form */}
-              <div className="absolute -top-32 -right-20 w-80 h-80 z-20 hidden lg:block" style={{ transform: "translate(0, -10%)" }}>
-                <motion.img 
-                  src="@assets/samuel_png_2.png" 
-                  alt="Samuel Marndi" 
-                  className="w-full h-full object-contain transform scale-125"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1.25 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  style={{
-                    filter: "drop-shadow(0 25px 25px rgba(0, 0, 0, 0.15))"
-                  }}
-                />
-              </div>
-              
-              {/* Add a smaller version for mobile */}
-              <div className="absolute -top-20 right-0 w-40 h-40 z-20 block lg:hidden">
-                <motion.img 
-                  src="@assets/samuel_png_2.png" 
-                  alt="Samuel Marndi" 
-                  className="w-full h-full object-contain"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  style={{
-                    filter: "drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1))"
-                  }}
-                />
               </div>
               
               {/* Quick Quote Form - Translucent and stylish */}
