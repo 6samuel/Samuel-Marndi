@@ -274,22 +274,7 @@ const HeroSection = () => {
             <div className="relative">
               {/* Advanced Background Animation */}
               <div className="absolute inset-0 overflow-hidden z-0">
-                {/* Custom Samuel Marndi Image */}
-                <div 
-                  className="absolute"
-                  style={{
-                    backgroundImage: `url('@assets/samuel_png_2.png')`,
-                    backgroundSize: 'contain',
-                    backgroundPosition: 'right center',
-                    backgroundRepeat: 'no-repeat',
-                    width: '65%',
-                    height: '140%', 
-                    right: '0%',
-                    top: '-25%',
-                    opacity: 0.95,
-                    zIndex: 1,
-                  }}
-                />
+
                 
                 {/* Animated gradients */}
                 <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-300/20 to-purple-300/20 rounded-full blur-3xl animate-pulse"></div>
