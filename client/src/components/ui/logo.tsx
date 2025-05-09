@@ -1,4 +1,4 @@
-import logoImage from "@assets/Samuel Marndi Logo Final.png";
+import logoImage from "@assets/Samuel Marndi.png";
 import logoText from "@assets/Samuel Marndi Logo text.png";
 import logoIcon from "@assets/s.png";
 import { OptimizedImage } from "./optimized-image";
@@ -11,9 +11,9 @@ interface LogoProps {
 
 export function Logo({ size = "md", className = "", variant = "full" }: LogoProps) {
   const sizeClasses = {
-    sm: "h-8",
-    md: "h-10",
-    lg: "h-12",
+    sm: "h-9",
+    md: "h-12",
+    lg: "h-16",
   };
 
   if (variant === "icon") {
