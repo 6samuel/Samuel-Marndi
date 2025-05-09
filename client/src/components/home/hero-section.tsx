@@ -192,8 +192,28 @@ const HeroSection = () => {
           initial="hidden"
           animate="visible"
         >
-          {/* Hero Text */}
-          <div className="flex-1 text-center lg:text-left">
+          {/* Hero Text and Samuel's Image */}
+          <div className="flex-1 text-center lg:text-left relative">
+            {/* Samuel's image positioned to the right side of this column */}
+            <div className="absolute right-0 top-0 hidden lg:block" style={{
+              width: "280px",
+              height: "400px",
+              right: "-80px",
+              top: "-80px",
+              overflow: "visible",
+              zIndex: 5,
+            }}>
+              <img 
+                src="@assets/samuel_png_2.png" 
+                alt="Samuel Marndi" 
+                className="w-full h-full object-contain"
+                style={{
+                  transform: "scale(1.2)",
+                  filter: "drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1))"
+                }}
+              />
+            </div>
+            
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-gray-900 dark:text-white mb-6"
               variants={itemVariants}
