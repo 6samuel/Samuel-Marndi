@@ -437,16 +437,33 @@ const DigitalMarketingSection = () => {
                 Let's discuss how a tailored digital marketing strategy can help you reach your business goals. The consultation is completely free, and there's no obligation.
               </p>
               
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 mb-6">
                 <Button asChild variant="secondary" className="bg-white hover:bg-gray-100 text-primary">
                   <Link to="/contact">
                     Schedule Free Consultation <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
                 
-                <Button asChild variant="outline" className="border-white/30 hover:bg-white/10 text-white">
+                <Button asChild variant="outline" className="border-white/30 hover:bg-white/10 text-white dark:text-white dark:hover:bg-white/10 hover:text-primary-foreground">
                   <Link to="/services/digital-marketing">
-                    Explore Services
+                    Explore Services <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+
+                <Button asChild variant="default" className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700">
+                  <Link to="/contact?service=digital-marketing">
+                    Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="p-4 bg-white/20 rounded-lg backdrop-blur-sm mb-4">
+                <p className="font-medium text-white">
+                  <span className="font-bold text-yellow-300">Limited Time Offer:</span> Get a comprehensive digital marketing audit + strategy session for just $99 (Reg. $299) - No commitment required.
+                </p>
+                <Button asChild variant="default" className="mt-2 w-full bg-yellow-600 hover:bg-yellow-700 text-white">
+                  <Link to="/contact?offer=digital-marketing-audit">
+                    Claim This Offer Now <ArrowRight className="ml-1 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
