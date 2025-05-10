@@ -319,9 +319,9 @@ const HeroSection = () => {
               className="space-y-4 md:space-y-6"
               variants={itemVariants}
             >
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-full">
+              <div className="flex flex-col gap-4 items-center md:items-start text-center md:text-left mx-auto md:mx-0">
+                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-full mb-1 md:mb-0">
                     <Code className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
@@ -330,8 +330,8 @@ const HeroSection = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-full">
+                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-full mb-1 md:mb-0">
                     <BrainCircuit className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div>
@@ -340,8 +340,8 @@ const HeroSection = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-100 dark:bg-orange-900/40 rounded-full">
+                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900/40 rounded-full mb-1 md:mb-0">
                     <BarChart2 className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                   </div>
                   <div>
@@ -350,8 +350,8 @@ const HeroSection = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full">
+                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full mb-1 md:mb-0">
                     <Globe className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
                   <div>
@@ -360,8 +360,8 @@ const HeroSection = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-full">
+                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-full mb-1 md:mb-0">
                     <Database className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <div>
