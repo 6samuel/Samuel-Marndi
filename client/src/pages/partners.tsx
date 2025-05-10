@@ -56,18 +56,18 @@ const formSchema = z.object({
   }),
   phone: z.string().min(6, {
     message: 'Please enter a valid phone number.',
-  }),
+  }).optional(),
   website: z.string().url({
     message: 'Please enter a valid website URL.',
   }).optional().or(z.literal('')),
-  partnershipType: z.string({
-    required_error: 'Please select a partnership type.',
+  businessType: z.string().min(2, {
+    message: 'Please specify your business type.',
   }),
-  companyDescription: z.string().min(10, {
-    message: 'Please provide a brief description of your company.',
+  services: z.string().min(5, {
+    message: 'Please describe the services you\'re interested in.',
   }),
-  partnershipGoals: z.string().min(10, {
-    message: 'Please describe your partnership goals.',
+  expectations: z.string().min(5, {
+    message: 'Please describe your expectations from the partnership.',
   }),
 });
 
@@ -129,8 +129,6 @@ const PartnerPage = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
 
-  // Record page view for analytics is handled by the tracking scripts component
-
   // Define form with validation
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -140,9 +138,9 @@ const PartnerPage = () => {
       email: '',
       phone: '',
       website: '',
-      partnershipType: '',
-      companyDescription: '',
-      partnershipGoals: '',
+      businessType: '',
+      services: '',
+      expectations: '',
     },
   });
 
@@ -542,24 +540,26 @@ const PartnerPage = () => {
                         
                         <FormField
                           control={form.control}
-                          name="partnershipType"
+                          name="businessType"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Partnership Type</FormLabel>
+                              <FormLabel>Business Type</FormLabel>
                               <Select 
                                 onValueChange={field.onChange} 
                                 defaultValue={field.value}
                               >
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select partnership type" />
+                                    <SelectValue placeholder="Select your business type" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="service_integration">Service Integration</SelectItem>
-                                  <SelectItem value="it_collaboration">IT Company Collaboration</SelectItem>
-                                  <SelectItem value="product_promotion">Product Promotion</SelectItem>
-                                  <SelectItem value="other">Other (Specify in Description)</SelectItem>
+                                  <SelectItem value="service_provider">Service Provider</SelectItem>
+                                  <SelectItem value="it_company">IT Company</SelectItem>
+                                  <SelectItem value="software_company">Software/SaaS Company</SelectItem>
+                                  <SelectItem value="digital_agency">Digital/Marketing Agency</SelectItem>
+                                  <SelectItem value="ecommerce">E-Commerce Business</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />

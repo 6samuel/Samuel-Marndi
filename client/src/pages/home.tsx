@@ -41,8 +41,8 @@ const Home = () => {
       <HeroSection />
       <BudgetReassuranceSection />
       <ServicesOverview />
-      <PartnershipSection />
       <CompactTechShowcase />
+      <PartnershipSection />
       <ProjectRoadmap />
       <PortfolioPreview />
       <TestimonialsSection />
