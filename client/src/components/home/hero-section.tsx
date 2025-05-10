@@ -5,11 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Code, BarChart2, BrainCircuit, Globe, Database } from "lucide-react";
 import QuickQuoteForm from "@/components/forms/quick-quote-form";
 
-// Import UI components
-import { OptimizedImage } from "@/components/ui/optimized-image";
-
-// Profile image path (using URL approach for public assets)
-const samuelImage = "/samuel-transparent.png";
+// Import the image directly
+import samuelImage from "../../../public/samuel-transparent.png";
 
 // Wrapper component to handle form state
 const QuickQuoteFormWrapper = () => {
@@ -545,14 +542,10 @@ const HeroSection = () => {
                   ease: "easeInOut"
                 }}
               >
-                <OptimizedImage 
+                <img 
                   src={samuelImage}
                   alt="Samuel Marndi - Web Developer and Digital Marketing Expert" 
                   className="w-full h-auto object-contain"
-                  width={700}
-                  height={840}
-                  priority={true} // Load with high priority as it's a hero image
-                  sizes="(max-width: 640px) 240px, (max-width: 768px) 400px, 700px"
                 />
               </motion.div>
             </div>
