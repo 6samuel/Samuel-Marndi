@@ -70,6 +70,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error) {
     console.error('Error generating SEO assets:', error);
   }
+  
+  // Explicitly serve sitemap.xml and robots.txt from the public directory
+  app.get('/sitemap.xml', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'public', 'sitemap.xml'));
+  });
+  
+  app.get('/robots.txt', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'public', 'robots.txt'));
+  });
 
   // Handle Zod validation errors
   const handleValidationError = (error: unknown, res: Response) => {
