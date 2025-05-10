@@ -450,67 +450,63 @@ const HeroSection = () => {
                 <div className="absolute inset-[25%] bg-gradient-to-br from-indigo-500/20 via-primary/20 to-blue-500/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "300ms" }}></div>
               </div>
               
-              {/* Mobile Tech Icons around profile image - Simple and Organized Layout */}
+              {/* Mobile Tech Icons around profile image - Animated Circle Layout */}
               <div className="block md:hidden absolute inset-0 z-10 overflow-visible">
-                {/* Fixed positioned tech icons in a semi-circle around the profile */}
-                <div className="absolute" style={{ 
-                  bottom: "65%", 
-                  left: "50%", 
-                  transform: "translateX(-50%)",
-                  zIndex: 20 
-                }}>
-                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
-                    <img src={techIcons[0].icon} alt={techIcons[0].name} className="h-6 w-6" />
-                  </div>
-                </div>
-                
-                <div className="absolute" style={{ 
-                  bottom: "55%", 
-                  left: "30%", 
-                  zIndex: 20 
-                }}>
-                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
-                    <img src={techIcons[1].icon} alt={techIcons[1].name} className="h-6 w-6" />
-                  </div>
-                </div>
-                
-                <div className="absolute" style={{ 
-                  bottom: "35%", 
-                  left: "20%", 
-                  zIndex: 20 
-                }}>
-                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
-                    <img src={techIcons[2].icon} alt={techIcons[2].name} className="h-6 w-6" />
-                  </div>
-                </div>
-                
-                <div className="absolute" style={{ 
-                  bottom: "10%", 
-                  left: "30%", 
-                  zIndex: 20 
-                }}>
-                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
-                    <img src={techIcons[3].icon} alt={techIcons[3].name} className="h-6 w-6" />
-                  </div>
-                </div>
-                
-                <div className="absolute" style={{ 
-                  bottom: "0%", 
-                  left: "50%", 
-                  transform: "translateX(-50%)",
-                  zIndex: 20 
-                }}>
-                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
-                    <img src={techIcons[4].icon} alt={techIcons[4].name} className="h-6 w-6" />
-                  </div>
-                </div>
+                {techIcons.slice(0, 10).map((tech, i) => {
+                  // Create a full circle around the profile image
+                  // 10 icons distributed evenly in a circle
+                  const angle = (i * (2 * Math.PI / 10));
+                  const radius = 90; // Circle radius
+                  
+                  // Calculate x and y coordinates on the circle
+                  const x = Math.cos(angle) * radius;
+                  const y = Math.sin(angle) * radius;
+                  
+                  // Create unique animation settings for each icon
+                  const duration = 4 + (i % 3); // 4-6 seconds
+                  const delay = i * 0.2; // Staggered delays
+                  
+                  return (
+                    <motion.div
+                      key={`mobile-profile-tech-${i}`}
+                      className="absolute"
+                      style={{
+                        left: `calc(50% + ${x}px)`,
+                        top: `calc(50% + ${y}px)`,
+                        zIndex: 30, // Ensure it's above the profile image
+                      }}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ 
+                        opacity: 1, 
+                        scale: [0.8, 1, 0.9],
+                        x: [x * 0.05, x * -0.05, x * 0.05],
+                        y: [y * 0.05, y * -0.05, y * 0.05],
+                      }}
+                      transition={{
+                        delay: delay,
+                        duration: duration,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        ease: "easeInOut"
+                      }}
+                    >
+                      <div className="bg-white/90 dark:bg-gray-800/90 p-1.5 rounded-full shadow-md">
+                        <img 
+                          src={tech.icon} 
+                          alt={tech.name} 
+                          className="h-5 w-5 object-contain"
+                        />
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
               
               {/* Profile Image - responsive sizing for mobile */}
               <motion.img 
                 src={samuelImage}
                 alt="Samuel Marndi" 
-                className="w-[120%] sm:w-[160%] md:w-[180%] h-auto object-contain relative z-10 max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[30px] sm:-ml-[50px] md:-ml-[60px] lg:-ml-[70px]"
+                className="w-[120%] sm:w-[160%] md:w-[180%] h-auto object-contain relative z-5 max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[30px] sm:-ml-[50px] md:-ml-[60px] lg:-ml-[70px]"
                 style={{ 
                   transform: "translateY(-8px) translateX(-12%)",
                 }}
@@ -585,17 +581,35 @@ const HeroSection = () => {
           </div>
         </motion.div>
         
-        {/* Mobile Tech Stack Section - Title Only */}
+        {/* Mobile Tech Stack Section - With Icons (just like desktop) */}
         <motion.div
           className="mt-10 mb-6 text-center md:hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
         >
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Working with cutting-edge technologies</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            Expert in modern programming languages, frameworks, and cloud platforms
-          </p>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Working with cutting-edge technologies</h2>
+          <div className="flex flex-wrap justify-center gap-4 px-2">
+            {techIcons.slice(0, 8).map((tech, i) => (
+              <motion.div 
+                key={i}
+                className="relative"
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-lg shadow-sm">
+                  <img 
+                    src={tech.icon} 
+                    alt={tech.name} 
+                    className="h-7 w-7 object-contain"
+                  />
+                </div>
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 transform translate-y-5 text-xs text-gray-600 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  {tech.name}
+                </span>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
