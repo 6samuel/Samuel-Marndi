@@ -395,15 +395,15 @@ const HeroSection = () => {
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center lg:justify-start pt-3 sm:pt-4">
                 <Link href="/services">
-                  <Button size="lg" className="font-medium">
+                  <Button size="default" className="font-medium w-full sm:w-auto text-sm sm:text-base">
                     Explore Services
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </Link>
                 <Link href="/portfolio">
-                  <Button size="lg" variant="outline" className="font-medium">
+                  <Button size="default" variant="outline" className="font-medium w-full sm:w-auto text-sm sm:text-base">
                     View My Work
                   </Button>
                 </Link>
@@ -510,9 +510,9 @@ const HeroSection = () => {
               <motion.img 
                 src={samuelImage}
                 alt="Samuel Marndi" 
-                className="w-[140%] sm:w-[160%] md:w-[180%] h-auto object-contain relative z-10 max-w-[280px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[40px] sm:-ml-[50px] md:-ml-[60px] lg:-ml-[70px]"
+                className="w-[120%] sm:w-[160%] md:w-[180%] h-auto object-contain relative z-10 max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[30px] sm:-ml-[50px] md:-ml-[60px] lg:-ml-[70px]"
                 style={{ 
-                  transform: "translateY(-10px) translateX(-15%)",
+                  transform: "translateY(-8px) translateX(-12%)",
                 }}
                 initial={{ scale: 0.95 }}
                 animate={{ 
