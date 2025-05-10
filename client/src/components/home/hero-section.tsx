@@ -256,7 +256,7 @@ const HeroSection = () => {
             </motion.div>
           </div>
           
-          {/* Quick Quote Form */}
+          {/* Profile Image and Quick Quote Form */}
           <motion.div 
             className="flex-1"
             variants={itemVariants}
@@ -305,6 +305,20 @@ const HeroSection = () => {
                   ))}
                 </div>
               </div>
+              
+              {/* Profile Image - Added above the form */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="relative z-10 mb-6 max-w-[200px] mx-auto"
+              >
+                <img 
+                  src="/samuel-suit-transparent.png" 
+                  alt="Samuel Marndi" 
+                  className="w-full h-auto object-contain"
+                />
+              </motion.div>
               
               {/* Quick Quote Form - Translucent and stylish */}
               <div className="relative z-10">
