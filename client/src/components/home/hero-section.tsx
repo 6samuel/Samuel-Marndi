@@ -141,7 +141,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative py-20 overflow-hidden bg-white dark:bg-gray-900">
+    <section className="relative py-12 sm:py-16 md:py-20 overflow-hidden bg-white dark:bg-gray-900">
       {/* Enhanced Animated Background */}
       <div className="absolute inset-0 w-full h-full z-0">
         {/* Animated grid pattern */}
@@ -332,7 +332,7 @@ const HeroSection = () => {
         
         {/* Three-column layout */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center"
+          className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-4 lg:gap-6 items-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
