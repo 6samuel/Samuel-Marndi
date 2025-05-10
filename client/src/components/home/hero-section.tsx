@@ -640,7 +640,7 @@ const HeroSection = () => {
           transition={{ delay: 0.7, duration: 0.5 }}
         >
           <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Working with cutting-edge technologies</h2>
-          <div className="flex flex-wrap justify-center gap-6 px-4 py-2">
+          <div className="flex flex-wrap justify-center gap-4 px-2">
             {/* Show 8 different tech icons with cycling animation */}
             {techIconIndices.map((techIconIndex, i) => {
               // Use the cycling state to get a different icon for each position
@@ -657,7 +657,7 @@ const HeroSection = () => {
                   }}
                   whileHover={{ scale: 1.1 }}
                 >
-                  <div className="bg-white/90 dark:bg-gray-800/90 p-3 rounded-full shadow-md flex items-center justify-center">
+                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-lg shadow-sm">
                     <motion.div
                       key={`tech-icon-${techIconIndex}-${i}`}
                       initial={{ opacity: 0, scale: 0.8, y: 5 }}
@@ -669,18 +669,15 @@ const HeroSection = () => {
                         opacity: { duration: 0.8 },
                         scale: { duration: 0.8 }
                       }}
-                      className="flex flex-col items-center"
                     >
                       <img 
                         src={tech.icon} 
                         alt={tech.name} 
-                        className="h-10 w-10 object-contain"
-                        loading="eager"
-                        onError={(e) => {
-                          // Fallback if image fails to load
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
+                        className="h-7 w-7 object-contain"
                       />
+                      <span className="block mt-1 text-xs text-gray-600 dark:text-gray-400 text-center font-medium">
+                        {tech.name.split(' ')[0]}
+                      </span>
                     </motion.div>
                   </div>
                 </motion.div>
