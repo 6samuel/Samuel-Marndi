@@ -452,20 +452,19 @@ const HeroSection = () => {
               
               {/* Mobile Circular Tech Icons around profile image */}
               <div className="block md:hidden absolute inset-0 z-10 overflow-visible">
-                {techIcons.slice(0, 8).map((tech, i) => {
+                {techIcons.slice(0, 10).map((tech, i) => {
                   // Calculate position in a circle around the profile
-                  const angle = (i * (2 * Math.PI / 8)); // Distribute evenly in a circle
-                  const radius = 95; // Even smaller radius
+                  const angle = (i * (2 * Math.PI / 10)); // Distribute evenly in a circle
+                  const radius = 100; // Smaller radius
                   
                   // Calculate x and y coordinates on the circle
                   // Offset the circle to the left and up a bit
-                  const x = Math.cos(angle) * radius - 30; // More left shift (-30 instead of -15)
-                  const y = Math.sin(angle) * radius - 35; // More upward shift (-35 instead of -25)
+                  const x = Math.cos(angle) * radius - 15;
+                  const y = Math.sin(angle) * radius - 25;
                   
                   // Skip rendering icons that would appear behind text
-                  // Avoid icons that would overlap with text content
-                  // This covers a larger area on the right side
-                  if ((i >= 1 && i <= 6) || (angle > 0 && angle < Math.PI)) {
+                  // Avoid icons in the right area where service items are
+                  if (i >= 2 && i <= 6) {
                     return null;
                   }
                   
@@ -548,7 +547,7 @@ const HeroSection = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
-                  className="backdrop-blur-md bg-white/80 dark:bg-gray-900/80 rounded-xl shadow-xl border border-gray-100/50 dark:border-gray-800/50 overflow-hidden p-0 md:p-2"
+                  className="backdrop-blur-md bg-white/80 dark:bg-gray-900/80 rounded-xl shadow-xl border border-gray-100/50 dark:border-gray-800/50 overflow-hidden p-4 md:p-6"
                 >
                   <QuickQuoteFormWrapper />
                 </motion.div>
