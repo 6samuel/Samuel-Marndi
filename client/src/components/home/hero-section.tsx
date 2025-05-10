@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Code, BarChart2, BrainCircuit, Globe, Database } from "lucide-react";
 import QuickQuoteForm from "@/components/forms/quick-quote-form";
 
-// Import the image directly
-import samuelImage from "../../../public/samuel-transparent.png";
+// Import UI components
+import { OptimizedImage } from "@/components/ui/optimized-image";
+
+// Profile image path (using URL approach for public assets)
+const samuelImage = "/samuel-transparent.png";
 
 // Wrapper component to handle form state
 const QuickQuoteFormWrapper = () => {
@@ -525,11 +528,9 @@ const HeroSection = () => {
                 })}
               </div>
               
-              {/* Profile Image - responsive sizing for mobile */}
-              <motion.img 
-                src={samuelImage}
-                alt="Samuel Marndi" 
-                className="w-[120%] sm:w-[160%] md:w-[180%] h-auto object-contain relative z-20 max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[10px] sm:-ml-[30px] md:-ml-[40px] lg:-ml-[50px]"
+              {/* Profile Image - responsive sizing for mobile with optimized loading */}
+              <motion.div 
+                className="w-[120%] sm:w-[160%] md:w-[180%] relative z-20 max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[10px] sm:-ml-[30px] md:-ml-[40px] lg:-ml-[50px]"
                 style={{ 
                   transform: "translateY(-8px) translateX(0%)",
                 }}
@@ -543,7 +544,17 @@ const HeroSection = () => {
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-              />
+              >
+                <OptimizedImage 
+                  src={samuelImage}
+                  alt="Samuel Marndi - Web Developer and Digital Marketing Expert" 
+                  className="w-full h-auto object-contain"
+                  width={700}
+                  height={840}
+                  priority={true} // Load with high priority as it's a hero image
+                  sizes="(max-width: 640px) 240px, (max-width: 768px) 400px, 700px"
+                />
+              </motion.div>
             </div>
           </motion.div>
           
