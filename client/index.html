@@ -21,10 +21,27 @@
     <meta name="twitter:title" content="Samuel Marndi | Web Development & Digital Marketing Services" />
     <meta name="twitter:description" content="Professional web development and digital marketing services helping businesses establish a powerful online presence." />
     <meta name="twitter:image" content="https://samuelmarndi.com/twitter-image.png" />
-    <!-- Google Fonts -->
+    <!-- Google Fonts with optimized loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <!-- Font fallback to prevent layout shift -->
+    <style>
+      /* Critical CSS for initial render to prevent layout shifts */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Inter', sans-serif;
+      }
+      /* Use content-visibility for non-visible sections to improve rendering performance */
+      .deferred-section {
+        content-visibility: auto;
+        contain-intrinsic-size: 1px 1000px; /* Approximate size placeholder */
+      }
+      /* Improve CLS by setting explicit dimensions for hero image containers */
+      .hero-image-container {
+        aspect-ratio: 16/9;
+        position: relative;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
