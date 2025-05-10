@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Code, BarChart2, BrainCircuit } from "lucide-react";
+import { ArrowRight, Code, BarChart2, BrainCircuit, Globe, Database } from "lucide-react";
 import QuickQuoteForm from "@/components/forms/quick-quote-form";
 
 // Wrapper component to handle form state
@@ -56,6 +56,30 @@ const QuickQuoteFormWrapper = () => {
   return <QuickQuoteForm onSubmitSuccess={() => setIsSubmitted(true)} />;
 };
 
+// Tech icons with their original colors
+const techIcons = [
+  { name: "React", color: "#61DAFB", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
+  { name: "Angular", color: "#DD0031", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angularjs/angularjs-original.svg" },
+  { name: "Vue", color: "#4FC08D", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg" },
+  { name: "Node.js", color: "#339933", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" },
+  { name: "Python", color: "#3776AB", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" },
+  { name: "JavaScript", color: "#F7DF1E", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" },
+  { name: "TypeScript", color: "#3178C6", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" },
+  { name: "PHP", color: "#777BB4", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" },
+  { name: "Java", color: "#007396", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" },
+  { name: "Swift", color: "#F05138", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swift/swift-original.svg" },
+  { name: "Flutter", color: "#02569B", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg" },
+  { name: "AWS", color: "#232F3E", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg" },
+  { name: "Firebase", color: "#FFCA28", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg" },
+  { name: "MongoDB", color: "#47A248", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" },
+  { name: "MySQL", color: "#4479A1", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" },
+  { name: "PostgreSQL", color: "#4169E1", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
+  { name: "Docker", color: "#2496ED", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" },
+  { name: "Kubernetes", color: "#326CE5", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg" },
+  { name: "TensorFlow", color: "#FF6F00", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg" },
+  { name: "GraphQL", color: "#E10098", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/graphql/graphql-plain.svg" },
+];
+
 const HeroSection = () => {
   const [currentWord, setCurrentWord] = useState(0);
   const words = ["Websites", "Apps", "AI Solutions", "E-commerce", "Experiences"];
@@ -90,6 +114,135 @@ const HeroSection = () => {
 
   return (
     <section className="relative py-20 overflow-hidden bg-white dark:bg-gray-900">
+      {/* Enhanced Animated Background */}
+      <div className="absolute inset-0 w-full h-full z-0">
+        {/* Animated grid pattern */}
+        <div className="absolute top-0 right-0 w-full h-full opacity-5 select-none pointer-events-none">
+          <svg 
+            width="100%" 
+            height="100%" 
+            viewBox="0 0 800 800" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <pattern 
+                id="grid" 
+                width="50" 
+                height="50" 
+                patternUnits="userSpaceOnUse"
+              >
+                <path 
+                  d="M 50 0 L 0 0 0 50" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="1"
+                />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+        
+        {/* Improved animated floating circles */}
+        <div className="absolute top-20 left-20 w-64 h-64 bg-blue-300/20 dark:bg-blue-500/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-purple-300/20 dark:bg-purple-500/20 rounded-full blur-3xl animate-float-slow" />
+        <div className="absolute top-1/3 right-1/4 w-48 h-48 bg-green-300/20 dark:bg-green-500/20 rounded-full blur-3xl animate-float-slower" />
+        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-orange-300/20 dark:bg-orange-500/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute top-10 right-1/3 w-40 h-40 bg-pink-300/20 dark:bg-pink-500/20 rounded-full blur-3xl animate-float-slow" />
+        <div className="absolute bottom-32 left-20 w-56 h-56 bg-indigo-300/20 dark:bg-indigo-500/20 rounded-full blur-3xl animate-float-slower" />
+        
+        {/* Animated gradient motion - enhanced */}
+        <div 
+          className="absolute inset-0 opacity-30 dark:opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.4), transparent 40%), radial-gradient(circle at 75% 65%, rgba(16, 185, 129, 0.4), transparent 40%), radial-gradient(circle at 25% 75%, rgba(249, 115, 22, 0.4), transparent 35%), radial-gradient(circle at 75% 25%, rgba(99, 102, 241, 0.4), transparent 35%), radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.3), transparent 45%)',
+            backgroundSize: '200% 200%',
+            animation: 'gradientMotion 30s ease infinite'
+          }}
+        />
+        
+        {/* Animated tech stacks floating - with icons instead of dots */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+          {techIcons.map((tech, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full will-change-transform"
+              initial={{ 
+                x: Math.random() * 100 + '%', 
+                y: Math.random() * 100 + '%',
+                opacity: Math.random() * 0.5 + 0.3,
+                scale: Math.random() * 0.3 + 0.5
+              }}
+              animate={{ 
+                x: [
+                  Math.random() * 100 + '%', 
+                  Math.random() * 100 + '%',
+                  Math.random() * 100 + '%',
+                  Math.random() * 100 + '%'
+                ],
+                y: [
+                  Math.random() * 100 + '%', 
+                  Math.random() * 100 + '%',
+                  Math.random() * 100 + '%',
+                  Math.random() * 100 + '%'
+                ],
+                rotate: [0, 180, 360],
+                scale: [
+                  Math.random() * 0.3 + 0.5,
+                  Math.random() * 0.3 + 0.6,
+                  Math.random() * 0.3 + 0.5,
+                ]
+              }}
+              transition={{
+                duration: 30 + Math.random() * 40,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+              style={{
+                zIndex: 1,
+              }}
+            >
+              <img 
+                src={tech.icon} 
+                alt={tech.name}
+                className="w-8 h-8 object-contain filter drop-shadow-md"
+                title={tech.name}
+              />
+            </motion.div>
+          ))}
+        </div>
+        
+        {/* Animated code particles */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-30 dark:opacity-20">
+          {Array.from({ length: 25 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-xs font-mono"
+              initial={{ 
+                x: Math.random() * 100 + '%', 
+                y: Math.random() * 100 + '%',
+                opacity: Math.random() * 0.3 + 0.1,
+                scale: Math.random() * 0.5 + 0.5
+              }}
+              animate={{ 
+                y: ['-100%', '200%'],
+              }}
+              transition={{
+                duration: 10 + Math.random() * 20,
+                repeat: Infinity,
+                ease: "linear",
+                delay: Math.random() * 10
+              }}
+              style={{
+                color: ['#3b82f6', '#10b981', '#f97316', '#6366f1', '#8b5cf6'][Math.floor(Math.random() * 5)]
+              }}
+            >
+              {['{ }', '[ ]', '( )', '//', '/*', '*/', '=>', '&&', '||', '++', '!=', '==', '===', '<>', '</>', '</>'][Math.floor(Math.random() * 16)]}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
       <div className="container px-4 mx-auto relative z-10">
         {/* Main heading section */}
         <div className="text-center mx-auto mb-8">
@@ -163,6 +316,26 @@ const HeroSection = () => {
                     <p className="text-gray-600 dark:text-gray-400 text-sm">Growth strategies that deliver results</p>
                   </div>
                 </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full">
+                    <Globe className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-lg">Global Market Reach</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">Expand your business internationally</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-full">
+                    <Database className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-lg">Full-Stack Solutions</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">Complete end-to-end development services</p>
+                  </div>
+                </div>
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
@@ -213,14 +386,17 @@ const HeroSection = () => {
             transition={{ delay: 0.3, duration: 0.5 }}
           >
             <div className="relative max-w-[280px] mx-auto">
-              {/* Subtle glow behind image */}
-              <div className="absolute -top-4 -bottom-4 -left-4 -right-4 bg-gradient-to-b from-primary/10 to-transparent rounded-full blur-xl z-0"></div>
+              {/* Enhanced glow behind image */}
+              <div className="absolute -top-8 -bottom-8 -left-8 -right-8 rounded-full z-0">
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse"></div>
+                <div className="absolute inset-[25%] bg-gradient-to-br from-indigo-500/20 via-primary/20 to-blue-500/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "300ms" }}></div>
+              </div>
               
-              {/* Profile Image */}
+              {/* Profile Image - using the requested image */}
               <img 
-                src="/samuel-profile.jpg" 
+                src="/images/samuel-transparent.png"
                 alt="Samuel Marndi" 
-                className="w-full h-auto object-contain relative z-10 rounded-full"
+                className="w-full h-auto object-contain relative z-10"
               />
             </div>
           </motion.div>
@@ -231,6 +407,14 @@ const HeroSection = () => {
             variants={itemVariants}
           >
             <div className="relative">
+              {/* Background Animation */}
+              <div className="absolute inset-0 overflow-hidden z-0">
+                {/* Animated gradients */}
+                <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-300/30 to-purple-300/30 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-indigo-300/30 to-pink-300/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '4s' }}></div>
+              </div>
+              
+              {/* Quick Quote Form */}
               <div className="relative z-10">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -243,6 +427,35 @@ const HeroSection = () => {
               </div>
             </div>
           </motion.div>
+        </motion.div>
+        
+        {/* Tech stack section */}
+        <motion.div
+          className="mt-16 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+        >
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Working with cutting-edge technologies</h2>
+          <div className="flex flex-wrap justify-center gap-8">
+            {techIcons.slice(0, 12).map((tech, i) => (
+              <motion.div 
+                key={i}
+                className="relative group"
+                whileHover={{ y: -5, scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <img 
+                  src={tech.icon} 
+                  alt={tech.name} 
+                  className="h-8 w-8 md:h-10 md:w-10 object-contain"
+                />
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-gray-600 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  {tech.name}
+                </span>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
