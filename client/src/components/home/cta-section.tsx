@@ -51,12 +51,12 @@ const CtaSection = () => {
               variants={itemVariants}
             >
               <OptimizedImage 
-                src="https://pbs.twimg.com/profile_images/1921059700109438976/uFfkCwFP_400x400.jpg" 
+                src="/samuel-suit-transparent.png" 
                 alt="Samuel Marndi - Professional Web Developer" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 priority={true}
               />
-              <div className="absolute inset-0 bg-primary/30 mix-blend-multiply"></div>
+              {/* Removed the color overlay as requested */}
             </motion.div>
             
             {/* Content Side */}
