@@ -176,110 +176,127 @@ const HeroSection = () => {
       </div>
 
       <div className="container px-4 mx-auto relative z-10">
+        {/* Creative three-column layout with profile image in center */}
+        <div className="text-center mx-auto mb-8">
+          <motion.h1 
+            className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-gray-900 dark:text-white mb-4"
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            Creating Exceptional Digital{" "}
+            <span 
+              className="relative inline-block transition-colors duration-500" 
+              style={{ color: colors[currentWord] }}
+            >
+              {words[currentWord]}
+            </span>
+          </motion.h1>
+          
+          <motion.p 
+            className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+            transition={{ delay: 0.2 }}
+          >
+            Hi, I'm Samuel Marndi. I help businesses establish a powerful online presence through 
+            cutting-edge web development, AI integration, mobile apps, and strategic marketing solutions.
+          </motion.p>
+        </div>
+        
         <motion.div 
-          className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Hero Text */}
-          <div className="flex-1 text-center lg:text-left">
-            <motion.h1 
-              className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-gray-900 dark:text-white mb-6"
-              variants={itemVariants}
-            >
-              Creating Exceptional Digital{" "}
-              <span 
-                className="relative inline-block transition-colors duration-500" 
-                style={{ color: colors[currentWord] }}
-              >
-                {words[currentWord]}
-              </span>
-            </motion.h1>
-            
-            {/* Profile Image in Center */}
-            <motion.div
-              variants={itemVariants}
-              className="relative max-w-[200px] mx-auto lg:mx-0 mt-4 mb-6 order-first lg:order-none"
-            >
-              <img 
-                src="/samuel-suit-transparent.png" 
-                alt="Samuel Marndi" 
-                className="w-full h-auto object-contain"
-              />
-            </motion.div>
-            
-            <motion.p 
-              className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0"
-              variants={itemVariants}
-            >
-              Hi, I'm Samuel Marndi. I help businesses establish a powerful online presence through 
-              fast, reliable, and cutting-edge web development, AI integration, mobile apps, and strategic 
-              digital marketing solutions for all project sizes and budgets.
-            </motion.p>
-            
+          {/* Left Column - Value Proposition */}
+          <div className="lg:col-span-5 text-center lg:text-left">
             <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+              className="space-y-6"
               variants={itemVariants}
             >
-              <Link href="/services">
-                <Button size="lg" className="font-medium">
-                  Explore Services
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/portfolio">
-                <Button size="lg" variant="outline" className="font-medium">
-                  View My Work
-                </Button>
-              </Link>
-            </motion.div>
-            
-            {/* Featured In */}
-            <motion.div 
-              className="mt-12 space-y-3"
-              variants={itemVariants}
-            >
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                TRUSTED BY BUSINESSES WORLDWIDE
-              </p>
-              <div className="flex flex-wrap justify-center lg:justify-start gap-8">
-                <img 
-                  src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/microsoft.svg" 
-                  alt="Microsoft" 
-                  className="h-6 w-auto opacity-50 dark:invert"
-                />
-                <img 
-                  src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/adobe.svg" 
-                  alt="Adobe" 
-                  className="h-6 w-auto opacity-50 dark:invert"
-                />
-                <img 
-                  src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/shopify.svg" 
-                  alt="Shopify" 
-                  className="h-6 w-auto opacity-50 dark:invert"
-                />
-                <img 
-                  src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/slack.svg" 
-                  alt="Slack" 
-                  className="h-6 w-auto opacity-50 dark:invert"
-                />
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-full">
+                    <Code className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-lg">Expert Web Development</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">Fast, responsive, and SEO-optimized websites</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-full">
+                    <BrainCircuit className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-lg">AI Integration</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">Innovative solutions with artificial intelligence</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900/40 rounded-full">
+                    <BarChart2 className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-lg">Digital Marketing</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">Growth strategies that deliver results</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                <Link href="/services">
+                  <Button size="lg" className="font-medium">
+                    Explore Services
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/portfolio">
+                  <Button size="lg" variant="outline" className="font-medium">
+                    View My Work
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           </div>
           
-          {/* Profile Image and Quick Quote Form */}
+          {/* Center Column - Profile Image */}
           <motion.div 
-            className="flex-1"
+            className="lg:col-span-2 relative"
+            variants={itemVariants}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <div className="relative max-w-[280px] mx-auto">
+              {/* Subtle glow behind image */}
+              <div className="absolute -top-4 -bottom-4 -left-4 -right-4 bg-gradient-to-b from-primary/10 to-transparent rounded-full blur-xl z-0"></div>
+              
+              {/* Profile Image */}
+              <img 
+                src="/samuel-suit-transparent.png" 
+                alt="Samuel Marndi" 
+                className="w-full h-auto object-contain relative z-10"
+              />
+            </div>
+          </motion.div>
+          
+          {/* Right Column - Quick Quote Form */}
+          <motion.div 
+            className="lg:col-span-5"
             variants={itemVariants}
           >
             <div className="relative">
-              {/* Advanced Background Animation */}
+              {/* Background Animation */}
               <div className="absolute inset-0 overflow-hidden z-0">
                 {/* Animated gradients */}
                 <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-300/30 to-purple-300/30 rounded-full blur-3xl animate-pulse"></div>
                 <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-indigo-300/30 to-pink-300/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '4s' }}></div>
-                <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-64 h-64 bg-gradient-to-r from-green-300/20 to-cyan-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s', animationDuration: '5s' }}></div>
                 
                 {/* Animated particles */}
                 <div className="absolute top-0 left-0 w-full h-full">
@@ -318,9 +335,7 @@ const HeroSection = () => {
                 </div>
               </div>
               
-              {/* Profile image moved to center of hero section */}
-              
-              {/* Quick Quote Form - Translucent and stylish */}
+              {/* Quick Quote Form */}
               <div className="relative z-10">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -333,32 +348,9 @@ const HeroSection = () => {
               </div>
             </div>
             
-            {/* Smaller and Better Positioned Floating Feature Bubbles */}
-            {/* Top Left Feature Bubble */}
-            <motion.div 
-              className="absolute -top-14 -left-5 bg-white/90 dark:bg-gray-800/90 px-3 py-2 rounded-lg shadow-lg z-20 hidden lg:flex items-center gap-2"
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.5, type: "spring" }}
-            >
-              <div className="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-full">
-                <Code className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <span className="text-xs font-medium">Web Development</span>
-            </motion.div>
+            {/* Removed floating bubbles - now using service highlights in the left column */}
             
-            {/* Bottom Right Feature Bubble */}
-            <motion.div 
-              className="absolute -bottom-10 -right-6 bg-white/90 dark:bg-gray-800/90 px-3 py-2 rounded-lg shadow-lg z-20 hidden lg:flex items-center gap-2"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 1.0, duration: 0.5, type: "spring" }}
-            >
-              <div className="p-1.5 bg-orange-100 dark:bg-orange-900/40 rounded-full">
-                <BarChart2 className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <span className="text-xs font-medium">Digital Marketing</span>
-            </motion.div>
+
             
             {/* Top Feature Bubble - Outside Form Collision Area */}
             <motion.div 
