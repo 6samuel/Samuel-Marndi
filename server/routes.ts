@@ -298,6 +298,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Quick quote form submission endpoint
   app.post(`${apiRoute}/contact/submit`, async (req, res) => {
     try {
+      console.log('⭐ Quick quote form submission received:', JSON.stringify(req.body, null, 2));
+      
       // Create a submission with the quick quote data
       const submission = await storage.createContactSubmission({
         ...req.body,
@@ -308,15 +310,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updatedAt: new Date()
       });
       
+      console.log('✅ Submission saved to database with ID:', submission.id);
+      
       // Send notification email to administrator
-      await sendContactNotification({
+      console.log('📧 Attempting to send email notification...');
+      const emailResult = await sendContactNotification({
         ...req.body,
         subject: 'Quick Quote Request',
       });
       
-      res.status(201).json(submission);
+      console.log('📧 Email notification result:', emailResult ? 'Success' : 'Failed');
+      
+      res.status(201).json({
+        message: "Quote request submitted successfully",
+        id: submission.id,
+        emailSent: emailResult
+      });
     } catch (error) {
-      console.error('Quick quote submission error:', error);
+      console.error('❌ Quick quote submission error:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
       res.status(500).json({ error: 'Failed to submit quote request' });
     }
   });
