@@ -308,6 +308,116 @@ const DigitalMarketingSection = () => {
           </div>
         </motion.div>
 
+        {/* Website Transformation Showcase */}
+        <motion.div 
+          className="mb-16 bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-8 shadow-lg"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
+              Transform Your Website Like This One
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mt-2">
+              Just like this website, I can rebuild or optimize your existing site to generate more leads, 
+              increase conversions, and ultimately grow your profits.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+              <h4 className="font-bold text-lg mb-4 flex items-center">
+                <Target className="w-5 h-5 text-primary mr-2" />
+                Results-Focused Redesign
+              </h4>
+              
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">Conversion optimization</span> - Strategic placement of CTAs and lead capture forms
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">SEO-friendly architecture</span> - Rank higher on Google and capture more organic traffic
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">Persuasive copywriting</span> - Compelling messaging that drives action
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">Mobile optimization</span> - Perfect experience on all devices
+                  </span>
+                </li>
+              </ul>
+              
+              <div className="mt-6">
+                <Button asChild>
+                  <Link to="/portfolio">
+                    See Website Transformations <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+              <h4 className="font-bold text-lg mb-4 flex items-center">
+                <BarChart3 className="w-5 h-5 text-primary mr-2" />
+                Real Business Impact
+              </h4>
+              
+              <div className="space-y-4">
+                <div className="rounded-lg bg-primary/5 p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Conversion Rate</span>
+                    <span className="text-green-500 font-bold">+157%</span>
+                  </div>
+                  <div className="mt-2 bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                    <div className="bg-primary h-2.5 rounded-full" style={{ width: '85%' }}></div>
+                  </div>
+                </div>
+                
+                <div className="rounded-lg bg-primary/5 p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Organic Traffic</span>
+                    <span className="text-green-500 font-bold">+94%</span>
+                  </div>
+                  <div className="mt-2 bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                    <div className="bg-primary h-2.5 rounded-full" style={{ width: '65%' }}></div>
+                  </div>
+                </div>
+                
+                <div className="rounded-lg bg-primary/5 p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Lead Quality</span>
+                    <span className="text-green-500 font-bold">+112%</span>
+                  </div>
+                  <div className="mt-2 bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                    <div className="bg-primary h-2.5 rounded-full" style={{ width: '75%' }}></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <Button asChild variant="outline">
+                  <Link to="/services/web-development">
+                    Learn About Web Services <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* CTA */}
         <motion.div 
           className="bg-gradient-to-r from-primary to-indigo-600 rounded-2xl p-8 text-white relative overflow-hidden shadow-xl"
@@ -334,7 +444,7 @@ const DigitalMarketingSection = () => {
                   </Link>
                 </Button>
                 
-                <Button asChild variant="outline" className="border-white/30 hover:bg-white/10">
+                <Button asChild variant="outline" className="border-white/30 hover:bg-white/10 text-white">
                   <Link to="/services/digital-marketing">
                     Explore Services
                   </Link>
