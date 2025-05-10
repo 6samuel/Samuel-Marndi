@@ -269,54 +269,63 @@ const HeroSection = () => {
           })}
         </div>
         
-        {/* Enhanced animated code particles - more distributed and varied */}
+        {/* Selective code particles - removed cluttered elements */}
         <div className="absolute top-0 left-0 w-full h-full opacity-30 dark:opacity-20">
-          {Array.from({ length: 35 }).map((_, i) => {
-            // More code symbols with programming concepts
+          {Array.from({ length: 15 }).map((_, i) => { // Reduced number from 35 to 15
+            // More code symbols with programming concepts - kept minimal and cleaner
             const codeSymbols = [
-              '{ }', '[ ]', '( )', '//', '/*', '*/', '=>', '&&', '||', '++', '--', 
-              '!=', '==', '===', '<>', '</>', '</>', '.map()', '.filter()', 
-              'await', 'async', 'function', 'const', 'let', 'var', 'for()', 
-              'if()', 'import', 'export', '<div>', 'useState', 'return', 'class', 
-              '@media', '#root', '::before', ':hover'
+              '{ }', '[ ]', '( )', '//', '=>', '++', 
+              '!=', '==', 'function', 'const', 'import', 'export'
             ];
             
-            // Varied starting positions
-            const posX = 5 + (i * 13) % 90; // 5% to 95% width
-            const posY = (i * 17) % 100;    // 0% to 100% height
+            // Modified positioning to ensure NO particles appear in top-left corner
+            // Divide screen into sections, avoiding the top-left entirely
+            const sectionWidth = 100 / 4; // Divide screen into 4 columns
+            const sectionHeight = 100 / 3; // Divide screen into 3 rows
+            
+            // Calculate position to AVOID top-left area
+            // First section skips very top-left area
+            const sections = [
+              { x: 35 + (i % 3) * 20, y: 25 + (i % 3) * 20 },  // Middle area
+              { x: 70 + (i % 3) * 10, y: 10 + (i % 4) * 15 },  // Right area
+              { x: 20 + (i % 4) * 15, y: 65 + (i % 3) * 10 },  // Bottom-left
+              { x: 60 + (i % 3) * 10, y: 60 + (i % 3) * 10 }   // Bottom-right
+            ];
+            
+            const sectionIndex = i % sections.length;
+            const baseX = sections[sectionIndex].x;
+            const baseY = sections[sectionIndex].y;
+            
+            // Add minor jitter
+            const jitterX = (Math.sin(i * 3.7) * 5); 
+            const jitterY = (Math.cos(i * 2.9) * 5);
+            
+            const posX = baseX + jitterX;
+            const posY = baseY + jitterY;
             
             // Different animation speeds 
-            const speed = 15 + (i % 20);
+            const speed = 20 + (i % 10); // Slower, more subtle
             
-            // Different sizes
-            const fontSize = 10 + (i % 6) * 2; // 10px to 20px
-            
-            // Direction and path variations
+            // Direction and path variations - more subtle
             const directions = [
-              // Vertical falling (most common)
+              // Vertical falling (gentle)
               { 
-                y: ['-20%', '120%'],
-                x: [`${posX}%`, `${posX + (Math.random() > 0.5 ? 5 : -5)}%`]
+                y: [`${posY}%`, `${posY + 30}%`],
+                x: [`${posX}%`, `${posX + (i % 5 - 2)}%`] // Minor horizontal drift
               },
-              // Diagonal falling right
-              { 
-                y: ['-20%', '120%'],
-                x: [`${posX}%`, `${Math.min(posX + 20, 95)}%`]
-              },
-              // Diagonal falling left
-              { 
-                y: ['-20%', '120%'],
-                x: [`${posX}%`, `${Math.max(posX - 20, 5)}%`]
-              },
-              // Horizontal float
-              { 
-                x: ['0%', '100%'],
-                y: [`${posY}%`, `${posY + (Math.random() > 0.5 ? 5 : -5)}%`]
+              // Small circular motion
+              {
+                y: [`${posY}%`, `${posY + 10}%`, `${posY}%`, `${posY - 10}%`, `${posY}%`],
+                x: [`${posX}%`, `${posX + 10}%`, `${posX}%`, `${posX - 10}%`, `${posX}%`],
+                rotate: [0, 90, 180, 270, 360]
               }
             ];
             
             const pathIndex = i % directions.length;
             const animationPath = directions[pathIndex];
+            
+            // Staggered delays
+            const delay = (i % 5) * 2; // Longer delays
             
             return (
               <motion.div
@@ -324,20 +333,24 @@ const HeroSection = () => {
                 className="absolute text-xs font-mono font-bold"
                 initial={{ 
                   x: `${posX}%`,
-                  y: pathIndex === 3 ? `${posY}%` : '-20%',
-                  opacity: 0.3 + (i % 5) * 0.1,
-                  rotate: (i % 3 - 1) * 5 // -5, 0, or 5 degrees
+                  y: `${posY}%`,
+                  opacity: 0.4,
+                  scale: 0.9
                 }}
-                animate={animationPath}
+                animate={{ 
+                  ...animationPath,
+                  opacity: [0.4, 0.6, 0.4],
+                  scale: [0.9, 1.1, 0.9]
+                }}
                 transition={{
                   duration: speed,
                   repeat: Infinity,
-                  ease: "linear",
-                  delay: (i % 10) * 1.5
+                  ease: "easeInOut",
+                  delay: delay,
                 }}
                 style={{
-                  color: ['#3b82f6', '#10b981', '#f97316', '#6366f1', '#8b5cf6', '#ec4899', '#ef4444'][i % 7],
-                  fontSize: `${fontSize}px`,
+                  color: ['#3b82f6', '#10b981', '#6366f1', '#8b5cf6'][i % 4],
+                  fontSize: `${12 + (i % 3) * 2}px`, // More consistent sizes
                   textShadow: '0 0 3px rgba(0,0,0,0.1)'
                 }}
               >
@@ -497,11 +510,11 @@ const HeroSection = () => {
                 <div className="absolute inset-[25%] bg-gradient-to-br from-indigo-500/20 via-primary/20 to-blue-500/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "300ms" }}></div>
               </div>
               
-              {/* Profile Image - using the requested image and using import to ensure it loads */}
+              {/* Profile Image - using the image from public/images folder */}
               <motion.img 
-                src="https://raw.githubusercontent.com/samuelmarndi/assets/main/samuel-profile.jpg"
+                src="/images/samuel-transparent.png"
                 alt="Samuel Marndi" 
-                className="w-full h-auto object-contain relative z-10 rounded-full"
+                className="w-full h-auto object-contain relative z-10"
                 initial={{ scale: 0.9 }}
                 animate={{ 
                   scale: [0.95, 1.05, 0.95],
