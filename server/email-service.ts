@@ -26,7 +26,7 @@ const createTransporter = () => {
       host: 'smtp-relay.brevo.com',
       port: 587,
       auth: {
-        user: 'mail@samuelmarndi.com', // Use the verified sender email
+        user: 'apikey', // This is literally the string "apikey" for Brevo API integration
         pass: apiKey,   // Use the Brevo API key
       },
       secure: false, // true for 465, false for other ports
