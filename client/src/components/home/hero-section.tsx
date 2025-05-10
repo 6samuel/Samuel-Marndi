@@ -468,26 +468,26 @@ const HeroSection = () => {
               </div>
               
               {/* Mobile Tech Icons around profile image - Animated Circle Layout */}
-              <div className="block md:hidden absolute inset-0 z-1 overflow-visible">
+              <div className="block md:hidden absolute inset-0 z-0 overflow-visible">
                 {/* Generating 12 icon positions in a circle, displaying different tech icons */}
                 {Array.from({ length: 12 }).map((_, i) => {
                   // Create an even larger circle around the profile image
                   // 12 icons distributed evenly in a circle
                   const angle = (i * (2 * Math.PI / 12));
-                  const radius = 135; // Even larger circle radius
+                  const radius = 120; // Slightly smaller circle radius for better visibility
                   
                   // Calculate x and y coordinates on the circle
                   // Move the circle up more
                   const x = Math.cos(angle) * radius;
-                  const y = Math.sin(angle) * radius - 60; // Move up by 60px
+                  const y = Math.sin(angle) * radius - 40; // Move up by 40px
                   
                   // Create unique animation settings for each icon
                   const duration = 8 + (i % 5); // 8-12 seconds animation
                   const fadeDelay = i * 0.3; // Staggered delays
                   
                   // Select an icon based on position 
-                  // Each position uses a different icon
-                  const iconIndex = (i * 2) % techIcons.length;
+                  // Each position uses a different icon - ensure with modulo we don't exceed array length
+                  const iconIndex = (i * 3) % techIcons.length;
                   const tech = techIcons[iconIndex];
                   
                   return (
@@ -497,11 +497,11 @@ const HeroSection = () => {
                       style={{
                         left: `calc(50% + ${x}px)`,
                         top: `calc(50% + ${y}px)`,
-                        zIndex: 1, // Place behind the profile image
+                        zIndex: 5, // Increased z-index to ensure visibility
                       }}
                       initial={{ opacity: 0, scale: 0 }}
                       animate={{ 
-                        opacity: [0, 0.8, 0.9, 0.8, 0], 
+                        opacity: [0, 0.9, 1, 0.9, 0], 
                         scale: [0.7, 0.9, 1, 0.9, 0.7],
                       }}
                       transition={{
@@ -517,7 +517,12 @@ const HeroSection = () => {
                         <img 
                           src={tech.icon} 
                           alt={tech.name} 
-                          className="h-6 w-6 object-contain"
+                          className="h-7 w-7 object-contain" 
+                          loading="eager" 
+                          onError={(e) => {
+                            // Fallback if image fails to load
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
                         />
                       </div>
                     </motion.div>
@@ -527,7 +532,7 @@ const HeroSection = () => {
               
               {/* Profile Image - responsive sizing for mobile with optimized loading */}
               <motion.div 
-                className="w-[120%] sm:w-[160%] md:w-[180%] relative z-20 max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[10px] sm:-ml-[30px] md:-ml-[40px] lg:-ml-[50px]"
+                className="w-[120%] sm:w-[160%] md:w-[180%] relative z-10 max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[10px] sm:-ml-[30px] md:-ml-[40px] lg:-ml-[50px]"
                 style={{ 
                   transform: "translateY(-8px) translateX(0%)",
                 }}
