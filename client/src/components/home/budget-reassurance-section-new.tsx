@@ -1,23 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, PhoneCall, FileText, ArrowRight, MessageSquare, ThumbsUp, Shield, CreditCard } from 'lucide-react';
+import { DollarSign, PhoneCall, FileText, ArrowRight, MessageSquare, ThumbsUp, Shield, CreditCard, CreditCard as CardIcon, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
-import { 
-  PayPalIcon, 
-  StripeIcon, 
-  GooglePayIcon, 
-  RazorpayIcon, 
-  UPIIcon, 
-  PhonePeIcon,
-  GooglePayUPIIcon,
-  ApplePayIcon, 
-  WireTransferIcon, 
-  PayoneerIcon,
-  WiseIcon,
-  MasterCardIcon,
-  VisaIcon
-} from '@/components/icons/payment-icons';
 
 // Budget range card component
 const BudgetRangeCard = ({ 
@@ -27,6 +12,7 @@ const BudgetRangeCard = ({
   gradientColors,
   priceRange,
   ctaLink,
+  isPremium = false
 }: { 
   title: string; 
   description: string; 
@@ -34,22 +20,28 @@ const BudgetRangeCard = ({
   gradientColors: string;
   priceRange: string;
   ctaLink: string;
+  isPremium?: boolean;
 }) => (
   <motion.div 
-    className={`rounded-xl p-0.5 ${gradientColors}`}
+    className={`rounded-xl ${isPremium ? "p-[3px]" : "p-0.5"} ${gradientColors} ${isPremium ? "relative" : ""}`}
     whileHover={{ scale: 1.03 }}
     transition={{ type: "spring", stiffness: 400, damping: 10 }}
   >
-    <div className="h-full bg-white dark:bg-gray-900 rounded-lg p-6 flex flex-col">
-      <div className="mb-4 p-3 rounded-full w-12 h-12 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-        <Icon className="w-6 h-6 text-primary" />
+    {isPremium && (
+      <div className="absolute -top-3 right-6 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-black font-bold text-xs rounded-full px-3 py-1 shadow-lg">
+        PREMIUM
       </div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <div className="bg-primary/10 text-primary font-medium text-sm rounded-full px-3 py-1 mb-3 inline-block">
+    )}
+    <div className={`h-full bg-white dark:bg-gray-900 rounded-lg p-6 flex flex-col ${isPremium ? "shadow-xl dark:shadow-purple-900/30" : "shadow-md"}`}>
+      <div className={`mb-4 p-3 rounded-full w-12 h-12 flex items-center justify-center ${isPremium ? "bg-gradient-to-br from-purple-400 to-purple-600" : "bg-gray-100 dark:bg-gray-800"}`}>
+        <Icon className={`w-6 h-6 ${isPremium ? "text-white" : "text-primary"}`} />
+      </div>
+      <h3 className={`text-lg font-semibold mb-2 ${isPremium ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600" : ""}`}>{title}</h3>
+      <div className={`${isPremium ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white" : "bg-primary/10 text-primary"} font-medium text-sm rounded-full px-3 py-1 mb-3 inline-block`}>
         {priceRange}
       </div>
       <p className="text-sm text-gray-600 dark:text-gray-400 flex-grow mb-4">{description}</p>
-      <Button asChild size="sm" variant="outline" className="mt-auto">
+      <Button asChild size="sm" variant={isPremium ? "default" : "outline"} className={`mt-auto ${isPremium ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600" : ""}`}>
         <Link to={ctaLink}>
           Get Quote <ArrowRight className="ml-1 h-3 w-3" />
         </Link>
@@ -148,9 +140,10 @@ const BudgetReassuranceSection = () => {
               title="Premium Development" 
               description="Full-featured, high-performance solutions with advanced customization for established businesses with comprehensive requirements."
               icon={Shield}
-              gradientColors="bg-gradient-to-r from-purple-300 to-purple-500"
+              gradientColors="bg-gradient-to-r from-purple-300 to-purple-600"
               priceRange="₹1 Lakh+ / $1,000+"
               ctaLink="/contact"
+              isPremium={true}
             />
           </motion.div>
         </motion.div>
@@ -197,24 +190,36 @@ const BudgetReassuranceSection = () => {
             
             <div className="rounded-xl overflow-hidden relative hidden md:block">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-indigo-500/20 mix-blend-overlay"></div>
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
                 <div className="space-y-5">
-                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
-                    <div className="font-medium">Flexible Payment Options</div>
+                  <div className="rounded-lg shadow-md p-4 bg-white dark:bg-gray-800">
+                    <div className="font-medium flex items-center gap-2">
+                      <CardIcon className="h-4 w-4 text-primary" />
+                      Flexible Payment Options
+                    </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                       Multiple payment methods accepted including all major cards, PayPal, bank transfers, UPI, and more.
                     </p>
                   </div>
                   
-                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
-                    <div className="font-medium">EMI Available</div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  <div className="rounded-lg p-5 shadow-lg bg-gradient-to-r from-primary/5 to-indigo-500/5 dark:from-primary/20 dark:to-indigo-500/20">
+                    <div className="flex items-center gap-2 text-primary font-bold">
+                      <Calendar className="h-5 w-5 text-primary" />
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-600">EMI Available</span>
+                    </div>
+                    <p className="text-sm mt-2 font-medium">
                       Break down your payments into affordable monthly installments to manage cash flow better.
                     </p>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg mt-3 p-2 text-xs shadow-sm">
+                      <span className="font-semibold">Available through:</span> Credit cards, Razorpay, and other payment processors
+                    </div>
                   </div>
                   
-                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
-                    <div className="font-medium">Negotiable Pricing</div>
+                  <div className="rounded-lg shadow-md p-4 bg-white dark:bg-gray-800">
+                    <div className="font-medium flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4 text-primary" />
+                      Negotiable Pricing
+                    </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                       Not satisfied with the initial quote? Let's discuss and find middle ground together.
                     </p>
@@ -225,126 +230,54 @@ const BudgetReassuranceSection = () => {
           </div>
         </motion.div>
         
-        {/* Payment methods section */}
+        {/* EMI Highlight Section */}
         <motion.div
-          className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 mb-12"
+          className="bg-gradient-to-r from-primary/5 to-indigo-500/5 dark:from-primary/10 dark:to-indigo-500/10 rounded-xl p-6 mb-12 shadow-lg"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h3 className="text-xl font-semibold text-center mb-6">Accepted Payment Methods</h3>
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
-            Choose the payment option that works best for you. All payment methods are secure and flexible with EMI options available.
-          </p>
-          <div className="flex flex-wrap justify-center gap-6">
-            {/* Row 1 - Credit/Debit Cards */}
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <VisaIcon />
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+              <Calendar className="w-10 h-10 mb-3 text-primary" />
+              <h3 className="text-xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-600">
+                EMI Options Available
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-3">
+                Break down your project costs into affordable monthly installments to manage your cash flow better.
+              </p>
+              <div className="flex items-center gap-3 text-sm font-medium">
+                <span className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-3 py-1">
+                  <CardIcon className="w-3.5 h-3.5" /> Credit Cards
+                </span>
+                <span className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-3 py-1">
+                  <DollarSign className="w-3.5 h-3.5" /> Payment Platforms
+                </span>
               </div>
-              <span className="text-sm">Visa</span>
             </div>
             
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <MasterCardIcon />
-              </div>
-              <span className="text-sm">MasterCard</span>
+            <div className="flex-1 space-y-3">
+              <h4 className="font-medium text-lg">Pay conveniently with all major payment methods:</h4>
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                  Credit/Debit Cards (Visa, MasterCard, and more)
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                  Digital Wallets (PayPal, Stripe, Google Pay, Apple Pay)
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                  UPI Payments (PhonePe, Google Pay, and others)
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                  International Transfers (Bank Transfer, Wise, Payoneer)
+                </li>
+              </ul>
             </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <CreditCard className="w-8 h-8 text-gray-700 dark:text-gray-300" />
-              </div>
-              <span className="text-sm">Other Cards</span>
-            </div>
-            
-            {/* Row 2 - Digital Payment */}
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <PayPalIcon />
-              </div>
-              <span className="text-sm">PayPal</span>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <StripeIcon />
-              </div>
-              <span className="text-sm">Stripe</span>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <GooglePayIcon />
-              </div>
-              <span className="text-sm">Google Pay</span>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <ApplePayIcon />
-              </div>
-              <span className="text-sm">Apple Pay</span>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <RazorpayIcon />
-              </div>
-              <span className="text-sm">Razorpay</span>
-            </div>
-            
-            {/* Row 3 - UPI & Transfer */}
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <UPIIcon />
-              </div>
-              <span className="text-sm">UPI</span>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <PhonePeIcon />
-              </div>
-              <span className="text-sm">PhonePe</span>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <GooglePayUPIIcon />
-              </div>
-              <span className="text-sm">GPay (UPI)</span>
-            </div>
-            
-            {/* Row 4 - International Transfers */}
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <WireTransferIcon />
-              </div>
-              <span className="text-sm">Bank Transfer</span>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <PayoneerIcon />
-              </div>
-              <span className="text-sm">Payoneer</span>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
-                <WiseIcon />
-              </div>
-              <span className="text-sm">Wise</span>
-            </div>
-          </div>
-          
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              <span className="font-medium text-primary">EMI options available</span> for eligible projects through various payment processors.
-            </p>
           </div>
         </motion.div>
         
