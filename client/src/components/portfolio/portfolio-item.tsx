@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Globe, Calendar, Blocks } from "lucide-react";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 interface PortfolioItemProps {
   item: PortfolioItemType;
@@ -82,7 +83,7 @@ const PortfolioItem = ({ item }: PortfolioItemProps) => {
           {/* Left Content - Main Image and Description */}
           <motion.div variants={itemVariants} className="lg:col-span-2">
             <div className="mb-10">
-              <img 
+              <OptimizedImage 
                 src={item.imageUrl} 
                 alt={item.title}
                 className="w-full h-auto rounded-lg shadow-lg mb-8"
@@ -156,7 +157,7 @@ const PortfolioItem = ({ item }: PortfolioItemProps) => {
                 <Link href="/portfolio/eco-friendly-ecommerce" className="block group">
                   <div className="flex items-center gap-3 group-hover:text-primary transition-colors">
                     <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-md overflow-hidden">
-                      <img 
+                      <OptimizedImage 
                         src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" 
                         alt="E-commerce Project" 
                         className="w-full h-full object-cover"
@@ -168,7 +169,7 @@ const PortfolioItem = ({ item }: PortfolioItemProps) => {
                 <Link href="/portfolio/financial-advisor-website" className="block group">
                   <div className="flex items-center gap-3 group-hover:text-primary transition-colors">
                     <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-md overflow-hidden">
-                      <img 
+                      <OptimizedImage 
                         src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" 
                         alt="Financial Website" 
                         className="w-full h-full object-cover"
