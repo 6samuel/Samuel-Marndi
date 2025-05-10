@@ -452,19 +452,20 @@ const HeroSection = () => {
               
               {/* Mobile Circular Tech Icons around profile image */}
               <div className="block md:hidden absolute inset-0 z-10 overflow-visible">
-                {techIcons.slice(0, 10).map((tech, i) => {
+                {techIcons.slice(0, 12).map((tech, i) => {
+                  // Only render icons in safe positions (left side and bottom)
                   // Calculate position in a circle around the profile
-                  const angle = (i * (2 * Math.PI / 10)); // Distribute evenly in a circle
-                  const radius = 100; // Smaller radius
+                  const angle = (i * (2 * Math.PI / 12)); // Distribute evenly in a circle
+                  const radius = 95; // Smaller radius
                   
                   // Calculate x and y coordinates on the circle
                   // Offset the circle to the left and up a bit
-                  const x = Math.cos(angle) * radius - 15;
-                  const y = Math.sin(angle) * radius - 25;
+                  const x = Math.cos(angle) * radius - 20;
+                  const y = Math.sin(angle) * radius - 30;
                   
-                  // Skip rendering icons that would appear behind text
-                  // Avoid icons in the right area where service items are
-                  if (i >= 2 && i <= 6) {
+                  // Only render icons in safe areas (left side and bottom)
+                  // Avoid all icons on the right side where service text is
+                  if ((angle > Math.PI/4 && angle < Math.PI*1.15)) {
                     return null;
                   }
                   
@@ -547,7 +548,7 @@ const HeroSection = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
-                  className="backdrop-blur-md bg-white/80 dark:bg-gray-900/80 rounded-xl shadow-xl border border-gray-100/50 dark:border-gray-800/50 overflow-hidden p-4 md:p-6"
+                  className="backdrop-blur-md bg-white/80 dark:bg-gray-900/80 rounded-xl shadow-xl border border-gray-100/50 dark:border-gray-800/50 overflow-hidden p-2 sm:p-3 md:p-4"
                 >
                   <QuickQuoteFormWrapper />
                 </motion.div>
@@ -585,17 +586,33 @@ const HeroSection = () => {
           </div>
         </motion.div>
         
-        {/* Mobile Tech Stack Section - Title Only */}
+        {/* Mobile Tech Stack Section - With Icons */}
         <motion.div
-          className="mt-16 text-center md:hidden"
+          className="mt-10 mb-6 text-center md:hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
         >
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Working with cutting-edge technologies</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            Expert in various programming languages and modern frameworks
-          </p>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Working with cutting-edge technologies</h2>
+          
+          <div className="flex flex-wrap justify-center gap-4 px-2">
+            {techIcons.slice(0, 8).map((tech, i) => (
+              <motion.div 
+                key={i}
+                className="relative"
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-lg shadow-sm">
+                  <img 
+                    src={tech.icon} 
+                    alt={tech.name} 
+                    className="h-6 w-6 object-contain"
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
