@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard,
@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "../theme-toggle";
 import { Logo } from "@/components/ui/logo";
+import { useTheme } from "next-themes";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -32,6 +33,26 @@ export default function AdminLayout({ children, title, description }: AdminLayou
   const [location] = useLocation();
   const { user, logoutMutation } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  
+  // Force dark mode application for admin pages
+  useEffect(() => {
+    // Set dark mode for admin panel
+    const root = window.document.documentElement;
+    if (!root.classList.contains('dark')) {
+      root.classList.add('dark');
+    }
+    
+    // Restore user's preferred theme when leaving
+    return () => {
+      if (theme !== 'dark' && root.classList.contains('dark')) {
+        root.classList.remove('dark');
+        if (theme === 'light') {
+          root.classList.add('light');
+        }
+      }
+    };
+  }, [theme]);
 
   const menuItems = [
     {
