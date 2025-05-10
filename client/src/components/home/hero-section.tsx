@@ -308,15 +308,15 @@ const HeroSection = () => {
         
         {/* Three-column layout */}
         <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+          className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Left Column - Value Proposition */}
-          <div className="lg:col-span-5 text-center lg:text-left">
+          {/* Left Column - Value Proposition - Full width on mobile, 5/12 on larger screens */}
+          <div className="md:col-span-5 text-center md:text-left">
             <motion.div 
-              className="space-y-6"
+              className="space-y-4 md:space-y-6"
               variants={itemVariants}
             >
               <div className="flex flex-col gap-4">
@@ -418,22 +418,21 @@ const HeroSection = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <div className="relative max-w-[480px] mx-auto ml-0 mr-auto pl-0 pr-8">
-              {/* Enhanced glow behind image - shifted to match new image position */}
-              <div className="absolute -top-12 -bottom-12 -left-24 -right-0 rounded-full z-0" style={{ transform: "translateX(-40px)" }}>
+            <div className="relative max-w-[300px] sm:max-w-[380px] md:max-w-[480px] mx-auto ml-0 mr-auto pl-0 pr-4 md:pr-8">
+              {/* Enhanced glow behind image - shifted to match new image position - responsive sizing */}
+              <div className="absolute -top-8 md:-top-12 -bottom-8 md:-bottom-12 -left-16 md:-left-24 -right-0 rounded-full z-0" 
+                style={{ transform: "translateX(-20px) md:translateX(-40px)" }}>
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse"></div>
                 <div className="absolute inset-[25%] bg-gradient-to-br from-indigo-500/20 via-primary/20 to-blue-500/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "300ms" }}></div>
               </div>
               
-              {/* Profile Image - using imported image (bigger size) */}
+              {/* Profile Image - responsive sizing for mobile */}
               <motion.img 
                 src={samuelImage}
                 alt="Samuel Marndi" 
-                className="w-[180%] h-auto object-contain relative z-10"
+                className="w-[140%] sm:w-[160%] md:w-[180%] h-auto object-contain relative z-10 max-w-[280px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[40px] sm:-ml-[50px] md:-ml-[60px] lg:-ml-[70px]"
                 style={{ 
-                  maxWidth: "700px", 
-                  transform: "translateY(-10px) translateX(-20%)",
-                  marginLeft: "-70px" 
+                  transform: "translateY(-10px) translateX(-15%)",
                 }}
                 initial={{ scale: 0.95 }}
                 animate={{ 
