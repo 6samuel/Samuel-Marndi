@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import {
   Form,
   FormControl,
@@ -65,7 +66,12 @@ export default function AdminLogin() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <Logo size="lg" className="text-3xl" />
+              <span className="font-bold text-3xl tracking-tighter">
+                <span className="text-primary">S</span>
+                <span className="text-gray-800 dark:text-gray-200">AMUEL</span>
+                <span className="mx-1 text-primary">⚡</span>
+                <span className="text-gray-800 dark:text-gray-200">MARNDI</span>
+              </span>
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Admin Dashboard
