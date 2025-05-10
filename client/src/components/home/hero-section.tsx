@@ -113,9 +113,9 @@ const HeroSection = () => {
   const words = ["Websites", "Apps", "AI Solutions", "E-commerce", "Experiences"];
   const colors = ["#3b82f6", "#10b981", "#6366f1", "#f97316", "#8b5cf6"];
   
-  // State for cycling tech icons in the "Working with cutting-edge technologies" section
+  // State for cycling tech icons in the "Working with cutting-edge technologies" section (both mobile & desktop)
   const [techIconIndices, setTechIconIndices] = useState<number[]>(
-    Array.from({ length: 8 }).map((_, i) => Math.floor(i * (techIcons.length / 8)))
+    Array.from({ length: 12 }).map((_, i) => Math.floor(i * (techIcons.length / 12)))
   );
 
   // Word cycling effect
@@ -126,13 +126,13 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
   
-  // Tech icon cycling effect
+  // Tech icon cycling effect - slower for desktop, more visible transitions
   useEffect(() => {
     const interval = setInterval(() => {
       setTechIconIndices(prevIndices => 
         prevIndices.map(index => (index + 1) % techIcons.length)
       );
-    }, 4000); // Change icons every 4 seconds
+    }, 5000); // Change icons every 5 seconds for smoother transitions
     
     return () => clearInterval(interval);
   }, []);
@@ -575,7 +575,7 @@ const HeroSection = () => {
           </motion.div>
         </motion.div>
         
-        {/* Tech stack section - Desktop display */}
+        {/* Tech stack section - Desktop display with Cycling Icons */}
         <motion.div
           className="mt-16 text-center hidden md:block"
           initial={{ opacity: 0, y: 20 }}
@@ -584,23 +584,42 @@ const HeroSection = () => {
         >
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Working with cutting-edge technologies</h2>
           <div className="flex flex-wrap justify-center gap-8">
-            {techIcons.slice(0, 12).map((tech, i) => (
-              <motion.div 
-                key={i}
-                className="relative group"
-                whileHover={{ y: -5, scale: 1.1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                <img 
-                  src={tech.icon} 
-                  alt={tech.name} 
-                  className="h-10 w-10 object-contain"
-                />
-                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-gray-600 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  {tech.name}
-                </span>
-              </motion.div>
-            ))}
+            {techIconIndices.map((techIconIndex, i) => {
+              // Use the cycling state to get a different icon for each position
+              const tech = techIcons[techIconIndex];
+              
+              return (
+                <motion.div 
+                  key={`desktop-tech-${i}`}
+                  className="relative group"
+                  whileHover={{ y: -5, scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <motion.div
+                    key={`desktop-icon-content-${techIconIndex}-${i}`}
+                    initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                    transition={{ 
+                      duration: 1.2, 
+                      ease: "easeInOut",
+                      opacity: { duration: 1 },
+                      scale: { duration: 1.2 },
+                      y: { duration: 1.5 }
+                    }}
+                  >
+                    <img 
+                      src={tech.icon} 
+                      alt={tech.name} 
+                      className="h-10 w-10 object-contain"
+                    />
+                    <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-gray-600 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      {tech.name}
+                    </span>
+                  </motion.div>
+                </motion.div>
+              );
+            })}
           </div>
         </motion.div>
         
@@ -632,10 +651,15 @@ const HeroSection = () => {
                   <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-lg shadow-sm">
                     <motion.div
                       key={`tech-icon-${techIconIndex}-${i}`}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.4 }}
+                      initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, y: -5 }}
+                      transition={{ 
+                        duration: 1, 
+                        ease: "easeInOut",
+                        opacity: { duration: 0.8 },
+                        scale: { duration: 0.8 }
+                      }}
                     >
                       <img 
                         src={tech.icon} 
