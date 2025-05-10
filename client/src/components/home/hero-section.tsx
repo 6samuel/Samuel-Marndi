@@ -112,11 +112,28 @@ const HeroSection = () => {
   const [currentWord, setCurrentWord] = useState(0);
   const words = ["Websites", "Apps", "AI Solutions", "E-commerce", "Experiences"];
   const colors = ["#3b82f6", "#10b981", "#6366f1", "#f97316", "#8b5cf6"];
+  
+  // State for cycling tech icons in the "Working with cutting-edge technologies" section
+  const [techIconIndices, setTechIconIndices] = useState<number[]>(
+    Array.from({ length: 8 }).map((_, i) => Math.floor(i * (techIcons.length / 8)))
+  );
 
+  // Word cycling effect
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentWord((prev) => (prev + 1) % words.length);
     }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Tech icon cycling effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTechIconIndices(prevIndices => 
+        prevIndices.map(index => (index + 1) % techIcons.length)
+      );
+    }, 4000); // Change icons every 4 seconds
+    
     return () => clearInterval(interval);
   }, []);
 
@@ -454,15 +471,15 @@ const HeroSection = () => {
               <div className="block md:hidden absolute inset-0 z-1 overflow-visible">
                 {/* Generating 12 icon positions in a circle, displaying different tech icons */}
                 {Array.from({ length: 12 }).map((_, i) => {
-                  // Create a larger circle around the profile image
+                  // Create an even larger circle around the profile image
                   // 12 icons distributed evenly in a circle
                   const angle = (i * (2 * Math.PI / 12));
-                  const radius = 115; // Larger circle radius
+                  const radius = 135; // Even larger circle radius
                   
                   // Calculate x and y coordinates on the circle
-                  // Move the circle up slightly
+                  // Move the circle up more
                   const x = Math.cos(angle) * radius;
-                  const y = Math.sin(angle) * radius - 30; // Move up by 30px
+                  const y = Math.sin(angle) * radius - 60; // Move up by 60px
                   
                   // Create unique animation settings for each icon
                   const duration = 8 + (i % 5); // 8-12 seconds animation
@@ -512,9 +529,9 @@ const HeroSection = () => {
               <motion.img 
                 src={samuelImage}
                 alt="Samuel Marndi" 
-                className="w-[120%] sm:w-[160%] md:w-[180%] h-auto object-contain relative z-20 max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[30px] sm:-ml-[50px] md:-ml-[60px] lg:-ml-[70px]"
+                className="w-[120%] sm:w-[160%] md:w-[180%] h-auto object-contain relative z-20 max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[700px] -ml-[10px] sm:-ml-[30px] md:-ml-[40px] lg:-ml-[50px]"
                 style={{ 
-                  transform: "translateY(-8px) translateX(-12%)",
+                  transform: "translateY(-8px) translateX(0%)",
                 }}
                 initial={{ scale: 0.95 }}
                 animate={{ 
@@ -587,7 +604,7 @@ const HeroSection = () => {
           </div>
         </motion.div>
         
-        {/* Mobile Tech Stack Section - With Different Icons */}
+        {/* Mobile Tech Stack Section - With Cycling Icons */}
         <motion.div
           className="mt-10 mb-6 text-center md:hidden"
           initial={{ opacity: 0, y: 20 }}
@@ -596,41 +613,39 @@ const HeroSection = () => {
         >
           <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Working with cutting-edge technologies</h2>
           <div className="flex flex-wrap justify-center gap-4 px-2">
-            {/* Show 8 different tech icons with animation */}
-            {Array.from({ length: 8 }).map((_, i) => {
-              // Use different tech icons for each position (evenly spaced throughout the array)
-              const techIconIndex = Math.floor(i * (techIcons.length / 8)) % techIcons.length;
+            {/* Show 8 different tech icons with cycling animation */}
+            {techIconIndices.map((techIconIndex, i) => {
+              // Use the cycling state to get a different icon for each position
               const tech = techIcons[techIconIndex];
-              
-              // Staggered animation delay
-              const animationDelay = 0.1 + (i * 0.1);
               
               return (
                 <motion.div 
-                  key={i}
+                  key={`tech-box-${i}`}
                   className="relative"
-                  initial={{ opacity: 0, y: 10, scale: 0.9 }}
                   animate={{ 
                     opacity: 1, 
                     y: 0, 
                     scale: 1,
                   }}
-                  transition={{ 
-                    delay: animationDelay,
-                    duration: 0.5,
-                    type: "spring",
-                  }}
                   whileHover={{ scale: 1.1 }}
                 >
                   <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-lg shadow-sm">
-                    <img 
-                      src={tech.icon} 
-                      alt={tech.name} 
-                      className="h-7 w-7 object-contain"
-                    />
-                    <span className="block mt-1 text-xs text-gray-600 dark:text-gray-400 text-center font-medium">
-                      {tech.name.split(' ')[0]}
-                    </span>
+                    <motion.div
+                      key={`tech-icon-${techIconIndex}-${i}`}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <img 
+                        src={tech.icon} 
+                        alt={tech.name} 
+                        className="h-7 w-7 object-contain"
+                      />
+                      <span className="block mt-1 text-xs text-gray-600 dark:text-gray-400 text-center font-medium">
+                        {tech.name.split(' ')[0]}
+                      </span>
+                    </motion.div>
                   </div>
                 </motion.div>
               );
