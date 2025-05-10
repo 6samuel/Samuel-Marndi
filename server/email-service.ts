@@ -55,7 +55,7 @@ export async function sendEmail(
 ): Promise<boolean> {
   try {
     await transporter.sendMail({
-      from: `${SITE_NAME} <noreply@samuelmarndi.in>`,
+      from: `${SITE_NAME} <mail@samuelmarndi.com>`,
       to,
       subject,
       html,
@@ -149,7 +149,7 @@ const generateSubmissionConfirmationEmail = (name: string, type: string, details
     <strong>Samuel Marndi</strong><br>
     Web Developer & Digital Marketer</p>
     
-    <a href="https://samuelmarndi.in/services" class="button">Explore My Services</a>
+    <a href="https://samuelmarndi.com/services" class="button">Explore My Services</a>
   </div>
   
   <div class="footer">
