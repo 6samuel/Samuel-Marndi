@@ -66,6 +66,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { OptimizedServiceImage } from "@/components/ui/optimized-service-image";
 import {
   Table,
   TableBody,
@@ -176,13 +177,9 @@ function ServiceCard({
   return (
     <Card className="overflow-hidden flex flex-col">
       <div className="relative aspect-video bg-gray-100">
-        <img 
+        <OptimizedServiceImage 
           src={service.imageUrl} 
           alt={service.title} 
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "https://placehold.co/400x300?text=Image+Not+Found";
-          }}
         />
         <div className="absolute bottom-0 right-0 flex gap-1 m-2">
           <Button 

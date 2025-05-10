@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, CheckCircle } from "lucide-react";
 import ServiceRequestForm from "@/components/forms/service-request-form";
 import TechIcons from "./tech-icons";
+import { OptimizedServiceImage } from "@/components/ui/optimized-service-image";
 
 interface ServiceDetailProps {
   service: Service;
