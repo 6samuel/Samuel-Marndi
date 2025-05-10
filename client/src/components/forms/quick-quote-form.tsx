@@ -93,8 +93,8 @@ export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps 
   }
 
   return (
-    <div className="w-full p-6">
-      <div className="glass-effect relative rounded-lg p-6 border border-gray-200/30 dark:border-gray-700/30 overflow-hidden">
+    <div className="w-full p-2 sm:p-3 md:p-4">
+      <div className="glass-effect relative rounded-lg p-3 sm:p-4 md:p-5 border border-gray-200/30 dark:border-gray-700/30 overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-2xl"></div>
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/10 rounded-full blur-2xl"></div>
