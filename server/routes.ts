@@ -73,11 +73,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Explicitly serve sitemap.xml and robots.txt from the public directory
   app.get('/sitemap.xml', (req, res) => {
-    res.sendFile(path.join(process.cwd(), 'public', 'sitemap.xml'));
+    const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
+    console.log('Serving sitemap from:', sitemapPath);
+    if (fs.existsSync(sitemapPath)) {
+      res.sendFile(sitemapPath);
+    } else {
+      console.log('Sitemap file not found, generating new one');
+      generateSitemap().then(() => {
+        res.sendFile(sitemapPath);
+      }).catch(err => {
+        console.error('Error generating sitemap on-demand:', err);
+        res.status(500).send('Error generating sitemap');
+      });
+    }
   });
   
   app.get('/robots.txt', (req, res) => {
-    res.sendFile(path.join(process.cwd(), 'public', 'robots.txt'));
+    const robotsPath = path.join(process.cwd(), 'public', 'robots.txt');
+    console.log('Serving robots.txt from:', robotsPath);
+    if (fs.existsSync(robotsPath)) {
+      res.sendFile(robotsPath);
+    } else {
+      console.log('Robots.txt file not found, generating new one');
+      generateRobotsTxt();
+      res.sendFile(robotsPath);
+    }
   });
 
   // Handle Zod validation errors
