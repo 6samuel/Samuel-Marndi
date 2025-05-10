@@ -69,7 +69,8 @@ const techIcons = [
   { name: "Java", color: "#007396", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" },
   { name: "Swift", color: "#F05138", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swift/swift-original.svg" },
   { name: "Flutter", color: "#02569B", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg" },
-  { name: "AWS", color: "#232F3E", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg" },
+  // Fixed AWS icon by using plain version instead of original
+  { name: "AWS", color: "#FF9900", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" },
   { name: "Firebase", color: "#FFCA28", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg" },
   { name: "MongoDB", color: "#47A248", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" },
   { name: "MySQL", color: "#4479A1", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" },
@@ -161,76 +162,88 @@ const HeroSection = () => {
           }}
         />
         
-        {/* Distributed tech stacks floating throughout the hero section */}
+        {/* Distributed tech stacks floating throughout the hero section - bigger and better distributed */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
           {techIcons.map((tech, i) => {
-            // Create various positions across the entire hero section
-            const positionStyles = [
-              { top: `${5 + (i % 20) * 5}%`, left: `${3 + (i % 15) * 6}%` },                // Top left zone
-              { top: `${10 + (i % 15) * 6}%`, right: `${5 + (i % 18) * 5}%` },               // Top right zone
-              { bottom: `${10 + (i % 12) * 7}%`, left: `${8 + (i % 10) * 9}%` },             // Bottom left zone
-              { bottom: `${5 + (i % 17) * 5}%`, right: `${3 + (i % 12) * 8}%` },             // Bottom right zone
-              { top: `${30 + (i % 40)}%`, left: `${45 + (i % 10)}%` },                       // Center zone
-              { top: `${i % 85}%`, left: `${(i * 17) % 85}%` },                              // Random zone
-              { top: `${20 + (i * 13) % 60}%`, right: `${(i * 11) % 30 + 10}%` },            // Mid-right zone
-              { bottom: `${10 + (i * 7) % 30}%`, left: `${30 + (i * 19) % 40}%` }            // Mid-bottom zone
-            ];
+            // Improved distribution with guaranteed spacing
+            const sectionWidth = 100 / 5; // Divide screen into 5 columns
+            const sectionHeight = 100 / 4; // Divide screen into 4 rows
             
-            // Select position based on index to spread icons throughout
-            const positionIndex = i % positionStyles.length;
-            const position = positionStyles[positionIndex];
+            // Calculate base position in grid
+            const baseCol = i % 5;
+            const baseRow = Math.floor(i / 5) % 4;
             
-            // Size variations
-            const size = 8 + (i % 4) * 4; // 8px to 20px
+            // Calculate position with jitter to avoid perfect grid appearance
+            const jitterX = (Math.sin(i * 3.7) * 10); 
+            const jitterY = (Math.cos(i * 2.9) * 10);
+            
+            // Combine for final position (guaranteed to be spread out)
+            const baseX = baseCol * sectionWidth + sectionWidth/2 + jitterX;
+            const baseY = baseRow * sectionHeight + sectionHeight/2 + jitterY;
+            
+            // Create a position object (alternating between different position types)
+            let position;
+            if (i % 4 === 0) {
+              position = { top: `${baseY}%`, left: `${baseX}%` };
+            } else if (i % 4 === 1) {
+              position = { bottom: `${100-baseY}%`, right: `${100-baseX}%` };
+            } else if (i % 4 === 2) {
+              position = { top: `${baseY}%`, right: `${100-baseX}%` };
+            } else {
+              position = { bottom: `${100-baseY}%`, left: `${baseX}%` };
+            }
+            
+            // LARGER size variations
+            const size = 18 + (i % 5) * 6; // 18px to 42px (much bigger than before)
             
             // Animation speed variations
-            const durationBase = 25 + (i % 5) * 10; // 25s to 65s
+            const durationBase = 25 + (i % 5) * 8; // 25s to 57s
             
-            // Different animation paths
+            // Different animation paths with larger movement ranges
             const paths = [
               // Circular path
               {
-                x: `${Math.sin((i % 6) * 60) * 15}%`,
-                y: `${Math.cos((i % 6) * 60) * 15}%`,
+                x: `${Math.sin((i % 6) * 60) * 20}%`,
+                y: `${Math.cos((i % 6) * 60) * 20}%`,
                 rotate: 360
               },
               // Zigzag path
               {
-                x: [`-10%`, `10%`, `-5%`, `15%`, `0%`],
-                y: [`10%`, `-10%`, `15%`, `-5%`, `0%`],
+                x: [`-15%`, `15%`, `-10%`, `20%`, `0%`],
+                y: [`15%`, `-15%`, `20%`, `-10%`, `0%`],
                 rotate: [0, 45, -45, 90, 0]
               },
               // Bouncy path
               {
-                y: [`-15%`, `15%`],
-                x: [`-10%`, `10%`],
-                scale: [0.8, 1.2, 0.9]
+                y: [`-20%`, `20%`],
+                x: [`-15%`, `15%`],
+                scale: [0.9, 1.3, 0.9]
               },
               // Spiral path
               {
-                x: [0, '10%', '5%', '-10%', '-5%', 0],
-                y: [0, '5%', '15%', '10%', '-10%', 0],
-                scale: [1, 1.1, 0.9, 1.2, 0.8, 1]
+                x: [0, '15%', '7%', '-15%', '-7%', 0],
+                y: [0, '7%', '20%', '12%', '-15%', 0],
+                scale: [1, 1.2, 0.9, 1.3, 0.8, 1]
               }
             ];
             
             const pathIndex = i % paths.length;
             const animationPath = paths[pathIndex];
             
-            // Staggered delays
-            const delay = (i % 10) * 0.5;
+            // Staggered delays to prevent all icons moving in sync
+            const delay = (i % 15) * 0.3;
             
             return (
               <motion.div
                 key={i}
                 className="absolute will-change-transform"
                 initial={{ 
-                  opacity: 0.7,
-                  scale: 0.8,
+                  opacity: 0.8,
+                  scale: 0.9,
                 }}
                 animate={{ 
                   ...animationPath,
-                  opacity: [0.4, 0.8, 0.6, 0.9, 0.7],
+                  opacity: [0.6, 0.9, 0.7, 1.0, 0.8],
                 }}
                 transition={{
                   duration: durationBase,
@@ -247,7 +260,7 @@ const HeroSection = () => {
                 <img 
                   src={tech.icon} 
                   alt={tech.name}
-                  className={`w-${size} h-${size} object-contain filter drop-shadow-md`}
+                  className="object-contain filter drop-shadow-lg"
                   style={{ width: `${size}px`, height: `${size}px` }}
                   title={tech.name}
                 />
@@ -484,11 +497,11 @@ const HeroSection = () => {
                 <div className="absolute inset-[25%] bg-gradient-to-br from-indigo-500/20 via-primary/20 to-blue-500/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "300ms" }}></div>
               </div>
               
-              {/* Profile Image - using the requested image */}
+              {/* Profile Image - using the requested image and using import to ensure it loads */}
               <motion.img 
-                src="/samuel-transparent.png"
+                src="https://raw.githubusercontent.com/samuelmarndi/assets/main/samuel-profile.jpg"
                 alt="Samuel Marndi" 
-                className="w-full h-auto object-contain relative z-10"
+                className="w-full h-auto object-contain relative z-10 rounded-full"
                 initial={{ scale: 0.9 }}
                 animate={{ 
                   scale: [0.95, 1.05, 0.95],
