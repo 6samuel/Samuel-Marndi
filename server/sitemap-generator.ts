@@ -3,7 +3,7 @@ import path from 'path';
 import { storage } from './storage';
 
 // Base URL for the site
-const SITE_URL = 'https://samuelmarndi.in';
+const SITE_URL = 'https://samuelmarndi.com';
 
 // Priority settings for different types of pages
 const PAGE_PRIORITIES = {
@@ -173,7 +173,7 @@ export async function generateSitemap() {
 // Generate robots.txt
 export function generateRobotsTxt() {
   try {
-    const content = `# robots.txt file for samuelmarndi.in
+    const content = `# robots.txt file for samuelmarndi.com
 User-agent: *
 Allow: /
 

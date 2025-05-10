@@ -1,6 +1,6 @@
-# robots.txt file for samuelmarndi.in
+# robots.txt file for samuelmarndi.com
 User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://samuelmarndi.in/sitemap.xml
+Sitemap: https://samuelmarndi.com/sitemap.xml
