@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Code, BarChart2, BrainCircuit, Globe, Database } from "lucide-react";
 import QuickQuoteForm from "@/components/forms/quick-quote-form";
 
+// Import the image directly
+import samuelImage from "../../../public/samuel-transparent.png";
+
 // Wrapper component to handle form state
 const QuickQuoteFormWrapper = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -510,9 +513,9 @@ const HeroSection = () => {
                 <div className="absolute inset-[25%] bg-gradient-to-br from-indigo-500/20 via-primary/20 to-blue-500/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "300ms" }}></div>
               </div>
               
-              {/* Profile Image - using the image from public/images folder */}
+              {/* Profile Image - using imported image */}
               <motion.img 
-                src="/images/samuel-transparent.png"
+                src={samuelImage}
                 alt="Samuel Marndi" 
                 className="w-full h-auto object-contain relative z-10"
                 initial={{ scale: 0.9 }}
