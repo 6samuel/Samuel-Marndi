@@ -161,85 +161,177 @@ const HeroSection = () => {
           }}
         />
         
-        {/* Animated tech stacks floating - with icons instead of dots */}
+        {/* Distributed tech stacks floating throughout the hero section */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-          {techIcons.map((tech, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full will-change-transform"
-              initial={{ 
-                x: Math.random() * 100 + '%', 
-                y: Math.random() * 100 + '%',
-                opacity: Math.random() * 0.5 + 0.3,
-                scale: Math.random() * 0.3 + 0.5
-              }}
-              animate={{ 
-                x: [
-                  Math.random() * 100 + '%', 
-                  Math.random() * 100 + '%',
-                  Math.random() * 100 + '%',
-                  Math.random() * 100 + '%'
-                ],
-                y: [
-                  Math.random() * 100 + '%', 
-                  Math.random() * 100 + '%',
-                  Math.random() * 100 + '%',
-                  Math.random() * 100 + '%'
-                ],
-                rotate: [0, 180, 360],
-                scale: [
-                  Math.random() * 0.3 + 0.5,
-                  Math.random() * 0.3 + 0.6,
-                  Math.random() * 0.3 + 0.5,
-                ]
-              }}
-              transition={{
-                duration: 30 + Math.random() * 40,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              style={{
-                zIndex: 1,
-              }}
-            >
-              <img 
-                src={tech.icon} 
-                alt={tech.name}
-                className="w-8 h-8 object-contain filter drop-shadow-md"
-                title={tech.name}
-              />
-            </motion.div>
-          ))}
+          {techIcons.map((tech, i) => {
+            // Create various positions across the entire hero section
+            const positionStyles = [
+              { top: `${5 + (i % 20) * 5}%`, left: `${3 + (i % 15) * 6}%` },                // Top left zone
+              { top: `${10 + (i % 15) * 6}%`, right: `${5 + (i % 18) * 5}%` },               // Top right zone
+              { bottom: `${10 + (i % 12) * 7}%`, left: `${8 + (i % 10) * 9}%` },             // Bottom left zone
+              { bottom: `${5 + (i % 17) * 5}%`, right: `${3 + (i % 12) * 8}%` },             // Bottom right zone
+              { top: `${30 + (i % 40)}%`, left: `${45 + (i % 10)}%` },                       // Center zone
+              { top: `${i % 85}%`, left: `${(i * 17) % 85}%` },                              // Random zone
+              { top: `${20 + (i * 13) % 60}%`, right: `${(i * 11) % 30 + 10}%` },            // Mid-right zone
+              { bottom: `${10 + (i * 7) % 30}%`, left: `${30 + (i * 19) % 40}%` }            // Mid-bottom zone
+            ];
+            
+            // Select position based on index to spread icons throughout
+            const positionIndex = i % positionStyles.length;
+            const position = positionStyles[positionIndex];
+            
+            // Size variations
+            const size = 8 + (i % 4) * 4; // 8px to 20px
+            
+            // Animation speed variations
+            const durationBase = 25 + (i % 5) * 10; // 25s to 65s
+            
+            // Different animation paths
+            const paths = [
+              // Circular path
+              {
+                x: `${Math.sin((i % 6) * 60) * 15}%`,
+                y: `${Math.cos((i % 6) * 60) * 15}%`,
+                rotate: 360
+              },
+              // Zigzag path
+              {
+                x: [`-10%`, `10%`, `-5%`, `15%`, `0%`],
+                y: [`10%`, `-10%`, `15%`, `-5%`, `0%`],
+                rotate: [0, 45, -45, 90, 0]
+              },
+              // Bouncy path
+              {
+                y: [`-15%`, `15%`],
+                x: [`-10%`, `10%`],
+                scale: [0.8, 1.2, 0.9]
+              },
+              // Spiral path
+              {
+                x: [0, '10%', '5%', '-10%', '-5%', 0],
+                y: [0, '5%', '15%', '10%', '-10%', 0],
+                scale: [1, 1.1, 0.9, 1.2, 0.8, 1]
+              }
+            ];
+            
+            const pathIndex = i % paths.length;
+            const animationPath = paths[pathIndex];
+            
+            // Staggered delays
+            const delay = (i % 10) * 0.5;
+            
+            return (
+              <motion.div
+                key={i}
+                className="absolute will-change-transform"
+                initial={{ 
+                  opacity: 0.7,
+                  scale: 0.8,
+                }}
+                animate={{ 
+                  ...animationPath,
+                  opacity: [0.4, 0.8, 0.6, 0.9, 0.7],
+                }}
+                transition={{
+                  duration: durationBase,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut",
+                  delay: delay,
+                }}
+                style={{
+                  ...position,
+                  zIndex: 1,
+                }}
+              >
+                <img 
+                  src={tech.icon} 
+                  alt={tech.name}
+                  className={`w-${size} h-${size} object-contain filter drop-shadow-md`}
+                  style={{ width: `${size}px`, height: `${size}px` }}
+                  title={tech.name}
+                />
+              </motion.div>
+            );
+          })}
         </div>
         
-        {/* Animated code particles */}
+        {/* Enhanced animated code particles - more distributed and varied */}
         <div className="absolute top-0 left-0 w-full h-full opacity-30 dark:opacity-20">
-          {Array.from({ length: 25 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute text-xs font-mono"
-              initial={{ 
-                x: Math.random() * 100 + '%', 
-                y: Math.random() * 100 + '%',
-                opacity: Math.random() * 0.3 + 0.1,
-                scale: Math.random() * 0.5 + 0.5
-              }}
-              animate={{ 
-                y: ['-100%', '200%'],
-              }}
-              transition={{
-                duration: 10 + Math.random() * 20,
-                repeat: Infinity,
-                ease: "linear",
-                delay: Math.random() * 10
-              }}
-              style={{
-                color: ['#3b82f6', '#10b981', '#f97316', '#6366f1', '#8b5cf6'][Math.floor(Math.random() * 5)]
-              }}
-            >
-              {['{ }', '[ ]', '( )', '//', '/*', '*/', '=>', '&&', '||', '++', '!=', '==', '===', '<>', '</>', '</>'][Math.floor(Math.random() * 16)]}
-            </motion.div>
-          ))}
+          {Array.from({ length: 35 }).map((_, i) => {
+            // More code symbols with programming concepts
+            const codeSymbols = [
+              '{ }', '[ ]', '( )', '//', '/*', '*/', '=>', '&&', '||', '++', '--', 
+              '!=', '==', '===', '<>', '</>', '</>', '.map()', '.filter()', 
+              'await', 'async', 'function', 'const', 'let', 'var', 'for()', 
+              'if()', 'import', 'export', '<div>', 'useState', 'return', 'class', 
+              '@media', '#root', '::before', ':hover'
+            ];
+            
+            // Varied starting positions
+            const posX = 5 + (i * 13) % 90; // 5% to 95% width
+            const posY = (i * 17) % 100;    // 0% to 100% height
+            
+            // Different animation speeds 
+            const speed = 15 + (i % 20);
+            
+            // Different sizes
+            const fontSize = 10 + (i % 6) * 2; // 10px to 20px
+            
+            // Direction and path variations
+            const directions = [
+              // Vertical falling (most common)
+              { 
+                y: ['-20%', '120%'],
+                x: [`${posX}%`, `${posX + (Math.random() > 0.5 ? 5 : -5)}%`]
+              },
+              // Diagonal falling right
+              { 
+                y: ['-20%', '120%'],
+                x: [`${posX}%`, `${Math.min(posX + 20, 95)}%`]
+              },
+              // Diagonal falling left
+              { 
+                y: ['-20%', '120%'],
+                x: [`${posX}%`, `${Math.max(posX - 20, 5)}%`]
+              },
+              // Horizontal float
+              { 
+                x: ['0%', '100%'],
+                y: [`${posY}%`, `${posY + (Math.random() > 0.5 ? 5 : -5)}%`]
+              }
+            ];
+            
+            const pathIndex = i % directions.length;
+            const animationPath = directions[pathIndex];
+            
+            return (
+              <motion.div
+                key={i}
+                className="absolute text-xs font-mono font-bold"
+                initial={{ 
+                  x: `${posX}%`,
+                  y: pathIndex === 3 ? `${posY}%` : '-20%',
+                  opacity: 0.3 + (i % 5) * 0.1,
+                  rotate: (i % 3 - 1) * 5 // -5, 0, or 5 degrees
+                }}
+                animate={animationPath}
+                transition={{
+                  duration: speed,
+                  repeat: Infinity,
+                  ease: "linear",
+                  delay: (i % 10) * 1.5
+                }}
+                style={{
+                  color: ['#3b82f6', '#10b981', '#f97316', '#6366f1', '#8b5cf6', '#ec4899', '#ef4444'][i % 7],
+                  fontSize: `${fontSize}px`,
+                  textShadow: '0 0 3px rgba(0,0,0,0.1)'
+                }}
+              >
+                {codeSymbols[i % codeSymbols.length]}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 
@@ -393,10 +485,20 @@ const HeroSection = () => {
               </div>
               
               {/* Profile Image - using the requested image */}
-              <img 
-                src="/images/samuel-transparent.png"
+              <motion.img 
+                src="/samuel-transparent.png"
                 alt="Samuel Marndi" 
                 className="w-full h-auto object-contain relative z-10"
+                initial={{ scale: 0.9 }}
+                animate={{ 
+                  scale: [0.95, 1.05, 0.95],
+                  y: [-5, 5, -5]
+                }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
               />
             </div>
           </motion.div>
