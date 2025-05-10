@@ -340,57 +340,57 @@ const HeroSection = () => {
           {/* Left Column - Value Proposition - Full width on mobile, 5/12 on larger screens */}
           <div className="md:col-span-5 text-center md:text-left">
             <motion.div 
-              className="space-y-4 md:space-y-6"
+              className="space-y-3 md:space-y-4"
               variants={itemVariants}
             >
-              <div className="flex flex-col gap-4 items-center md:items-start text-center md:text-left mx-auto md:mx-0">
-                <div className="flex flex-row items-center justify-center md:justify-start gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-full">
-                    <Code className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="flex flex-col gap-3 items-center md:items-start text-center md:text-left mx-auto md:mx-0">
+                <div className="flex flex-row items-center justify-center md:justify-start gap-2 max-w-[280px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-full shrink-0">
+                    <Code className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-lg">Expert Web Development</h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">Fast, responsive, and SEO-optimized websites</p>
+                    <h3 className="font-medium text-base sm:text-lg">Expert Web Development</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Fast, responsive, and SEO-optimized websites</p>
                   </div>
                 </div>
                 
-                <div className="flex flex-row items-center justify-center md:justify-start gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-full">
-                    <BrainCircuit className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div className="flex flex-row items-center justify-center md:justify-start gap-2 max-w-[280px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-1.5 bg-purple-100 dark:bg-purple-900/40 rounded-full shrink-0">
+                    <BrainCircuit className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-lg">AI Integration</h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">Innovative solutions with artificial intelligence</p>
+                    <h3 className="font-medium text-base sm:text-lg">AI Integration</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Innovative solutions with artificial intelligence</p>
                   </div>
                 </div>
                 
-                <div className="flex flex-row items-center justify-center md:justify-start gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
-                  <div className="p-2 bg-orange-100 dark:bg-orange-900/40 rounded-full">
-                    <BarChart2 className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                <div className="flex flex-row items-center justify-center md:justify-start gap-2 max-w-[280px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-1.5 bg-orange-100 dark:bg-orange-900/40 rounded-full shrink-0">
+                    <BarChart2 className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-lg">Digital Marketing</h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">Growth strategies that deliver results</p>
+                    <h3 className="font-medium text-base sm:text-lg">Digital Marketing</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Growth strategies that deliver results</p>
                   </div>
                 </div>
                 
-                <div className="flex flex-row items-center justify-center md:justify-start gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
-                  <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full">
-                    <Globe className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <div className="flex flex-row items-center justify-center md:justify-start gap-2 max-w-[280px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-1.5 bg-green-100 dark:bg-green-900/40 rounded-full shrink-0">
+                    <Globe className="h-4 w-4 text-green-600 dark:text-green-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-lg">Global Market Reach</h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">Expand your business internationally</p>
+                    <h3 className="font-medium text-base sm:text-lg">Global Market Reach</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Expand your business internationally</p>
                   </div>
                 </div>
                 
-                <div className="flex flex-row items-center justify-center md:justify-start gap-3 max-w-[300px] md:max-w-none mx-auto md:mx-0">
-                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-full">
-                    <Database className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="flex flex-row items-center justify-center md:justify-start gap-2 max-w-[280px] md:max-w-none mx-auto md:mx-0">
+                  <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/40 rounded-full shrink-0">
+                    <Database className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-lg">Full-Stack Solutions</h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">Complete end-to-end development services</p>
+                    <h3 className="font-medium text-base sm:text-lg">Full-Stack Solutions</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Complete end-to-end development services</p>
                   </div>
                 </div>
               </div>
