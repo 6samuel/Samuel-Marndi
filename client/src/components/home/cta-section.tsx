@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle } from "lucide-react";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const CtaSection = () => {
   const containerVariants = {
@@ -49,10 +50,11 @@ const CtaSection = () => {
               className="relative"
               variants={itemVariants}
             >
-              <img 
+              <OptimizedImage 
                 src="/images/samuel-marndi-profile.jpg" 
                 alt="Samuel Marndi - Professional Web Developer" 
                 className="w-full h-full object-cover"
+                priority={true}
               />
               <div className="absolute inset-0 bg-primary/30 mix-blend-multiply"></div>
             </motion.div>

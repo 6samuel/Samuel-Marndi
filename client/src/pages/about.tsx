@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { 
   ArrowRight, 
   Award, 
@@ -121,10 +122,11 @@ const About = () => {
                 {/* Profile Image */}
                 <div className="relative mb-6">
                   <div className="absolute inset-0 bg-primary/20 rounded-lg blur-xl transform translate-x-4 translate-y-4"></div>
-                  <img 
+                  <OptimizedImage 
                     src="/images/samuel-marndi-profile.jpg" 
                     alt="Samuel Marndi" 
                     className="relative z-10 rounded-lg shadow-lg w-full"
+                    priority={true}
                   />
                 </div>
 
