@@ -52,12 +52,13 @@ const TestimonialsSection = () => {
   };
 
   // Render stars based on rating
-  const renderStars = (rating: number) => {
+  const renderStars = (rating: number | null) => {
+    const ratingValue = rating || 0;
     return Array.from({ length: 5 }).map((_, i) => (
       <Star
         key={i}
         className={`h-4 w-4 ${
-          i < rating
+          i < ratingValue
             ? "text-yellow-400 fill-yellow-400"
             : "text-gray-300 dark:text-gray-600"
         }`}
