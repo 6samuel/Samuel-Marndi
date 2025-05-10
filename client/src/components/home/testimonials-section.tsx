@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
 import { getInitials } from "@/lib/utils";
+import { OptimizedAvatarImage } from "@/components/ui/optimized-avatar-image";
 
 const TestimonialsSection = () => {
   const { data: testimonials, isLoading, error } = useQuery<Testimonial[]>({
@@ -122,7 +123,9 @@ const TestimonialsSection = () => {
                         <div className="flex items-center mb-4">
                           <Avatar className="h-12 w-12 border border-gray-200 dark:border-gray-700">
                             {testimonial.imageUrl ? (
-                              <AvatarImage src={testimonial.imageUrl} alt={testimonial.name} />
+                              <div className="h-full w-full overflow-hidden rounded-full">
+                                <OptimizedAvatarImage src={testimonial.imageUrl} alt={testimonial.name} />
+                              </div>
                             ) : (
                               <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary-foreground/10 dark:text-primary-foreground">
                                 {getInitials(testimonial.name)}

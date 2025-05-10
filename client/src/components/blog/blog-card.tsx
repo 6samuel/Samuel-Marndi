@@ -4,6 +4,7 @@ import { formatDate, truncateText } from "@/lib/utils";
 import { Calendar, Clock, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { OptimizedBlogImage } from "@/components/ui/optimized-blog-image";
 
 interface BlogCardProps {
   post: BlogPost;
