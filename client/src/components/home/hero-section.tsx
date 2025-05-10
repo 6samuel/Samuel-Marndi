@@ -104,7 +104,6 @@ const techIcons = [
   
   // Front-end tools
   { name: "Figma", color: "#F24E1E", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" },
-  { name: "Tailwind", color: "#06B6D4", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" },
   { name: "Next.js", color: "#000000", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" },
   { name: "Svelte", color: "#FF3E00", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/svelte/svelte-original.svg" },
 ];
@@ -453,14 +452,21 @@ const HeroSection = () => {
               
               {/* Mobile Circular Tech Icons around profile image */}
               <div className="block md:hidden absolute inset-0 z-10 overflow-visible">
-                {techIcons.slice(0, 16).map((tech, i) => {
+                {techIcons.slice(0, 10).map((tech, i) => {
                   // Calculate position in a circle around the profile
-                  const angle = (i * (2 * Math.PI / 16)); // Distribute evenly in a circle
-                  const radius = 110; // Radius of the circle
+                  const angle = (i * (2 * Math.PI / 10)); // Distribute evenly in a circle
+                  const radius = 100; // Smaller radius
                   
                   // Calculate x and y coordinates on the circle
-                  const x = Math.cos(angle) * radius;
-                  const y = Math.sin(angle) * radius;
+                  // Offset the circle to the left and up a bit
+                  const x = Math.cos(angle) * radius - 15;
+                  const y = Math.sin(angle) * radius - 25;
+                  
+                  // Skip rendering icons that would appear behind text
+                  // Avoid icons in the right area where service items are
+                  if (i >= 2 && i <= 6) {
+                    return null;
+                  }
                   
                   // Add some randomness for natural look
                   const randomDelay = 1 + (i % 5) * 0.5;
@@ -478,11 +484,11 @@ const HeroSection = () => {
                       initial={{ opacity: 0, scale: 0 }}
                       animate={{ 
                         opacity: 0.9, 
-                        scale: 0.8,
+                        scale: 0.7,
                       }}
                       transition={{
                         delay: 0.1 + (i * 0.05),
-                        duration: 0.8,
+                        duration: 1,
                         repeat: Infinity,
                         repeatType: "reverse",
                         repeatDelay: randomDelay,
