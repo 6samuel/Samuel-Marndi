@@ -272,55 +272,50 @@ const HeroSection = () => {
           })}
         </div>
         
-        {/* Selective code particles - removed cluttered elements */}
+        {/* COMPLETELY REMOVED code particles from top-left corner */}
         <div className="absolute top-0 left-0 w-full h-full opacity-30 dark:opacity-20">
-          {Array.from({ length: 15 }).map((_, i) => { // Reduced number from 35 to 15
+          {Array.from({ length: 10 }).map((_, i) => { // Further reduced number from 15 to 10
             // More code symbols with programming concepts - kept minimal and cleaner
             const codeSymbols = [
-              '{ }', '[ ]', '( )', '//', '=>', '++', 
-              '!=', '==', 'function', 'const', 'import', 'export'
+              '{ }', '[ ]', '( )', '//', '=>', '++'
             ];
             
-            // Modified positioning to ensure NO particles appear in top-left corner
-            // Divide screen into sections, avoiding the top-left entirely
-            const sectionWidth = 100 / 4; // Divide screen into 4 columns
-            const sectionHeight = 100 / 3; // Divide screen into 3 rows
-            
-            // Calculate position to AVOID top-left area
-            // First section skips very top-left area
+            // STRICT positioning to ensure NO particles appear in top-left corner
+            // Only use bottom and right areas of the screen
             const sections = [
-              { x: 35 + (i % 3) * 20, y: 25 + (i % 3) * 20 },  // Middle area
-              { x: 70 + (i % 3) * 10, y: 10 + (i % 4) * 15 },  // Right area
-              { x: 20 + (i % 4) * 15, y: 65 + (i % 3) * 10 },  // Bottom-left
-              { x: 60 + (i % 3) * 10, y: 60 + (i % 3) * 10 }   // Bottom-right
+              // NO SECTION in top-left quadrant at all!
+              { x: 75 + (i % 3) * 8, y: 25 + (i % 3) * 10 },   // Right middle
+              { x: 70 + (i % 3) * 8, y: 60 + (i % 3) * 10 },   // Bottom-right
+              { x: 30 + (i % 3) * 10, y: 70 + (i % 3) * 8 },   // Very bottom
+              { x: 50 + (i % 3) * 10, y: 50 + (i % 3) * 10 }   // Middle-bottom
             ];
             
             const sectionIndex = i % sections.length;
             const baseX = sections[sectionIndex].x;
             const baseY = sections[sectionIndex].y;
             
-            // Add minor jitter
-            const jitterX = (Math.sin(i * 3.7) * 5); 
-            const jitterY = (Math.cos(i * 2.9) * 5);
+            // Almost no jitter to ensure positions are exact
+            const jitterX = (Math.sin(i * 3.7) * 2); 
+            const jitterY = (Math.cos(i * 2.9) * 2);
             
             const posX = baseX + jitterX;
             const posY = baseY + jitterY;
             
-            // Different animation speeds 
-            const speed = 20 + (i % 10); // Slower, more subtle
+            // Slower animation speeds 
+            const speed = 25 + (i % 10); // Even slower
             
-            // Direction and path variations - more subtle
+            // Simple animations that stay in place
             const directions = [
-              // Vertical falling (gentle)
+              // Just a little vertical movement
               { 
-                y: [`${posY}%`, `${posY + 30}%`],
-                x: [`${posX}%`, `${posX + (i % 5 - 2)}%`] // Minor horizontal drift
+                y: [`${posY}%`, `${posY + 10}%`, `${posY}%`],
+                x: [`${posX}%`] // Fixed horizontal position
               },
-              // Small circular motion
+              // Tiny circular motion
               {
-                y: [`${posY}%`, `${posY + 10}%`, `${posY}%`, `${posY - 10}%`, `${posY}%`],
-                x: [`${posX}%`, `${posX + 10}%`, `${posX}%`, `${posX - 10}%`, `${posX}%`],
-                rotate: [0, 90, 180, 270, 360]
+                y: [`${posY}%`, `${posY + 5}%`, `${posY}%`, `${posY - 5}%`, `${posY}%`],
+                x: [`${posX}%`, `${posX + 5}%`, `${posX}%`, `${posX - 5}%`, `${posX}%`],
+                rotate: [0, 45, 0, -45, 0]
               }
             ];
             
@@ -328,7 +323,7 @@ const HeroSection = () => {
             const animationPath = directions[pathIndex];
             
             // Staggered delays
-            const delay = (i % 5) * 2; // Longer delays
+            const delay = (i % 5) * 3; // Even longer delays
             
             return (
               <motion.div
@@ -337,13 +332,13 @@ const HeroSection = () => {
                 initial={{ 
                   x: `${posX}%`,
                   y: `${posY}%`,
-                  opacity: 0.4,
+                  opacity: 0.3,
                   scale: 0.9
                 }}
                 animate={{ 
                   ...animationPath,
-                  opacity: [0.4, 0.6, 0.4],
-                  scale: [0.9, 1.1, 0.9]
+                  opacity: [0.3, 0.5, 0.3],
+                  scale: [0.9, 1.0, 0.9]
                 }}
                 transition={{
                   duration: speed,
@@ -352,8 +347,8 @@ const HeroSection = () => {
                   delay: delay,
                 }}
                 style={{
-                  color: ['#3b82f6', '#10b981', '#6366f1', '#8b5cf6'][i % 4],
-                  fontSize: `${12 + (i % 3) * 2}px`, // More consistent sizes
+                  color: ['#3b82f6', '#10b981', '#6366f1'][i % 3],
+                  fontSize: `${12 + (i % 2) * 2}px`, // More consistent sizes
                   textShadow: '0 0 3px rgba(0,0,0,0.1)'
                 }}
               >
