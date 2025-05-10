@@ -8,26 +8,36 @@ const createTransporter = () => {
   const apiKey = process.env.BREVO_API_KEY;
 
   if (!apiKey) {
-    console.warn('Brevo API key not set. Email notifications will not work.');
+    console.warn('⚠️ Brevo API key not set. Email notifications will not work.');
     // Return a dummy transporter for development
     return {
       sendMail: async () => {
-        console.log('Email would be sent here if BREVO_API_KEY was configured');
-        return true;
+        console.log('📧 Email would be sent here if BREVO_API_KEY was configured');
+        return { messageId: 'dummy-id-for-development' };
       }
     };
   }
+  
+  console.log('🔑 Brevo API key is configured. Setting up SMTP transporter.');
 
   // Use Brevo API key for authentication
-  return nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    auth: {
-      user: 'apikey', // This is a fixed value for API key auth
-      pass: apiKey,   // Use the Brevo API key
-    },
-    secure: false, // true for 465, false for other ports
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp-relay.brevo.com',
+      port: 587,
+      auth: {
+        user: 'mail@samuelmarndi.com', // Use the verified sender email
+        pass: apiKey,   // Use the Brevo API key
+      },
+      secure: false, // true for 465, false for other ports
+    });
+    
+    console.log('📧 Brevo SMTP transporter created successfully');
+    return transporter;
+  } catch (error) {
+    console.error('❌ Failed to create email transporter:', error);
+    throw error;
+  }
 };
 
 const transporter = createTransporter();
@@ -41,8 +51,8 @@ const getTwilioClient = () => {
   return twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 };
 
-// Admin email address
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'samuelmarandi6@gmail.com';
+// Admin email address - guaranteed delivery for notifications
+const ADMIN_EMAIL = 'samuelmarandi6@gmail.com'; // Direct setting to ensure delivery
 const ADMIN_PHONE = process.env.ADMIN_PHONE || '+918280320550';
 const SITE_NAME = 'Samuel Marndi - Web Developer & Digital Marketer';
 
@@ -54,16 +64,33 @@ export async function sendEmail(
   text?: string
 ): Promise<boolean> {
   try {
-    await transporter.sendMail({
+    // First check if API key is available
+    if (!process.env.BREVO_API_KEY) {
+      console.error('Email sending failed: Missing BREVO_API_KEY. Please configure your Brevo API key in environment variables.');
+      return false;
+    }
+    
+    // Log attempt to help with debugging
+    console.log(`Attempting to send email: To: ${to}, Subject: ${subject} using Brevo SMTP`);
+    
+    // Send the email using the transporter
+    const info = await transporter.sendMail({
       from: `${SITE_NAME} <mail@samuelmarndi.com>`,
       to,
       subject,
       html,
       text: text || ''
     });
+    
+    // Log the successful email send
+    console.log('Email sent successfully. Response:', JSON.stringify(info));
     return true;
   } catch (error) {
-    console.error('Failed to send email:', error);
+    console.error('Failed to send email - DETAILED ERROR:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     return false;
   }
 }
@@ -191,6 +218,8 @@ export async function sendSubmissionConfirmation(submission: any): Promise<boole
 
 // Send notification to admin when contact form submitted
 export async function sendContactNotification(submission: InsertContactSubmission): Promise<boolean> {
+  console.log('📧 Processing contact notification for submission:', JSON.stringify(submission, null, 2));
+  
   const subject = `New Contact Form Submission: ${submission.subject || 'No Subject'}`;
   const html = `
     <h2>New Contact Form Submission</h2>
@@ -204,18 +233,34 @@ export async function sendContactNotification(submission: InsertContactSubmissio
     <p>${submission.message}</p>
   `;
 
+  console.log(`📱 Attempting to send SMS notification to admin phone: ${ADMIN_PHONE}`);
   // Also send SMS notification
   const smsText = `New contact from ${submission.name}. Subject: ${submission.subject || 'None'}. Please check your dashboard.`;
-  sendSMS(ADMIN_PHONE, smsText).catch(console.error);
+  try {
+    await sendSMS(ADMIN_PHONE, smsText);
+    console.log('📱 SMS notification sent successfully');
+  } catch (error) {
+    console.error('Failed to send SMS notification:', error);
+  }
   
   // Send confirmation email to the user
+  let userEmailSent = false;
   if (submission.email) {
-    sendSubmissionConfirmation(submission).catch(err => {
+    console.log(`📧 Sending confirmation email to user: ${submission.email}`);
+    try {
+      userEmailSent = await sendSubmissionConfirmation(submission);
+      console.log(`📧 User confirmation email ${userEmailSent ? 'sent successfully' : 'failed to send'}`);
+    } catch (err) {
       console.error('Failed to send confirmation email:', err);
-    });
+    }
   }
 
-  return sendEmail(ADMIN_EMAIL, subject, html);
+  console.log(`📧 Sending admin notification email to: ${ADMIN_EMAIL}`);
+  const adminEmailSent = await sendEmail(ADMIN_EMAIL, subject, html);
+  console.log(`📧 Admin notification email ${adminEmailSent ? 'sent successfully' : 'failed to send'}`);
+  
+  // Return true if either admin email or user confirmation was sent successfully
+  return adminEmailSent || userEmailSent;
 }
 
 // Send notification to admin when service request submitted
