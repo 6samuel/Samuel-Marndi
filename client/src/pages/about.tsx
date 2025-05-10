@@ -123,7 +123,7 @@ const About = () => {
                 <div className="relative mb-6">
                   <div className="absolute inset-0 bg-primary/20 rounded-lg blur-xl transform translate-x-4 translate-y-4"></div>
                   <OptimizedImage 
-                    src="/images/samuel-marndi-profile.jpg" 
+                    src="https://pbs.twimg.com/profile_images/1921059700109438976/uFfkCwFP_400x400.jpg" 
                     alt="Samuel Marndi" 
                     className="relative z-10 rounded-lg shadow-lg w-full"
                     priority={true}
