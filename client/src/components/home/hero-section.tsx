@@ -410,9 +410,9 @@ const HeroSection = () => {
             </motion.div>
           </div>
           
-          {/* Center Column - Profile Image */}
+          {/* Center Column - Profile Image - Responsive placement */}
           <motion.div 
-            className="lg:col-span-2 relative"
+            className="md:col-span-2 relative order-first md:order-none mx-auto md:mx-0"
             variants={itemVariants}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -421,7 +421,7 @@ const HeroSection = () => {
             <div className="relative max-w-[300px] sm:max-w-[380px] md:max-w-[480px] mx-auto ml-0 mr-auto pl-0 pr-4 md:pr-8">
               {/* Enhanced glow behind image - shifted to match new image position - responsive sizing */}
               <div className="absolute -top-8 md:-top-12 -bottom-8 md:-bottom-12 -left-16 md:-left-24 -right-0 rounded-full z-0" 
-                style={{ transform: "translateX(-20px) md:translateX(-40px)" }}>
+                style={{ transform: "translateX(-20px)" }}>
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse"></div>
                 <div className="absolute inset-[25%] bg-gradient-to-br from-indigo-500/20 via-primary/20 to-blue-500/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "300ms" }}></div>
               </div>
@@ -448,9 +448,9 @@ const HeroSection = () => {
             </div>
           </motion.div>
           
-          {/* Right Column - Quick Quote Form */}
+          {/* Right Column - Quick Quote Form - Responsive adjustments */}
           <motion.div 
-            className="lg:col-span-5"
+            className="md:col-span-5 order-last mt-8 md:mt-0"
             variants={itemVariants}
           >
             <div className="relative">
@@ -467,7 +467,7 @@ const HeroSection = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
-                  className="backdrop-blur-md bg-white/80 dark:bg-gray-900/80 rounded-xl shadow-xl border border-gray-100/50 dark:border-gray-800/50 overflow-hidden"
+                  className="backdrop-blur-md bg-white/80 dark:bg-gray-900/80 rounded-xl shadow-xl border border-gray-100/50 dark:border-gray-800/50 overflow-hidden p-4 md:p-6"
                 >
                   <QuickQuoteFormWrapper />
                 </motion.div>
