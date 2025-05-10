@@ -506,22 +506,23 @@ const HeroSection = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <div className="relative max-w-[280px] mx-auto">
+            <div className="relative max-w-[400px] mx-auto">
               {/* Enhanced glow behind image */}
-              <div className="absolute -top-8 -bottom-8 -left-8 -right-8 rounded-full z-0">
+              <div className="absolute -top-12 -bottom-12 -left-12 -right-12 rounded-full z-0">
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse"></div>
                 <div className="absolute inset-[25%] bg-gradient-to-br from-indigo-500/20 via-primary/20 to-blue-500/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "300ms" }}></div>
               </div>
               
-              {/* Profile Image - using imported image */}
+              {/* Profile Image - using imported image (bigger size) */}
               <motion.img 
                 src={samuelImage}
                 alt="Samuel Marndi" 
-                className="w-full h-auto object-contain relative z-10"
-                initial={{ scale: 0.9 }}
+                className="w-[180%] mx-auto h-auto object-contain relative z-10"
+                style={{ maxWidth: "700px", transform: "translateY(-10px)" }}
+                initial={{ scale: 0.95 }}
                 animate={{ 
-                  scale: [0.95, 1.05, 0.95],
-                  y: [-5, 5, -5]
+                  scale: [0.98, 1.06, 0.98],
+                  y: [-8, 8, -8]
                 }}
                 transition={{
                   duration: 6,
