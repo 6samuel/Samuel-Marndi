@@ -35,6 +35,7 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsConditions from "@/pages/terms-conditions";
 import RefundPolicy from "@/pages/refund-policy";
 import CookiePolicy from "@/pages/cookie-policy";
+import DigitalMarketing from "@/pages/digital-marketing";
 
 // Admin Pages
 import AdminLogin from "@/pages/admin/login";
