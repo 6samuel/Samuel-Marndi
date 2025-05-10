@@ -25,11 +25,13 @@ const BlogCard = ({ post, featured = false }: BlogCardProps) => {
       {/* Image Container */}
       <div className={`relative overflow-hidden rounded-lg ${featured ? "h-full" : "mb-4"}`}>
         <Link href={`/blog/${post.slug}`}>
-          <img
-            src={post.imageUrl}
-            alt={post.title}
-            className="w-full h-60 object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+          <div className="w-full h-60 overflow-hidden">
+            <OptimizedBlogImage
+              src={post.imageUrl || ''}
+              alt={post.title}
+              className="transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
         </Link>
         
         {/* Category Badge */}
