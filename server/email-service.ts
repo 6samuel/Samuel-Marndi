@@ -3,29 +3,29 @@ import twilio from 'twilio';
 import type { InsertContactSubmission, InsertServiceRequest } from '@shared/schema';
 
 // Brevo (formerly Sendinblue) SMTP configuration - has generous free tier (300 emails/day)
-// You can also use other services like Gmail or Zoho Mail by changing these settings
 const createTransporter = () => {
-  // Default config for Brevo SMTP
-  const host = process.env.EMAIL_HOST || 'smtp-relay.brevo.com';
-  const port = parseInt(process.env.EMAIL_PORT || '587');
-  const user = process.env.EMAIL_USER || '';
-  const pass = process.env.EMAIL_PASS || '';
+  // Check if Brevo API key is available
+  const apiKey = process.env.BREVO_API_KEY;
 
-  if (!user || !pass) {
-    console.warn('Email credentials not set. Email notifications will not work.');
+  if (!apiKey) {
+    console.warn('Brevo API key not set. Email notifications will not work.');
     // Return a dummy transporter for development
     return {
       sendMail: async () => {
-        console.log('Email would be sent here if credentials were configured');
+        console.log('Email would be sent here if BREVO_API_KEY was configured');
         return true;
       }
     };
   }
 
+  // Use Brevo API key for authentication
   return nodemailer.createTransport({
-    host,
-    port,
-    auth: { user, pass },
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    auth: {
+      user: 'apikey', // This is a fixed value for API key auth
+      pass: apiKey,   // Use the Brevo API key
+    },
     secure: false, // true for 465, false for other ports
   });
 };
@@ -130,16 +130,20 @@ const generateSubmissionConfirmationEmail = (name: string, type: string, details
     <h2>Thank You for Your Submission!</h2>
     <p>Hello ${name},</p>
     <p>I've received your ${type} submission on ${currentDate}. Thank you for reaching out!</p>
-    <p>I'll review your request and get back to you as soon as possible - typically within 24-48 hours.</p>
+    <p><strong>I will contact you as soon as possible</strong> - typically within 24 hours. Your request is important to me, and I'm already reviewing your details.</p>
     
     <div class="details">
       <h3>Your submission details:</h3>
       ${detailsHtml}
     </div>
     
-    <p>If you have any questions in the meantime, feel free to reply to this email or contact me directly at:</p>
-    <p>📞 +91 82803 20550 (WhatsApp also available)</p>
-    <p>I look forward to discussing how I can help with your project.</p>
+    <p>If you have any questions in the meantime or need an immediate response, feel free to:</p>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>📞 Call or WhatsApp: <strong>+91 82803 20550</strong></li>
+      <li>📧 Email directly: <strong>samuelmarandi6@gmail.com</strong></li>
+    </ul>
+    
+    <p>I'm excited to discuss how I can help with your project and will be in touch very soon.</p>
     
     <p>Best regards,<br>
     <strong>Samuel Marndi</strong><br>
