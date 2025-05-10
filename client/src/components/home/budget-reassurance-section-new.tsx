@@ -208,7 +208,7 @@ const BudgetReassuranceSection = () => {
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-indigo-600">EMI Available</span>
                     </div>
                     <p className="text-sm mt-2 font-medium">
-                      Break down your payments into affordable monthly installments to manage cash flow better.
+                      With minimal upfront cost, break down your payments into affordable monthly installments to manage cash flow better.
                     </p>
                     <div className="bg-white dark:bg-gray-800 rounded-lg mt-3 p-2 text-xs shadow-sm">
                       <span className="font-semibold">Available through:</span> Credit cards, Razorpay, and other payment processors

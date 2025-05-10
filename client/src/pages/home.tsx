@@ -7,7 +7,7 @@ import TestimonialsSection from "@/components/home/testimonials-section";
 import CtaSection from "@/components/home/cta-section";
 import CompactTechShowcase from "@/components/home/compact-tech-showcase";
 import ProjectRoadmap from "@/components/home/project-roadmap";
-import PartnershipSection from "@/components/home/partnership-section";
+import DigitalMarketingSection from "@/components/home/digital-marketing-section";
 import { SEO } from "@/lib/seo-utils";
 import { trackConversion } from "@/components/tracking/tracking-scripts";
 
@@ -42,7 +42,7 @@ const Home = () => {
       <BudgetReassuranceSection />
       <ServicesOverview />
       <CompactTechShowcase />
-      <PartnershipSection />
+      <DigitalMarketingSection />
       <ProjectRoadmap />
       <PortfolioPreview />
       <TestimonialsSection />
