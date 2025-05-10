@@ -444,12 +444,6 @@ const DigitalMarketingSection = () => {
                   </Link>
                 </Button>
                 
-                <Button asChild variant="outline" className="border-white/30 hover:bg-white/10 text-white dark:text-white dark:hover:bg-white/10 hover:text-primary-foreground">
-                  <Link to="/services/digital-marketing">
-                    Explore Services <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-
                 <Button asChild variant="default" className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700">
                   <Link to="/contact?service=digital-marketing">
                     Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
