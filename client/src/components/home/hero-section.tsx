@@ -197,6 +197,18 @@ const HeroSection = () => {
               </span>
             </motion.h1>
             
+            {/* Profile Image in Center */}
+            <motion.div
+              variants={itemVariants}
+              className="relative max-w-[200px] mx-auto lg:mx-0 mt-4 mb-6 order-first lg:order-none"
+            >
+              <img 
+                src="/samuel-suit-transparent.png" 
+                alt="Samuel Marndi" 
+                className="w-full h-auto object-contain"
+              />
+            </motion.div>
+            
             <motion.p 
               className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0"
               variants={itemVariants}
@@ -306,19 +318,7 @@ const HeroSection = () => {
                 </div>
               </div>
               
-              {/* Profile Image - Added above the form */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="relative z-10 mb-6 max-w-[200px] mx-auto"
-              >
-                <img 
-                  src="/samuel-suit-transparent.png" 
-                  alt="Samuel Marndi" 
-                  className="w-full h-auto object-contain"
-                />
-              </motion.div>
+              {/* Profile image moved to center of hero section */}
               
               {/* Quick Quote Form - Translucent and stylish */}
               <div className="relative z-10">
