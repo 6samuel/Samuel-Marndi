@@ -5,6 +5,7 @@ import { Link } from "wouter";
 import { PortfolioItem } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const Portfolio = () => {
   const { data: portfolioItems, isLoading, error } = useQuery<PortfolioItem[]>({

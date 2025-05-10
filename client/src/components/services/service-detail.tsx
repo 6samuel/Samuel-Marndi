@@ -137,9 +137,9 @@ const ServiceDetail = ({ service }: ServiceDetailProps) => {
 
         {/* Background elements */}
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 hidden md:block">
-          <img 
+          <OptimizedServiceImage 
             src={service.imageUrl || 'https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'} 
-            alt={service.title}
+            alt={`${service.title} background`}
             className="w-full h-full object-cover blur-sm"
           />
         </div>
@@ -233,7 +233,7 @@ const ServiceDetail = ({ service }: ServiceDetailProps) => {
           <motion.div variants={itemVariants} className="lg:col-span-1">
             {/* Service Image */}
             <div className="mb-8">
-              <img 
+              <OptimizedServiceImage 
                 src={service.imageUrl || 'https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'} 
                 alt={service.title}
                 className="w-full h-auto rounded-lg shadow-md"
