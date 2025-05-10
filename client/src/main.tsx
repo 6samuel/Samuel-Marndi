@@ -3,9 +3,13 @@ import App from "./App";
 import "./index.css";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { optimizeFontLoading, preloadCriticalFonts } from "@/lib/font-optimization";
+import { loadTrackingScripts, optimizeBelowFoldContent } from "@/lib/performance";
 
-// Initialize font optimization
+// Performance optimization
 if (typeof window !== 'undefined') {
+  // Execute critical optimizations immediately
+  const startTime = performance.now();
+  
   // Execute after the window loads to not block initial rendering
   window.addEventListener('load', () => {
     optimizeFontLoading();
@@ -14,6 +18,30 @@ if (typeof window !== 'undefined') {
     preloadCriticalFonts([
       'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
     ]);
+    
+    // Apply content-visibility optimization to elements below the fold
+    optimizeBelowFoldContent();
+    
+    // Deferred loading of non-critical scripts
+    loadTrackingScripts();
+    
+    // Log performance metrics (helpful for development)
+    console.log(`Page fully loaded in ${(performance.now() - startTime).toFixed(0)}ms`);
+    
+    // Report performance metrics
+    if ('performance' in window && 'getEntriesByType' in performance) {
+      // Wait for LCP to be calculated
+      setTimeout(() => {
+        const paintMetrics = performance.getEntriesByType('paint');
+        const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+        if (navEntry) {
+          const fcp = paintMetrics.find(({ name }) => name === 'first-contentful-paint')?.startTime;
+          console.log(`First Contentful Paint: ${fcp?.toFixed(0)}ms`);
+          console.log(`DOM Content Loaded: ${(navEntry.domContentLoadedEventEnd - navEntry.domContentLoadedEventStart).toFixed(0)}ms`);
+          console.log(`Time to Interactive: ${(navEntry.domInteractive - navEntry.fetchStart).toFixed(0)}ms`);
+        }
+      }, 3000);
+    }
   });
 }
 

@@ -1,52 +1,43 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { cn } from '@/lib/utils';
 
-interface OptimizedImageProps {
+interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   alt: string;
+  className?: string;
   width?: number;
   height?: number;
-  className?: string;
-  fallbackSrc?: string;
+  sizes?: string;
   priority?: boolean;
 }
 
 export function OptimizedImage({
   src,
   alt,
+  className,
   width,
   height,
-  className = '',
-  fallbackSrc = 'https://placehold.co/400?text=Image+Not+Found',
+  sizes = '100vw',
   priority = false,
+  ...props
 }: OptimizedImageProps) {
-  const [imgSrc, setImgSrc] = useState<string>(src);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-
-  // Handle image load error
-  const handleError = () => {
-    if (imgSrc !== fallbackSrc) {
-      setImgSrc(fallbackSrc);
-    }
-  };
-
-  // Handle image load success
-  const handleLoad = () => {
-    setIsLoaded(true);
-  };
-
+  // Convert image URLs to WebP format if they are from unsplash or similar services
+  let optimizedSrc = src;
+  if (src.includes('unsplash.com') && !src.includes('&fm=webp')) {
+    optimizedSrc = `${src}${src.includes('?') ? '&' : '?'}fm=webp&q=80`;
+  }
+  
   return (
-    <div className={`relative overflow-hidden ${!isLoaded ? 'bg-gray-200 dark:bg-gray-800 animate-pulse' : ''}`}>
-      <img
-        src={imgSrc}
-        alt={alt}
-        width={width}
-        height={height}
-        loading={priority ? 'eager' : 'lazy'}
-        decoding={priority ? 'auto' : 'async'}
-        onError={handleError}
-        onLoad={handleLoad}
-        className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
-      />
-    </div>
+    <img
+      src={optimizedSrc}
+      alt={alt}
+      className={cn('', className)}
+      width={width}
+      height={height}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding={priority ? 'sync' : 'async'}
+      sizes={sizes}
+      {...props}
+    />
   );
 }
