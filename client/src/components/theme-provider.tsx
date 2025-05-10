@@ -6,6 +6,7 @@ type ThemeProviderProps = {
   children: React.ReactNode;
   defaultTheme?: Theme;
   storageKey?: string;
+  enableSystem?: boolean;
 };
 
 type ThemeProviderState = {
@@ -24,6 +25,7 @@ export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "ui-theme",
+  enableSystem = false,
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
@@ -47,6 +49,24 @@ export function ThemeProvider({
 
     root.classList.add(theme);
   }, [theme]);
+  
+  // Set up a media query listener if system theme is enabled
+  useEffect(() => {
+    if (!enableSystem) return;
+    
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    
+    const handleChange = () => {
+      if (theme === "system") {
+        const root = window.document.documentElement;
+        root.classList.remove("light", "dark");
+        root.classList.add(mediaQuery.matches ? "dark" : "light");
+      }
+    };
+    
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [enableSystem, theme]);
 
   const value = {
     theme,

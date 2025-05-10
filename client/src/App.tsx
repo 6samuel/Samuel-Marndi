@@ -113,7 +113,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
         <AuthProvider>
-          <ThemeProvider defaultTheme="light" storageKey="sm-theme">
+          <ThemeProvider defaultTheme="light" storageKey="sm-theme" enableSystem>
             <TooltipProvider>
               <Toaster />
               <Suspense fallback={null}>
