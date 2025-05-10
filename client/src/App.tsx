@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { HelmetProvider } from "react-helmet-async";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
 // Lazy load tracking scripts
 const TrackingScripts = lazy(() => 
@@ -57,6 +57,25 @@ import SiteFooter from "@/components/layouts/site-footer";
 import WhatsAppButton from "@/components/ui/whatsapp-button";
 
 function Router() {
+  const [location] = useLocation();
+  
+  // Check if current route is an admin route
+  const isAdminRoute = location && location.startsWith('/admin');
+  
+  // Apply or remove the admin route attribute on the body element
+  useEffect(() => {
+    if (isAdminRoute) {
+      document.body.setAttribute('data-admin-route', 'true');
+    } else {
+      document.body.removeAttribute('data-admin-route');
+    }
+    
+    // Cleanup function to ensure attribute is removed when component unmounts
+    return () => {
+      document.body.removeAttribute('data-admin-route');
+    };
+  }, [isAdminRoute]);
+  
   return (
     <div className="flex flex-col min-h-screen">
       <Switch>
