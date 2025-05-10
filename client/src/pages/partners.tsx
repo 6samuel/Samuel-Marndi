@@ -570,13 +570,13 @@ const PartnerPage = () => {
                       
                       <FormField
                         control={form.control}
-                        name="companyDescription"
+                        name="services"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Company Description</FormLabel>
+                            <FormLabel>Services Interested In</FormLabel>
                             <FormControl>
                               <Textarea 
-                                placeholder="Brief description of your company and the services/products you offer" 
+                                placeholder="Describe the services you're interested in partnering on" 
                                 className="min-h-[100px]"
                                 {...field} 
                               />
@@ -588,10 +588,10 @@ const PartnerPage = () => {
                       
                       <FormField
                         control={form.control}
-                        name="partnershipGoals"
+                        name="expectations"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Partnership Goals</FormLabel>
+                            <FormLabel>Partnership Expectations</FormLabel>
                             <FormControl>
                               <Textarea 
                                 placeholder="What do you hope to achieve through this partnership?" 
