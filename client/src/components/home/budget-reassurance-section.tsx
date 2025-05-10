@@ -9,12 +9,16 @@ const BudgetRangeCard = ({
   title, 
   description, 
   icon: Icon, 
-  gradientColors 
+  gradientColors,
+  priceRange,
+  ctaLink,
 }: { 
   title: string; 
   description: string; 
   icon: React.ElementType; 
   gradientColors: string;
+  priceRange: string;
+  ctaLink: string;
 }) => (
   <motion.div 
     className={`rounded-xl p-0.5 ${gradientColors}`}
@@ -26,7 +30,15 @@ const BudgetRangeCard = ({
         <Icon className="w-6 h-6 text-primary" />
       </div>
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-sm text-gray-600 dark:text-gray-400 flex-grow">{description}</p>
+      <div className="bg-primary/10 text-primary font-medium text-sm rounded-full px-3 py-1 mb-3 inline-block">
+        {priceRange}
+      </div>
+      <p className="text-sm text-gray-600 dark:text-gray-400 flex-grow mb-4">{description}</p>
+      <Button asChild size="sm" variant="outline" className="mt-auto">
+        <Link to={ctaLink}>
+          Get Quote <ArrowRight className="ml-1 h-3 w-3" />
+        </Link>
+      </Button>
     </div>
   </motion.div>
 );
@@ -97,18 +109,22 @@ const BudgetReassuranceSection = () => {
           <motion.div variants={itemVariants}>
             <BudgetRangeCard 
               title="Starter Projects" 
-              description="Have a limited budget? No problem. I offer streamlined solutions that focus on core functionality without compromising quality."
+              description="Have a limited budget? No problem. I offer streamlined solutions that focus on core functionality without compromising quality or reliability."
               icon={DollarSign}
               gradientColors="bg-gradient-to-r from-green-300 to-green-500"
+              priceRange="Starting at ₹5,999 / $99"
+              ctaLink="/contact"
             />
           </motion.div>
           
           <motion.div variants={itemVariants}>
             <BudgetRangeCard 
               title="Mid-Range Solutions" 
-              description="Balance between affordability and extended features. Perfect for growing businesses with moderate budgets."
+              description="Balance between affordability and extended features. Perfect for growing businesses with moderate budgets seeking competitive advantages."
               icon={FileText}
               gradientColors="bg-gradient-to-r from-blue-300 to-blue-500"
+              priceRange="₹50,000+ / $600+"
+              ctaLink="/contact"
             />
           </motion.div>
           
@@ -118,6 +134,8 @@ const BudgetReassuranceSection = () => {
               description="Full-featured, high-performance solutions with advanced customization for established businesses with comprehensive requirements."
               icon={Shield}
               gradientColors="bg-gradient-to-r from-purple-300 to-purple-500"
+              priceRange="₹1 Lakh+ / $1,000+"
+              ctaLink="/contact"
             />
           </motion.div>
         </motion.div>
@@ -144,7 +162,7 @@ const BudgetReassuranceSection = () => {
                 <FeatureItem icon={ThumbsUp} title="Free consultation" />
                 <FeatureItem icon={MessageSquare} title="No pressure discussion" />
                 <FeatureItem icon={FileText} title="Customized quotes" />
-                <FeatureItem icon={ArrowRight} title="Flexible options" />
+                <FeatureItem icon={ArrowRight} title="Flexible EMI options" />
               </div>
               
               <div className="pt-4 flex flex-wrap gap-3">
@@ -167,27 +185,76 @@ const BudgetReassuranceSection = () => {
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="space-y-5">
                   <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
+                    <div className="font-medium">Flexible Payment Options</div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      Multiple payment methods accepted including all major cards, PayPal, bank transfers, UPI, and more.
+                    </p>
+                  </div>
+                  
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
+                    <div className="font-medium">EMI Available</div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      Break down your payments into affordable monthly installments to manage cash flow better.
+                    </p>
+                  </div>
+                  
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
                     <div className="font-medium">Negotiable Pricing</div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                       Not satisfied with the initial quote? Let's discuss and find middle ground together.
                     </p>
                   </div>
-                  
-                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
-                    <div className="font-medium">Value-Based Solutions</div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      I focus on delivering maximum value regardless of budget constraints.
-                    </p>
-                  </div>
-                  
-                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
-                    <div className="font-medium">Phased Implementation</div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      Break down large projects into affordable phases that align with your budget.
-                    </p>
-                  </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </motion.div>
+        
+        {/* Payment methods section */}
+        <motion.div
+          className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <h3 className="text-xl font-semibold text-center mb-6">Accepted Payment Methods</h3>
+          <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex flex-col items-center">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
+                <DollarSign className="w-8 h-8 text-blue-500" />
+              </div>
+              <span className="text-sm">Bank Transfer</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/paypal/paypal-original.svg" alt="PayPal" className="w-8 h-8" />
+              </div>
+              <span className="text-sm">PayPal</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/stripe.svg" alt="Stripe" className="w-8 h-8" />
+              </div>
+              <span className="text-sm">Credit/Debit</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/googlepay.svg" alt="Google Pay" className="w-8 h-8" />
+              </div>
+              <span className="text-sm">Google Pay</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/razorpay.svg" alt="Razorpay" className="w-8 h-8" />
+              </div>
+              <span className="text-sm">Razorpay</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm mb-2">
+                <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/upi.svg" alt="UPI" className="w-8 h-8" />
+              </div>
+              <span className="text-sm">UPI</span>
             </div>
           </div>
         </motion.div>
@@ -201,7 +268,7 @@ const BudgetReassuranceSection = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <blockquote className="text-xl italic text-gray-700 dark:text-gray-300 max-w-4xl mx-auto">
-            "Quality work shouldn't be limited by budget constraints. My mission is to make professional digital solutions accessible to businesses of all sizes."
+            "Quality work shouldn't be limited by budget constraints. My mission is to make professional digital solutions accessible to businesses of all sizes, with payment options that work for you."
           </blockquote>
           <div className="mt-4 font-medium">— Samuel Marndi</div>
         </motion.div>
