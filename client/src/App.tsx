@@ -96,6 +96,7 @@ function Router() {
               <Route path="/terms-conditions" component={TermsConditions} />
               <Route path="/refund-policy" component={RefundPolicy} />
               <Route path="/cookie-policy" component={CookiePolicy} />
+              <Route path="/services/digital-marketing" component={DigitalMarketing} />
               <Route component={NotFound} />
             </Switch>
           </main>

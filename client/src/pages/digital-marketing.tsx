@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/lib/seo-utils';
-import { trackConversion } from '@/components/tracking/tracking-scripts';
+import { useConversionTracking } from '@/components/tracking/conversion-tracker';
 
 // Case study card component
 const CaseStudyCard = ({ 
@@ -218,16 +218,18 @@ const ChartVisualization = ({ type, color }: { type: 'bar' | 'line' | 'pie'; col
 
 const DigitalMarketingPage = () => {
   // Track page view
+  const { trackEvent } = useConversionTracking();
+  
   useEffect(() => {
-    trackConversion('page_view', 'USD');
-  }, []);
+    trackEvent('page_view', 'Digital Marketing', 'Page View');
+  }, [trackEvent]);
 
   return (
     <>
       <SEO 
         title="Digital Marketing Services | Samuel Marndi"
         description="Grow your business with proven digital marketing strategies. SEO, content marketing, social media, PPC, and more to drive traffic and conversions."
-        keywords="digital marketing, SEO, PPC, content marketing, social media marketing, conversion optimization"
+        keywords={["digital marketing", "SEO", "PPC", "content marketing", "social media marketing", "conversion optimization"]}
         ogImage="/og-digital-marketing.jpg"
         ogType="website"
         canonical="/services/digital-marketing"
