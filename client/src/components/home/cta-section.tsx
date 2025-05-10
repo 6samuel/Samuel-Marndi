@@ -51,7 +51,7 @@ const CtaSection = () => {
               variants={itemVariants}
             >
               <OptimizedImage 
-                src="/images/samuel-marndi-profile.jpg" 
+                src="https://pbs.twimg.com/profile_images/1921059700109438976/uFfkCwFP_400x400.jpg" 
                 alt="Samuel Marndi - Professional Web Developer" 
                 className="w-full h-full object-cover"
                 priority={true}
