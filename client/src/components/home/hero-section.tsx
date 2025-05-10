@@ -189,8 +189,8 @@ const HeroSection = () => {
           }}
         />
         
-        {/* Distributed tech stacks floating throughout the hero section - bigger and better distributed */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+        {/* No floating tech icons in mobile view - only shown around profile image */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden hidden md:block">
           {techIcons.map((tech, i) => {
             // Improved distribution with guaranteed spacing
             const sectionWidth = 100 / 5; // Divide screen into 5 columns
@@ -450,61 +450,60 @@ const HeroSection = () => {
                 <div className="absolute inset-[25%] bg-gradient-to-br from-indigo-500/20 via-primary/20 to-blue-500/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: "300ms" }}></div>
               </div>
               
-              {/* Mobile Circular Tech Icons around profile image */}
+              {/* Mobile Tech Icons around profile image - Simple and Organized Layout */}
               <div className="block md:hidden absolute inset-0 z-10 overflow-visible">
-                {techIcons.slice(0, 12).map((tech, i) => {
-                  // Only render icons in safe positions (left side and bottom)
-                  // Calculate position in a circle around the profile
-                  const angle = (i * (2 * Math.PI / 12)); // Distribute evenly in a circle
-                  const radius = 95; // Smaller radius
-                  
-                  // Calculate x and y coordinates on the circle
-                  // Offset the circle to the left and up a bit
-                  const x = Math.cos(angle) * radius - 20;
-                  const y = Math.sin(angle) * radius - 30;
-                  
-                  // Only render icons in safe areas (left side and bottom)
-                  // Avoid all icons on the right side where service text is
-                  if ((angle > Math.PI/4 && angle < Math.PI*1.15)) {
-                    return null;
-                  }
-                  
-                  // Add some randomness for natural look
-                  const randomDelay = 1 + (i % 5) * 0.5;
-                  
-                  return (
-                    <motion.div
-                      key={`mobile-tech-${i}`}
-                      className="absolute"
-                      style={{
-                        left: `calc(50% + ${x}px)`,
-                        top: `calc(50% + ${y}px)`,
-                        transform: 'translate(-50%, -50%)',
-                        zIndex: 20
-                      }}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ 
-                        opacity: 0.9, 
-                        scale: 0.7,
-                      }}
-                      transition={{
-                        delay: 0.1 + (i * 0.05),
-                        duration: 1,
-                        repeat: Infinity,
-                        repeatType: "reverse",
-                        repeatDelay: randomDelay,
-                      }}
-                    >
-                      <div className="bg-white/90 dark:bg-gray-800/90 p-1.5 rounded-full shadow-md">
-                        <img 
-                          src={tech.icon} 
-                          alt={tech.name} 
-                          className="h-6 w-6 object-contain"
-                        />
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                {/* Fixed positioned tech icons in a semi-circle around the profile */}
+                <div className="absolute" style={{ 
+                  bottom: "65%", 
+                  left: "50%", 
+                  transform: "translateX(-50%)",
+                  zIndex: 20 
+                }}>
+                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
+                    <img src={techIcons[0].icon} alt={techIcons[0].name} className="h-6 w-6" />
+                  </div>
+                </div>
+                
+                <div className="absolute" style={{ 
+                  bottom: "55%", 
+                  left: "30%", 
+                  zIndex: 20 
+                }}>
+                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
+                    <img src={techIcons[1].icon} alt={techIcons[1].name} className="h-6 w-6" />
+                  </div>
+                </div>
+                
+                <div className="absolute" style={{ 
+                  bottom: "35%", 
+                  left: "20%", 
+                  zIndex: 20 
+                }}>
+                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
+                    <img src={techIcons[2].icon} alt={techIcons[2].name} className="h-6 w-6" />
+                  </div>
+                </div>
+                
+                <div className="absolute" style={{ 
+                  bottom: "10%", 
+                  left: "30%", 
+                  zIndex: 20 
+                }}>
+                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
+                    <img src={techIcons[3].icon} alt={techIcons[3].name} className="h-6 w-6" />
+                  </div>
+                </div>
+                
+                <div className="absolute" style={{ 
+                  bottom: "0%", 
+                  left: "50%", 
+                  transform: "translateX(-50%)",
+                  zIndex: 20 
+                }}>
+                  <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-md">
+                    <img src={techIcons[4].icon} alt={techIcons[4].name} className="h-6 w-6" />
+                  </div>
+                </div>
               </div>
               
               {/* Profile Image - responsive sizing for mobile */}
@@ -586,33 +585,17 @@ const HeroSection = () => {
           </div>
         </motion.div>
         
-        {/* Mobile Tech Stack Section - With Icons */}
+        {/* Mobile Tech Stack Section - Title Only */}
         <motion.div
           className="mt-10 mb-6 text-center md:hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
         >
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Working with cutting-edge technologies</h2>
-          
-          <div className="flex flex-wrap justify-center gap-4 px-2">
-            {techIcons.slice(0, 8).map((tech, i) => (
-              <motion.div 
-                key={i}
-                className="relative"
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                <div className="bg-white/90 dark:bg-gray-800/90 p-2 rounded-lg shadow-sm">
-                  <img 
-                    src={tech.icon} 
-                    alt={tech.name} 
-                    className="h-6 w-6 object-contain"
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Working with cutting-edge technologies</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            Expert in modern programming languages, frameworks, and cloud platforms
+          </p>
         </motion.div>
       </div>
     </section>
