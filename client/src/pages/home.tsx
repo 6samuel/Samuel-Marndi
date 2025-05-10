@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import HeroSection from "@/components/home/hero-section";
-import BudgetReassuranceSection from "@/components/home/budget-reassurance-section-fixed";
+import BudgetReassuranceSection from "@/components/home/budget-reassurance-section-new";
 import ServicesOverview from "@/components/home/services-overview";
 import PortfolioPreview from "@/components/home/portfolio-preview";
 import TestimonialsSection from "@/components/home/testimonials-section";
