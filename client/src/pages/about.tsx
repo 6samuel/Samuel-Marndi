@@ -122,7 +122,7 @@ const About = () => {
                 <div className="relative mb-6">
                   <div className="absolute inset-0 bg-primary/20 rounded-lg blur-xl transform translate-x-4 translate-y-4"></div>
                   <img 
-                    src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" 
+                    src="/images/samuel-marndi-profile.jpg" 
                     alt="Samuel Marndi" 
                     className="relative z-10 rounded-lg shadow-lg w-full"
                   />
