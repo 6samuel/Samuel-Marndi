@@ -2,37 +2,40 @@ import nodemailer from 'nodemailer';
 import twilio from 'twilio';
 import type { InsertContactSubmission, InsertServiceRequest } from '@shared/schema';
 
-// Brevo (formerly Sendinblue) SMTP configuration - has generous free tier (300 emails/day)
+// Hostinger Email SMTP configuration
 const createTransporter = () => {
-  // Check if Brevo API key is available
-  const apiKey = process.env.BREVO_API_KEY;
+  // Check if email credentials are available
+  const emailHost = process.env.EMAIL_HOST;
+  const emailPort = process.env.EMAIL_PORT;
+  const emailUser = process.env.EMAIL_USER;
+  const emailPassword = process.env.EMAIL_PASSWORD;
 
-  if (!apiKey) {
-    console.warn('⚠️ Brevo API key not set. Email notifications will not work.');
+  if (!emailHost || !emailPort || !emailUser || !emailPassword) {
+    console.warn('⚠️ Email credentials not set. Email notifications will not work.');
     // Return a dummy transporter for development
     return {
       sendMail: async () => {
-        console.log('📧 Email would be sent here if BREVO_API_KEY was configured');
+        console.log('📧 Email would be sent here if EMAIL credentials were configured');
         return { messageId: 'dummy-id-for-development' };
       }
     };
   }
   
-  console.log('🔑 Brevo API key is configured. Setting up SMTP transporter.');
+  console.log('🔑 Hostinger email credentials are configured. Setting up SMTP transporter.');
 
-  // Use Brevo API key for authentication
+  // Use Hostinger SMTP configuration
   try {
     const transporter = nodemailer.createTransport({
-      host: 'smtp-relay.brevo.com',
-      port: 587,
+      host: emailHost,
+      port: parseInt(emailPort),
       auth: {
-        user: 'apikey', // This is literally the string "apikey" for Brevo API integration
-        pass: apiKey,   // Use the Brevo API key
+        user: emailUser,
+        pass: emailPassword,
       },
-      secure: false, // true for 465, false for other ports
+      secure: parseInt(emailPort) === 465, // true for 465, false for other ports
     });
     
-    console.log('📧 Brevo SMTP transporter created successfully');
+    console.log('📧 Hostinger SMTP transporter created successfully');
     return transporter;
   } catch (error) {
     console.error('❌ Failed to create email transporter:', error);
@@ -52,11 +55,11 @@ const getTwilioClient = () => {
 };
 
 // Admin email address - guaranteed delivery for notifications
-const ADMIN_EMAIL = 'samuelmarandi6@gmail.com'; // Direct setting to ensure delivery
+const ADMIN_EMAIL = 'mail@samuelmarndi.com'; // Using the new Hostinger email
 const ADMIN_PHONE = process.env.ADMIN_PHONE || '+918280320550';
 const SITE_NAME = 'Samuel Marndi - Web Developer & Digital Marketer';
 
-// Send email using Brevo/Sendinblue SMTP
+// Send email using Hostinger SMTP
 export async function sendEmail(
   to: string, 
   subject: string, 
@@ -64,18 +67,18 @@ export async function sendEmail(
   text?: string
 ): Promise<boolean> {
   try {
-    // First check if API key is available
-    if (!process.env.BREVO_API_KEY) {
-      console.error('Email sending failed: Missing BREVO_API_KEY. Please configure your Brevo API key in environment variables.');
+    // First check if email credentials are available
+    if (!process.env.EMAIL_HOST || !process.env.EMAIL_PORT || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.error('Email sending failed: Missing email credentials. Please configure your email settings in environment variables.');
       return false;
     }
     
     // Log attempt to help with debugging
-    console.log(`Attempting to send email: To: ${to}, Subject: ${subject} using Brevo SMTP`);
+    console.log(`📧 Attempting to send email: To: ${to}, Subject: ${subject} using Hostinger SMTP`);
     
     // Send the email using the transporter
     const info = await transporter.sendMail({
-      from: `${SITE_NAME} <mail@samuelmarndi.com>`,
+      from: `${SITE_NAME} <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
@@ -177,6 +180,7 @@ const generateSubmissionConfirmationEmail = (name: string, type: string, details
     Web Developer & Digital Marketer</p>
     
     <a href="https://samuelmarndi.com/services" class="button">Explore My Services</a>
+    <p style="margin-top: 15px; font-size: 12px;"><a href="https://samuelmarndi.com/contact" style="color: #666; text-decoration: underline;">Contact Us</a> | <a href="https://samuelmarndi.com/terms-conditions" style="color: #666; text-decoration: underline;">Terms & Conditions</a></p>
   </div>
   
   <div class="footer">
