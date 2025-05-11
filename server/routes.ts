@@ -59,11 +59,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
   setupAuth(app);
   
-  // Health check endpoint
-  app.get('/', (_req, res) => {
-    res.status(200).send('Service is healthy');
-  });
-  
   // API base prefix
   const apiRoute = '/api';
   
@@ -1169,7 +1164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Ad Tracking API routes
   
   // Get all trackers
-  app.get(`${apiRoute}/ad-trackers`, async (_req, res) => {
+  app.get(`${apiRoute}/ad-trackers`, isAuthenticated, isAdmin, async (_req, res) => {
     try {
       const trackers = await storage.getAdTrackers();
       res.json(trackers);
@@ -1392,19 +1387,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Analytics API endpoints
-  app.get(`${apiRoute}/analytics/overview`, async (req, res) => {
+  app.get(`${apiRoute}/analytics/overview`, isAuthenticated, isAdmin, async (req, res) => {
     await getAnalyticsOverview(req, res);
   });
   
-  app.get(`${apiRoute}/analytics/tracker/:trackerId`, async (req, res) => {
+  app.get(`${apiRoute}/analytics/tracker/:trackerId`, isAuthenticated, isAdmin, async (req, res) => {
     await getTrackerAnalytics(req, res);
   });
   
-  app.get(`${apiRoute}/analytics/dashboard`, async (req, res) => {
+  app.get(`${apiRoute}/analytics/dashboard`, isAuthenticated, isAdmin, async (req, res) => {
     await getAnalyticsDashboardData(req, res);
   });
   
-  app.get(`${apiRoute}/analytics/conversions`, async (req, res) => {
+  app.get(`${apiRoute}/analytics/conversions`, isAuthenticated, isAdmin, async (req, res) => {
     await getConversionAnalytics(req, res);
   });
   
