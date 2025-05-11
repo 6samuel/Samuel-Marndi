@@ -10,7 +10,6 @@ import SimplePaymentForm from '@/components/payment/simple-payment-form';
 import AdvancedPaymentForm from '@/components/payment/advanced-payment-form';
 import PaymentGatewayStatus from '@/components/payment/payment-gateway-status';
 import UpiPayment from '@/components/payment/upi-payment';
-import UpiPaymentForm from '@/components/payment/upi-payment-form';
 
 export default function PaymentPage() {
   const { toast } = useToast();
@@ -60,17 +59,7 @@ export default function PaymentPage() {
                     <TabsTrigger value="advanced">Calculator</TabsTrigger>
                   </TabsList>
                   <TabsContent value="upi" className="mt-4">
-                    {/* Using the enhanced UPI payment form */}
-                    <UpiPaymentForm 
-                      upiId="8280320550@axisb" 
-                      paymentReference={`Payment_${Date.now()}`}
-                      onSuccess={() => {
-                        toast({
-                          title: "Payment Verified",
-                          description: "Your payment has been successfully verified. Thank you!",
-                        });
-                      }}
-                    />
+                    <UpiPayment upiId="8280320550@axisb" />
                   </TabsContent>
                   <TabsContent value="simple" className="mt-4">
                     <SimplePaymentForm gatewayStatus={gatewayStatus} />
