@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageTitle } from '@/components/ui/page-title';
+import { useToast } from '@/hooks/use-toast';
 import SimplePaymentForm from '@/components/payment/simple-payment-form';
 import AdvancedPaymentForm from '@/components/payment/advanced-payment-form';
 import PaymentGatewayStatus from '@/components/payment/payment-gateway-status';
@@ -12,6 +13,8 @@ import UpiPayment from '@/components/payment/upi-payment';
 import UpiPaymentForm from '@/components/payment/upi-payment-form';
 
 export default function PaymentPage() {
+  const { toast } = useToast();
+  
   // Fetch payment gateway status to check which ones are available
   const { data: gatewayStatus, isLoading: isStatusLoading } = useQuery({
     queryKey: ['/api/payment/status'],
@@ -57,6 +60,7 @@ export default function PaymentPage() {
                     <TabsTrigger value="advanced">Calculator</TabsTrigger>
                   </TabsList>
                   <TabsContent value="upi" className="mt-4">
+                    {/* Using the enhanced UPI payment form */}
                     <UpiPaymentForm 
                       upiId="8280320550@axisb" 
                       paymentReference={`Payment_${Date.now()}`}
