@@ -8,8 +8,10 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense, useEffect } from "react";
+import { setupLazyLoading, trackPagePerformance, loadDeferredScripts, optimizeCriticalRendering, addResourceHints } from "@/lib/performance";
+import { optimizeFontLoading, loadOptimizedFonts } from "@/lib/font-optimization";
 
-// Lazy load tracking scripts
+// Lazy load tracking scripts and other non-critical components
 const TrackingScripts = lazy(() => 
   import("@/components/tracking/tracking-scripts").then(module => ({
     default: module.default
@@ -128,6 +130,45 @@ function Router() {
 }
 
 function App() {
+  // Initialize performance optimizations
+  useEffect(() => {
+    // Start performance tracking
+    trackPagePerformance();
+    
+    // Set up lazy loading for images
+    setupLazyLoading();
+    
+    // Optimize font loading
+    optimizeFontLoading();
+    loadOptimizedFonts();
+    
+    // Load non-critical scripts after page load
+    loadDeferredScripts([
+      // Add any third-party scripts that aren't critical for initial render
+    ]);
+    
+    // Preload critical resources
+    optimizeCriticalRendering();
+    
+    // Add resource hints for faster connections
+    addResourceHints({
+      preconnect: [
+        'https://fonts.googleapis.com',
+        'https://fonts.gstatic.com',
+        'https://images.unsplash.com'
+      ],
+      prefetch: [
+        // Prefetch URLs for next navigation (like important pages)
+        '/services',
+        '/contact'
+      ]
+    });
+    
+    // Add scroll behavior polyfill for smoother navigation
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
