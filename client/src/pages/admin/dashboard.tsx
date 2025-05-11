@@ -265,7 +265,7 @@ export default function AdminDashboard() {
                 </Link>
               </Button>
               <Button variant="outline" className="justify-start" asChild>
-                <Link href="/admin/analytics">
+                <Link href="/admin/tracking">
                   <ChartLine className="mr-2 h-4 w-4" />
                   View Analytics
                 </Link>
