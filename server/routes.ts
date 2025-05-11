@@ -286,6 +286,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send email notification
       await sendContactNotification(validatedData);
       
+      // Add submitter to recipients list
+      try {
+        // Check if recipient already exists
+        const existingRecipient = await storage.getRecipientByEmail(validatedData.email);
+        
+        if (!existingRecipient) {
+          // Add to recipients if they don't exist
+          await storage.createRecipient({
+            name: validatedData.name,
+            email: validatedData.email,
+            phone: validatedData.phone,
+            source: 'contact_form',
+            tags: ['lead', 'contact'],
+            unsubscribed: false,
+            metadata: {
+              subject: validatedData.subject || null,
+              contactDate: new Date().toISOString()
+            }
+          });
+        }
+      } catch (recipientError) {
+        console.error('Error adding contact form submitter to recipients:', recipientError);
+        // Don't fail the request if adding to recipients fails
+      }
+      
       res.status(201).json({ 
         message: "Contact form submission received",
         id: submission.id 
@@ -344,6 +369,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Send email notification
       await sendServiceRequestNotification(validatedData);
+      
+      // Add submitter to recipients list
+      try {
+        // Check if recipient already exists
+        const existingRecipient = await storage.getRecipientByEmail(validatedData.email);
+        
+        if (!existingRecipient) {
+          // Add to recipients if they don't exist
+          await storage.createRecipient({
+            name: validatedData.name,
+            email: validatedData.email,
+            phone: validatedData.phone,
+            source: 'service_request',
+            tags: ['lead', 'service_request'],
+            unsubscribed: false,
+            metadata: {
+              serviceId: validatedData.serviceId,
+              company: validatedData.company || null,
+              requestDate: new Date().toISOString()
+            }
+          });
+        }
+      } catch (recipientError) {
+        console.error('Error adding service request submitter to recipients:', recipientError);
+        // Don't fail the request if adding to recipients fails
+      }
       
       res.status(201).json({ 
         message: "Service request received",
