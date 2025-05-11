@@ -372,6 +372,27 @@ export default function AdminForms() {
             </TabsList>
             
             <TabsContent value="contact" className="pt-4">
+              <div className="mb-4 flex justify-end space-x-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="mr-2 h-4 w-4" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => exportData(contactSubmissions, 'csv', 'contact-submissions')}>
+                      Export as CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportData(contactSubmissions, 'json', 'contact-submissions')}>
+                      Export as JSON
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportData(contactSubmissions, 'excel', 'contact-submissions')}>
+                      Export as Excel
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <div className="border rounded-lg shadow overflow-hidden">
                 {isLoadingContacts ? (
                   <div className="p-6 text-center">Loading contact submissions...</div>
@@ -451,6 +472,27 @@ export default function AdminForms() {
             </TabsContent>
             
             <TabsContent value="service" className="pt-4">
+              <div className="mb-4 flex justify-end space-x-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="mr-2 h-4 w-4" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => exportData(serviceRequests, 'csv', 'service-requests')}>
+                      Export as CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportData(serviceRequests, 'json', 'service-requests')}>
+                      Export as JSON
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportData(serviceRequests, 'excel', 'service-requests')}>
+                      Export as Excel
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <div className="border rounded-lg shadow overflow-hidden">
                 {isLoadingRequests ? (
                   <div className="p-6 text-center">Loading service requests...</div>

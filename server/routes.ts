@@ -346,6 +346,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('📧 Email notification result:', emailResult ? 'Success' : 'Failed');
       
+      // Add submitter to recipients list
+      try {
+        // Check if recipient already exists
+        const existingRecipient = await storage.getRecipientByEmail(req.body.email);
+        
+        if (!existingRecipient) {
+          // Add to recipients if they don't exist
+          await storage.createRecipient({
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone,
+            source: 'quick_quote',
+            tags: ['lead', 'quick_quote'],
+            unsubscribed: false,
+            metadata: {
+              quoteDate: new Date().toISOString()
+            }
+          });
+          console.log('📊 Added quick quote submitter to recipients list');
+        }
+      } catch (recipientError) {
+        console.error('Error adding quick quote submitter to recipients:', recipientError);
+        // Don't fail the request if adding to recipients fails
+      }
+      
       res.status(201).json({
         message: "Quote request submitted successfully",
         id: submission.id,
@@ -1902,6 +1927,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertConsultationSchema.parse(req.body);
       const consultation = await storage.createConsultation(validatedData);
+      
+      // Add submitter to recipients list
+      try {
+        // Check if recipient already exists
+        const existingRecipient = await storage.getRecipientByEmail(validatedData.email);
+        
+        if (!existingRecipient) {
+          // Add to recipients if they don't exist
+          await storage.createRecipient({
+            name: validatedData.name,
+            email: validatedData.email,
+            phone: validatedData.phone,
+            source: 'consultation',
+            tags: ['lead', 'consultation'],
+            unsubscribed: false,
+            metadata: {
+              topic: validatedData.topic,
+              consultationDate: validatedData.date,
+              timeSlot: validatedData.timeSlot,
+              bookingDate: new Date().toISOString()
+            }
+          });
+          console.log('📊 Added consultation submitter to recipients list');
+        }
+      } catch (recipientError) {
+        console.error('Error adding consultation submitter to recipients:', recipientError);
+        // Don't fail the request if adding to recipients fails
+      }
       
       res.status(201).json({ 
         message: "Consultation booking request received",
