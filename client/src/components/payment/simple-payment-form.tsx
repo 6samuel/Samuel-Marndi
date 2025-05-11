@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import StripeCheckout from './stripe-checkout';
 import PayPalCheckout from './paypal-checkout';
 import RazorpayCheckout from './razorpay-checkout';
+import UpiPayment from './upi-payment';
 
 // Define form schema
 const simplePaymentSchema = z.object({
@@ -260,6 +261,15 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
                     defaultValue={field.value}
                     className="flex flex-col space-y-1"
                   >
+                    {/* Make UPI first and most prominent */}
+                    <div className="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-100 dark:border-green-900">
+                      <RadioGroupItem value="upi" id="upi" />
+                      <Label htmlFor="upi" className="font-medium flex flex-col">
+                        <span className="flex items-center">UPI Payment <span className="ml-2 text-xs px-1.5 py-0.5 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 rounded">Recommended</span></span>
+                        <span className="text-xs text-muted-foreground">Pay directly using any UPI app (PhonePe, Google Pay, BHIM, Paytm)</span>
+                      </Label>
+                    </div>
+                    
                     {availableGateways.stripe && (
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="stripe" id="stripe" />
@@ -282,7 +292,7 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="razorpay" id="razorpay" />
                         <Label htmlFor="razorpay" className="font-normal">
-                          Razorpay (UPI, Netbanking, Wallets)
+                          Razorpay (Cards, Netbanking, Wallets)
                         </Label>
                       </div>
                     )}
@@ -341,6 +351,30 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
             email={formValues.email}
             onCancel={() => setCurrentStep(2)}
           />
+        </div>
+      );
+    }
+    
+    if (formValues.paymentMethod === 'upi' && paymentData.upiId) {
+      return (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">UPI Payment</h3>
+            <Button variant="outline" size="sm" onClick={() => setCurrentStep(2)}>
+              Go Back
+            </Button>
+          </div>
+          
+          {/* Use the existing UPI payment component */}
+          <UpiPayment 
+            upiId={paymentData.upiId} 
+          />
+          
+          <div className="p-4 bg-amber-50 border border-amber-100 dark:bg-amber-900/20 dark:border-amber-800 rounded-md mt-4">
+            <p className="text-sm text-amber-800 dark:text-amber-300">
+              <span className="font-medium">Important:</span> After making the payment, please contact us with your payment details for verification.
+            </p>
+          </div>
         </div>
       );
     }
