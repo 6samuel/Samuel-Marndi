@@ -9,6 +9,7 @@ import SimplePaymentForm from '@/components/payment/simple-payment-form';
 import AdvancedPaymentForm from '@/components/payment/advanced-payment-form';
 import PaymentGatewayStatus from '@/components/payment/payment-gateway-status';
 import UpiPayment from '@/components/payment/upi-payment';
+import UpiPaymentForm from '@/components/payment/upi-payment-form';
 
 export default function PaymentPage() {
   // Fetch payment gateway status to check which ones are available
@@ -56,7 +57,16 @@ export default function PaymentPage() {
                     <TabsTrigger value="advanced">Calculator</TabsTrigger>
                   </TabsList>
                   <TabsContent value="upi" className="mt-4">
-                    <UpiPayment upiId="8280320550@axisb" />
+                    <UpiPaymentForm 
+                      upiId="8280320550@axisb" 
+                      paymentReference={`Payment_${Date.now()}`}
+                      onSuccess={() => {
+                        toast({
+                          title: "Payment Verified",
+                          description: "Your payment has been successfully verified. Thank you!",
+                        });
+                      }}
+                    />
                   </TabsContent>
                   <TabsContent value="simple" className="mt-4">
                     <SimplePaymentForm gatewayStatus={gatewayStatus} />
