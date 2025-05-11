@@ -8,6 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
 import { useToast } from "@/hooks/use-toast";
+import RazorpayCheckout from "@/components/payment/razorpay-checkout";
 
 import {
   Form,
@@ -330,7 +331,7 @@ export default function ConsultationForm() {
                             <SelectItem 
                               key={slot.value} 
                               value={slot.value}
-                              disabled={fromHour && parseInt(slot.value) <= parseInt(fromHour)}
+                              disabled={!!fromHour && parseInt(slot.value) <= parseInt(fromHour)}
                             >
                               {slot.label}
                             </SelectItem>
@@ -686,18 +687,23 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
           
           {selectedPaymentMethod === "razorpay" && paymentData.id && (
             <div className="space-y-3">
-              <div className="p-3 bg-white rounded-md border">
-                <p className="mb-2 font-medium">Razorpay Payment</p>
-                <p className="text-sm mb-4">Complete your payment through Razorpay's secure checkout:</p>
-                <Button 
-                  className="w-full"
-                  onClick={() => {
-                    alert("Razorpay integration will open the payment window");
-                  }}
-                >
-                  Open Razorpay Checkout
-                </Button>
-              </div>
+              <RazorpayCheckout
+                orderId={paymentData.id}
+                amount={consultation?.paymentAmount || 1000}
+                name={consultation?.name || ''}
+                email={consultation?.email || ''}
+                onCancel={() => setPaymentData(null)}
+                onSuccess={() => {
+                  toast({
+                    title: "Payment Successful",
+                    description: "Your consultation booking is confirmed. You will receive an email confirmation shortly.",
+                  });
+                  // Update consultation payment status in UI
+                  if (consultation && consultation.id) {
+                    queryClient.invalidateQueries([`/api/consultations/${consultation.id}`]);
+                  }
+                }}
+              />
             </div>
           )}
           
