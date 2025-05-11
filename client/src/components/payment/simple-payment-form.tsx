@@ -52,7 +52,7 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
     defaultValues: {
       amount: '',
       paymentFor: '',
-      paymentMethod: 'stripe',
+      paymentMethod: 'upi', // Set UPI as default since it's the most reliable option
       name: '',
       email: '',
     },
@@ -104,26 +104,40 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
           );
           break;
         case 'upi':
-          // For UPI, just get UPI info from server
-          response = await apiRequest(
-            'GET', 
-            '/api/payment/upi/info', 
-            {}
-          );
-          
-          // Also record this payment attempt
-          await apiRequest(
-            'POST', 
-            '/api/payment/upi/record', 
-            { 
-              amount: parseFloat(data.amount),
-              description: data.paymentFor,
-              name: data.name,
-              email: data.email,
-              status: 'initiated'
-            }
-          ).catch(err => console.error('Error recording UPI payment:', err));
-          
+          // For UPI, just create a dummy response with the UPI ID
+          // No need to call the server for UPI payments since we're using a fixed UPI ID
+          try {
+            // Record this payment attempt if the endpoint exists
+            await apiRequest(
+              'POST', 
+              '/api/payment/upi/record', 
+              { 
+                amount: parseFloat(data.amount),
+                description: data.paymentFor,
+                name: data.name,
+                email: data.email,
+                status: 'initiated'
+              }
+            ).catch(err => {
+              // Silently handle error - this is optional functionality
+              console.log('UPI payment record endpoint not available:', err);
+            });
+            
+            // Create a dummy response object with UPI details
+            response = new Response(JSON.stringify({
+              success: true,
+              upiId: "8280320550@axisb",
+              amount: data.amount,
+              name: data.name
+            }));
+          } catch (error) {
+            console.error('Error handling UPI payment:', error);
+            // Still return a valid response so UPI payment can proceed
+            response = new Response(JSON.stringify({
+              success: true,
+              upiId: "8280320550@axisb"
+            }));
+          }
           break;
       }
       
@@ -162,11 +176,17 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
   const availableGateways = gatewayStatus ? {
     stripe: gatewayStatus.stripe.available,
     paypal: gatewayStatus.paypal.available,
-    razorpay: gatewayStatus.razorpay.available
-  } : { stripe: false, paypal: false, razorpay: false };
+    razorpay: gatewayStatus.razorpay.available,
+    upi: true // UPI is always available
+  } : { 
+    stripe: false, 
+    paypal: false, 
+    razorpay: false,
+    upi: true // UPI is always available
+  };
 
-  // If no gateways are available, show an instruction
-  if (!availableGateways.stripe && !availableGateways.paypal && !availableGateways.razorpay) {
+  // If no gateways are available (UPI is always available, so this should never happen)
+  if (!availableGateways.stripe && !availableGateways.paypal && !availableGateways.razorpay && !availableGateways.upi) {
     return (
       <div className="text-center p-4 border rounded-md bg-muted/50">
         <p>Payment gateways are currently unavailable. Please contact me directly to discuss payment options.</p>
@@ -355,7 +375,7 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
       );
     }
     
-    if (formValues.paymentMethod === 'upi' && paymentData.upiId) {
+    if (formValues.paymentMethod === 'upi') {
       return (
         <div className="space-y-6">
           <div className="flex justify-between items-center mb-4">
@@ -365,9 +385,9 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
             </Button>
           </div>
           
-          {/* Use the existing UPI payment component */}
+          {/* Use the existing UPI payment component with hardcoded UPI ID */}
           <UpiPayment 
-            upiId={paymentData.upiId} 
+            upiId="8280320550@axisb" 
           />
           
           <div className="p-4 bg-amber-50 border border-amber-100 dark:bg-amber-900/20 dark:border-amber-800 rounded-md mt-4">
