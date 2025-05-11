@@ -1164,7 +1164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Ad Tracking API routes
   
   // Get all trackers
-  app.get(`${apiRoute}/ad-trackers`, isAuthenticated, isAdmin, async (_req, res) => {
+  app.get(`${apiRoute}/ad-trackers`, async (_req, res) => {
     try {
       const trackers = await storage.getAdTrackers();
       res.json(trackers);
