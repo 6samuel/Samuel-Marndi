@@ -72,9 +72,21 @@ export default function ServiceRequestForm({
     mutationFn: async (data: ServiceRequestFormValues) => {
       const response = await apiRequest(
         'POST', 
-        '/api/service-requests', 
+        '/api/service-request', 
         data
       );
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        try {
+          // Try to parse as JSON first
+          const jsonError = JSON.parse(errorData);
+          throw new Error(jsonError.message || 'Failed to submit service request');
+        } catch (e) {
+          // If not valid JSON, use the text response or a default message
+          throw new Error(errorData || 'Failed to submit service request');
+        }
+      }
       
       return await response.json();
     },
@@ -215,23 +227,39 @@ export default function ServiceRequestForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Service</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
+                {serviceId ? (
+                  // If serviceId is provided, just show the service name
                   <FormControl>
-                    <SelectTrigger className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50">
-                      <SelectValue placeholder="Select a service" />
-                    </SelectTrigger>
+                    <Input 
+                      value={serviceName || `Service #${serviceId}`} 
+                      disabled 
+                      className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50 cursor-not-allowed"
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {services.map((service) => (
-                      <SelectItem key={service.id} value={service.id.toString()}>
-                        {service.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                ) : (
+                  // Otherwise, show the dropdown
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50">
+                        <SelectValue placeholder="Select a service" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {services && services.length > 0 ? (
+                        services.map((service) => (
+                          <SelectItem key={service.id} value={service.id.toString()}>
+                            {service.title}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="loading" disabled>Loading services...</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
                 <FormMessage />
               </FormItem>
             )}
