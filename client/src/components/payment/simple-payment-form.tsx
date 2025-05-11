@@ -23,6 +23,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import StripeCheckout from './stripe-checkout';
 import PayPalCheckout from './paypal-checkout';
+import RazorpayCheckout from './razorpay-checkout';
 
 // Define form schema
 const simplePaymentSchema = z.object({
@@ -307,7 +308,19 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
       );
     }
     
-    // Razorpay would be handled here
+    if (formValues.paymentMethod === 'razorpay' && paymentData.id) {
+      return (
+        <div className="space-y-6">
+          <RazorpayCheckout
+            orderId={paymentData.id}
+            amount={amount}
+            name={formValues.name}
+            email={formValues.email}
+            onCancel={() => setCurrentStep(2)}
+          />
+        </div>
+      );
+    }
     
     // Fallback if something went wrong
     return (
