@@ -9,7 +9,6 @@ import { format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
 import { useToast } from "@/hooks/use-toast";
 import RazorpayCheckout from "@/components/payment/razorpay-checkout";
-import UpiPaymentForm from "@/components/payment/upi-payment-form";
 
 import {
   Form,
@@ -709,22 +708,39 @@ function ConsultationPayment({ consultationId }: { consultationId: number | null
           )}
           
           {selectedPaymentMethod === "upi" && paymentData.upiInfo && (
-            <UpiPaymentForm
-              upiId={paymentData.upiInfo.upiId}
-              amount={String(consultation?.paymentAmount || 1000)}
-              paymentReference={paymentData.referenceId || `Consultation-${consultation?.id}`}
-              onCancel={() => setPaymentData(null)}
-              onSuccess={() => {
-                toast({
-                  title: "Payment Verified",
-                  description: "Your consultation booking is confirmed. You will receive an email confirmation shortly.",
-                });
-                // Update consultation payment status in UI
-                if (consultation && consultation.id) {
-                  queryClient.invalidateQueries({ queryKey: [`/api/consultations/${consultation.id}`] });
-                }
-              }}
-            />
+            <div className="flex flex-col md:flex-row gap-5 p-3 bg-white rounded-md border">
+              <div className="flex-1 text-center md:text-left">
+                <p className="font-medium mb-2">UPI Payment Details</p>
+                <p className="text-sm mb-1">Scan the QR code with any UPI app:</p>
+                <ul className="text-xs mb-3 list-disc list-inside text-muted-foreground">
+                  <li>Google Pay</li>
+                  <li>PhonePe</li>
+                  <li>Paytm</li>
+                  <li>BHIM UPI</li>
+                  <li>Banking UPI apps</li>
+                </ul>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">UPI ID:</p>
+                  <code className="bg-gray-100 px-2 py-1 rounded text-sm break-all">{paymentData.upiInfo.upiId}</code>
+                  <p className="text-sm mt-2">Reference: <span className="font-medium">{paymentData.referenceId}</span></p>
+                  <p className="text-sm">Amount: <span className="font-medium">₹{consultation?.paymentAmount || 1000}</span></p>
+                </div>
+              </div>
+              <div className="flex justify-center items-center">
+                {paymentData.upiInfo.upiId && (
+                  <div className="bg-white p-3 border rounded-md inline-block shadow-sm">
+                    <QRCodeSVG 
+                      value={`upi://pay?pa=${paymentData.upiInfo.upiId}&am=${consultation?.paymentAmount || 1000}&cu=INR&tn=Consultation ${consultation?.duration || 1}hr`}
+                      size={150}
+                      bgColor={"#ffffff"}
+                      fgColor={"#000000"}
+                      level={"L"}
+                      includeMargin={false}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           )}
           
           <p className="mt-4 text-sm text-center text-muted-foreground">
