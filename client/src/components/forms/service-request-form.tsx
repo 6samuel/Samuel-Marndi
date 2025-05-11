@@ -73,7 +73,10 @@ export default function ServiceRequestForm({
       const response = await apiRequest(
         'POST', 
         '/api/service-request', 
-        data
+        {
+          ...data,
+          serviceId: parseInt(data.serviceId) // Convert to number
+        }
       );
       
       if (!response.ok) {
@@ -101,6 +104,8 @@ export default function ServiceRequestForm({
       
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ['/api/service-requests'] });
+      // Also invalidate services in case we need to update service-related data
+      queryClient.invalidateQueries({ queryKey: ['/api/services'] });
       
       // Call success callback if provided
       if (onSubmitSuccess) {
