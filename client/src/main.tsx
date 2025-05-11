@@ -2,8 +2,8 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { optimizeFontLoading, preloadCriticalFonts } from "@/lib/font-optimization";
-import { loadTrackingScripts, optimizeBelowFoldContent } from "@/lib/performance";
+import { optimizeFontLoading, loadOptimizedFonts } from "@/lib/font-optimization";
+import { loadDeferredScripts, setupLazyLoading } from "@/lib/performance";
 
 // Performance optimization
 if (typeof window !== 'undefined') {
@@ -14,16 +14,16 @@ if (typeof window !== 'undefined') {
   window.addEventListener('load', () => {
     optimizeFontLoading();
     
-    // Preload most important fonts
-    preloadCriticalFonts([
-      'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
-    ]);
+    // Optimize font loading
+    loadOptimizedFonts();
     
-    // Apply content-visibility optimization to elements below the fold
-    optimizeBelowFoldContent();
+    // Apply lazy loading to images
+    setupLazyLoading();
     
     // Deferred loading of non-critical scripts
-    loadTrackingScripts();
+    loadDeferredScripts([
+      // Add any third-party scripts here
+    ]);
     
     // Log performance metrics (helpful for development)
     console.log(`Page fully loaded in ${(performance.now() - startTime).toFixed(0)}ms`);
