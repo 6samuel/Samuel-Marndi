@@ -56,20 +56,42 @@ export default function RazorpayCheckout({
   }, [toast]);
 
   const openRazorpayCheckout = async () => {
-    if (!window.Razorpay) {
-      toast({
-        title: 'Error',
-        description: 'Razorpay is not loaded yet. Please wait or refresh the page.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     try {
+      // Safely load Razorpay script first if not loaded
+      if (!window.Razorpay) {
+        await new Promise<boolean>((resolve) => {
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          
+          script.onload = () => {
+            console.log('Razorpay script loaded successfully');
+            resolve(true);
+          };
+          
+          script.onerror = () => {
+            console.error('Failed to load Razorpay script');
+            toast({
+              title: 'Error',
+              description: 'Failed to load Razorpay. Please try another payment method.',
+              variant: 'destructive',
+            });
+            resolve(false);
+          };
+          
+          document.body.appendChild(script);
+        });
+      }
+      
+      if (!window.Razorpay) {
+        throw new Error('Razorpay failed to load');
+      }
+
       // Fetch key ID from the server
       const keyResponse = await fetch('/api/payment/status');
       const keyData = await keyResponse.json();
       const keyId = keyData.razorpay.keyId;
+
+      console.log('Razorpay key ID:', keyId ? 'Available' : 'Missing');
 
       if (!keyId) {
         throw new Error('Razorpay key not available');
@@ -83,8 +105,8 @@ export default function RazorpayCheckout({
         description: 'Payment for services',
         order_id: orderId,
         prefill: {
-          name: name,
-          email: email,
+          name: name || 'Customer',
+          email: email || 'customer@example.com',
         },
         theme: {
           color: '#3182ce',
@@ -144,13 +166,38 @@ export default function RazorpayCheckout({
         },
       };
 
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      console.log('Initializing Razorpay checkout with options:', {
+        ...options,
+        key: 'HIDDEN', // Don't log the key in client console
+      });
+      
+      try {
+        const razorpay = new window.Razorpay(options);
+        
+        // Add error event listener
+        razorpay.on('payment.failed', function(failedResponse: any) {
+          console.error('Razorpay payment failed:', failedResponse);
+          toast({
+            title: 'Payment Failed',
+            description: failedResponse.error?.description || 'Your payment attempt failed. Please try again or use a different payment method.',
+            variant: 'destructive',
+          });
+        });
+        
+        razorpay.open();
+      } catch (razorpayError) {
+        console.error('Error opening Razorpay:', razorpayError);
+        toast({
+          title: 'Checkout Error',
+          description: 'Unable to open Razorpay checkout. Please try again later.',
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
       console.error('Razorpay error:', error);
       toast({
         title: 'Payment Error',
-        description: 'Failed to open Razorpay checkout. Please try another payment method.',
+        description: 'Failed to initialize payment. Please try another payment method.',
         variant: 'destructive',
       });
     }
