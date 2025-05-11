@@ -18,10 +18,36 @@ import { upiHandler } from './upi';
 
 // Initialize all payment gateways
 export const initPaymentGateways = () => {
+  console.log('🔄 Initializing payment gateways...');
+  
+  try {
+    const stripeInitialized = initStripe();
+    console.log('💳 Stripe initialization:', stripeInitialized ? 'Success' : 'Failed');
+  } catch (error) {
+    console.error('❌ Stripe initialization error:', error);
+  }
+  
+  try {
+    const paypalInitialized = initPayPal();
+    console.log('💰 PayPal initialization:', paypalInitialized ? 'Success' : 'Failed');
+  } catch (error) {
+    console.error('❌ PayPal initialization error:', error);
+  }
+  
+  try {
+    const razorpayInitialized = initRazorpay();
+    console.log('💸 Razorpay initialization:', razorpayInitialized ? 'Success' : 'Failed');
+  } catch (error) {
+    console.error('❌ Razorpay initialization error:', error);
+  }
+  
+  // Initialize with error handling
   const stripeInitialized = initStripe();
   const paypalInitialized = initPayPal();
   const razorpayInitialized = initRazorpay();
 
+  console.log('✅ Payment gateway initialization complete');
+  
   return {
     stripeInitialized,
     paypalInitialized,
