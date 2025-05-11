@@ -1934,7 +1934,6 @@ export default function ABTesting() {
                 
                 <div className="rounded-md border">
                   <CodeHighlightTabs
-                    defaultValue="javascript"
                     code={getTestTrackerCode(selectedTest, variants)}
                   />
                 </div>
