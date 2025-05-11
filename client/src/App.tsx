@@ -50,6 +50,7 @@ import AdminCampaigns from "@/pages/admin/campaigns";
 import AdminAdTrackers from "@/pages/admin/ad-trackers";
 import AdminSettings from "@/pages/admin/settings";
 import AdminContentManagement from "@/pages/admin/content-management";
+import AdminAnalytics from "@/pages/admin/analytics";
 
 // Layout components
 import SiteHeader from "@/components/layouts/site-header";
@@ -90,6 +91,7 @@ function Router() {
         <ProtectedRoute path="/admin/forms" component={AdminForms} adminOnly />
         <ProtectedRoute path="/admin/campaigns" component={AdminCampaigns} adminOnly />
         <ProtectedRoute path="/admin/ad-trackers" component={AdminAdTrackers} adminOnly />
+        <ProtectedRoute path="/admin/analytics" component={AdminAnalytics} adminOnly />
         <ProtectedRoute path="/admin/settings" component={AdminSettings} adminOnly />
         <ProtectedRoute path="/admin/content" component={AdminContentManagement} adminOnly />
         
