@@ -8,6 +8,13 @@ import { ContactSubmission, ServiceRequest, PartnerApplication } from "@shared/s
 import { format } from "date-fns";
 import { queryClient, getQueryFn, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   Dialog, 
   DialogContent, 
@@ -328,6 +335,85 @@ export default function AdminForms() {
     setIsDeleteDialogOpen(true);
   };
   
+  // Data export function
+  const exportData = (data: any[], format: 'csv' | 'json' | 'excel', filename: string) => {
+    if (!data || data.length === 0) {
+      return;
+    }
+    
+    const exportDate = new Date().toISOString().split('T')[0];
+    const fullFilename = `${filename}-${exportDate}`;
+    
+    if (format === 'json') {
+      // Export as JSON
+      const jsonString = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      downloadBlob(blob, `${fullFilename}.json`);
+    } 
+    else if (format === 'csv') {
+      // Export as CSV
+      const headers = Object.keys(data[0]);
+      const csvRows = [
+        headers.join(','),
+        ...data.map(row => {
+          return headers.map(header => {
+            let value = row[header];
+            
+            // Handle complex values
+            if (typeof value === 'object' && value !== null) {
+              value = JSON.stringify(value);
+            }
+            
+            // Escape quotes and format for CSV
+            const cellValue = value === null || value === undefined ? '' : String(value);
+            return `"${cellValue.replace(/"/g, '""')}"`;
+          }).join(',');
+        })
+      ];
+      
+      const csvString = csvRows.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      downloadBlob(blob, `${fullFilename}.csv`);
+    }
+    else if (format === 'excel') {
+      // For Excel, we'll actually just use CSV which Excel can open
+      const headers = Object.keys(data[0]);
+      const csvRows = [
+        headers.join(','),
+        ...data.map(row => {
+          return headers.map(header => {
+            let value = row[header];
+            
+            // Handle complex values
+            if (typeof value === 'object' && value !== null) {
+              value = JSON.stringify(value);
+            }
+            
+            // Escape quotes and format for CSV
+            const cellValue = value === null || value === undefined ? '' : String(value);
+            return `"${cellValue.replace(/"/g, '""')}"`;
+          }).join(',');
+        })
+      ];
+      
+      const csvString = csvRows.join('\n');
+      const blob = new Blob([csvString], { type: 'application/vnd.ms-excel' });
+      downloadBlob(blob, `${fullFilename}.xls`);
+    }
+  };
+  
+  // Helper function to download blob
+  const downloadBlob = (blob: Blob, filename: string) => {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+  };
+  
   // Function to handle reply form input changes
   const handleReplyInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -572,6 +658,27 @@ export default function AdminForms() {
             </TabsContent>
             
             <TabsContent value="partner" className="pt-4">
+              <div className="mb-4 flex justify-end space-x-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="mr-2 h-4 w-4" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => exportData(partnerApplications, 'csv', 'partner-applications')}>
+                      Export as CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportData(partnerApplications, 'json', 'partner-applications')}>
+                      Export as JSON
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => exportData(partnerApplications, 'excel', 'partner-applications')}>
+                      Export as Excel
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <div className="border rounded-lg shadow overflow-hidden">
                 {isLoadingPartners ? (
                   <div className="p-6 text-center">Loading partner applications...</div>
