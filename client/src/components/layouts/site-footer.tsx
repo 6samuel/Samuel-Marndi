@@ -52,7 +52,7 @@ const SiteFooter = () => {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
           {/* Brand and info */}
           <div className="md:col-span-4">
-            <Link href="/">
+            <Link to="/">
               <span className="text-xl font-bold text-primary">Samuel Marndi</span>
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 max-w-xs">
@@ -105,27 +105,27 @@ const SiteFooter = () => {
             </h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <Link href="/services/web-development" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/services/web-development" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   Web Development
                 </Link>
               </li>
               <li>
-                <Link href="/services/digital-marketing" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/services/digital-marketing" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   Digital Marketing
                 </Link>
               </li>
               <li>
-                <Link href="/services/ui-ux-design" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/services/ui-ux-design" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   UI/UX Design
                 </Link>
               </li>
               <li>
-                <Link href="/services/seo-optimization" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/services/seo-optimization" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   SEO Optimization
                 </Link>
               </li>
               <li>
-                <Link href="/services/ecommerce-solutions" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/services/ecommerce-solutions" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   E-commerce Solutions
                 </Link>
               </li>
@@ -139,27 +139,27 @@ const SiteFooter = () => {
             </h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <Link href="/about" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/about" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/portfolio" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/portfolio" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   Portfolio
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/blog" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/contact" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/privacy-policy" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   Privacy Policy
                 </Link>
               </li>
@@ -173,7 +173,7 @@ const SiteFooter = () => {
             </h3>
             <ul className="mt-4 space-y-4">
               <li>
-                <Link href="/payment" className="inline-flex items-center text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground space-x-1">
+                <Link to="/payment" className="inline-flex items-center text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground space-x-1">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                     <line x1="1" y1="10" x2="23" y2="10"></line>
@@ -182,7 +182,7 @@ const SiteFooter = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/consultation" className="inline-flex items-center text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground space-x-1">
+                <Link to="/consultation" className="inline-flex items-center text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground space-x-1">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -193,7 +193,7 @@ const SiteFooter = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/partners" className="inline-flex items-center text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground space-x-1">
+                <Link to="/partners" className="inline-flex items-center text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground space-x-1">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
@@ -238,16 +238,16 @@ const SiteFooter = () => {
             &copy; {currentYear} Samuel Marndi. All rights reserved.
           </p>
           <div className="mt-4 sm:mt-0 flex space-x-6">
-            <Link href="/terms-conditions" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
+            <Link to="/terms-conditions" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
               Terms of Service
             </Link>
-            <Link href="/privacy-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
+            <Link to="/privacy-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
               Privacy Policy
             </Link>
-            <Link href="/cookie-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
+            <Link to="/cookie-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
               Cookie Policy
             </Link>
-            <Link href="/refund-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
+            <Link to="/refund-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">
               Refund Policy
             </Link>
           </div>

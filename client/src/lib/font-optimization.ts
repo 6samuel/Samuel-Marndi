@@ -1,55 +1,70 @@
-/**
- * Font optimization script that adds preconnect links for Google Fonts
- * and dynamically inserts font-display: swap CSS for better performance
- */
+// Font optimization utilities
 
-export function optimizeFontLoading(): void {
-  // Add preconnect links for Google Fonts
-  const preconnectHosts = [
+/**
+ * Adds proper font display settings and preconnect hints
+ * This ensures text remains visible during font loading
+ */
+export function optimizeFontLoading() {
+  if (typeof window === 'undefined') return;
+  
+  // Add preconnect for Google Fonts if you're using them
+  const preconnectDomains = [
     'https://fonts.googleapis.com',
     'https://fonts.gstatic.com'
   ];
-
-  preconnectHosts.forEach(host => {
+  
+  preconnectDomains.forEach(domain => {
     const link = document.createElement('link');
     link.rel = 'preconnect';
-    link.href = host;
+    link.href = domain;
     link.crossOrigin = 'anonymous';
     document.head.appendChild(link);
   });
-
-  // Insert CSS rule to ensure all fonts use font-display: swap
-  const style = document.createElement('style');
-  style.textContent = `
-    @font-face {
-      font-display: swap !important;
-    }
-  `;
-  document.head.appendChild(style);
   
-  // For Google Fonts specifically - modify their URLs to include display=swap parameter
-  const links = document.querySelectorAll('link[href*="fonts.googleapis.com"]');
-  links.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href && !href.includes('display=swap')) {
-      const separator = href.includes('?') ? '&' : '?';
-      link.setAttribute('href', `${href}${separator}display=swap`);
-    }
-  });
+  // Set proper font-display on all font-face rules
+  const styleSheets = Array.from(document.styleSheets);
+  
+  try {
+    styleSheets.forEach(sheet => {
+      try {
+        if (sheet.href && (sheet.href.includes('fonts.googleapis.com') || sheet.href.includes('fonts'))) {
+          const rules = Array.from(sheet.cssRules || []);
+          rules.forEach(rule => {
+            if (rule instanceof CSSFontFaceRule) {
+              // Add font-display: swap to show text while fonts are loading
+              (rule as any).style.fontDisplay = 'swap';
+            }
+          });
+        }
+      } catch (error) {
+        // CORS might prevent reading some external stylesheets
+        console.log('Could not optimize fonts in external stylesheet');
+      }
+    });
+  } catch (error) {
+    console.log('Error optimizing fonts:', error);
+  }
 }
 
 /**
- * Preload critical fonts to improve page load performance
- * @param fontUrls Array of font URLs to preload
+ * Loads only the font weights and styles that are actually used
+ * This reduces the amount of font data that needs to be downloaded
  */
-export function preloadCriticalFonts(fontUrls: string[]): void {
-  fontUrls.forEach(url => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.href = url;
-    link.as = 'font';
-    link.type = 'font/woff2';
-    link.crossOrigin = 'anonymous';
-    document.head.appendChild(link);
+export function loadOptimizedFonts() {
+  // This is a utility to inject optimized font loading
+  // Replace the default Google Fonts CSS with a more optimized one
+  const fontLinks = document.querySelectorAll('link[href*="fonts.googleapis.com"]');
+  
+  fontLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href && !href.includes('text=')) {
+      // Extract font information and rebuild with only necessary characters
+      // Example optimization for Latin only
+      const optimizedHref = href.includes('?') 
+        ? `${href}&display=swap&text=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:!?@#%&-_+="'()` 
+        : `${href}?display=swap&text=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:!?@#%&-_+="'()`;
+      
+      link.setAttribute('href', optimizedHref);
+    }
   });
 }
