@@ -29,7 +29,7 @@ import RazorpayCheckout from './razorpay-checkout';
 const simplePaymentSchema = z.object({
   amount: z.string().min(1, 'Amount is required').regex(/^\d+(\.\d{1,2})?$/, 'Invalid amount format'),
   paymentFor: z.string().min(5, 'Please describe what this payment is for'),
-  paymentMethod: z.enum(['stripe', 'paypal', 'razorpay']),
+  paymentMethod: z.enum(['stripe', 'paypal', 'razorpay', 'upi']),
   name: z.string().min(2, 'Name is required'),
   email: z.string().email('Please enter a valid email address'),
 });
@@ -102,9 +102,32 @@ export default function SimplePaymentForm({ gatewayStatus }: SimplePaymentFormPr
             }
           );
           break;
+        case 'upi':
+          // For UPI, just get UPI info from server
+          response = await apiRequest(
+            'GET', 
+            '/api/payment/upi/info', 
+            {}
+          );
+          
+          // Also record this payment attempt
+          await apiRequest(
+            'POST', 
+            '/api/payment/upi/record', 
+            { 
+              amount: parseFloat(data.amount),
+              description: data.paymentFor,
+              name: data.name,
+              email: data.email,
+              status: 'initiated'
+            }
+          ).catch(err => console.error('Error recording UPI payment:', err));
+          
+          break;
       }
       
-      return await response.json();
+      // If response is undefined (shouldn't happen), return an empty object
+      return response ? await response.json() : {};
     },
     onSuccess: (data) => {
       toast({
