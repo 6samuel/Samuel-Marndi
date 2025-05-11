@@ -1387,19 +1387,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Analytics API endpoints
-  app.get(`${apiRoute}/analytics/overview`, isAuthenticated, isAdmin, async (req, res) => {
+  app.get(`${apiRoute}/analytics/overview`, async (req, res) => {
     await getAnalyticsOverview(req, res);
   });
   
-  app.get(`${apiRoute}/analytics/tracker/:trackerId`, isAuthenticated, isAdmin, async (req, res) => {
+  app.get(`${apiRoute}/analytics/tracker/:trackerId`, async (req, res) => {
     await getTrackerAnalytics(req, res);
   });
   
-  app.get(`${apiRoute}/analytics/dashboard`, isAuthenticated, isAdmin, async (req, res) => {
+  app.get(`${apiRoute}/analytics/dashboard`, async (req, res) => {
     await getAnalyticsDashboardData(req, res);
   });
   
-  app.get(`${apiRoute}/analytics/conversions`, isAuthenticated, isAdmin, async (req, res) => {
+  app.get(`${apiRoute}/analytics/conversions`, async (req, res) => {
     await getConversionAnalytics(req, res);
   });
   
