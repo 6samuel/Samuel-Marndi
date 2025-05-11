@@ -30,12 +30,24 @@ export default function ServiceRequestModal({
       })) : [];
     }
   });
+  
+  // Find the service name if serviceId is provided
+  const serviceName = React.useMemo(() => {
+    if (!serviceId || !services) return undefined;
+    const service = services.find(s => s.id.toString() === serviceId);
+    return service?.title;
+  }, [serviceId, services]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[600px] p-0 max-h-[90vh]">
         <DialogHeader className="p-6 pb-0 pt-10 sm:pt-6">
-          <DialogTitle>Request This Service</DialogTitle>
+          <DialogTitle>
+            {serviceName 
+              ? `Request Service: ${serviceName}` 
+              : "Request Service"
+            }
+          </DialogTitle>
           <DialogDescription>
             Fill out the form below to request more information about this service
           </DialogDescription>
@@ -44,6 +56,7 @@ export default function ServiceRequestModal({
           <ServiceRequestForm
             onClose={onClose}
             serviceId={serviceId}
+            serviceName={serviceName}
             services={services || []}
           />
         </div>
