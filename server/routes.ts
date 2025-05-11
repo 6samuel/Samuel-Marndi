@@ -59,6 +59,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
   setupAuth(app);
   
+  // Health check endpoint
+  app.get('/', (_req, res) => {
+    res.status(200).send('Service is healthy');
+  });
+  
   // API base prefix
   const apiRoute = '/api';
   
