@@ -102,6 +102,11 @@ export default function ServiceRequestForm({
       // Reset form
       form.reset();
       
+      // Track conversion with Google Ads
+      if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+        (window as any).gtag_report_conversion();
+      }
+      
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ['/api/service-requests'] });
       // Also invalidate services in case we need to update service-related data
@@ -127,6 +132,11 @@ export default function ServiceRequestForm({
   });
 
   function onSubmit(data: ServiceRequestFormValues) {
+    // Call Google Ads conversion tracking
+    if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+      (window as any).gtag_report_conversion();
+    }
+    
     submitRequest(data);
   }
 
