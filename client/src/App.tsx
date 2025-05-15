@@ -25,6 +25,13 @@ const GoogleAdsClickTracking = lazy(() =>
   }))
 );
 
+// Campaign tracking
+const CampaignTracker = lazy(() => 
+  import("@/components/tracking/campaign-tracker").then(module => ({
+    default: module.default
+  }))
+);
+
 // Pages
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
@@ -186,6 +193,7 @@ function App() {
               <Suspense fallback={null}>
                 <TrackingScripts />
                 <GoogleAdsClickTracking />
+                <CampaignTracker />
               </Suspense>
               <Router />
             </TooltipProvider>
