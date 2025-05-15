@@ -105,6 +105,11 @@ const ContactForm = () => {
   });
 
   const onSubmit = (values: FormValues) => {
+    // Call Google Ads conversion tracking
+    if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+      (window as any).gtag_report_conversion();
+    }
+    
     mutation.mutate(values);
   };
 
