@@ -10,6 +10,8 @@ import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense, useEffect } from "react";
 import { setupLazyLoading, trackPagePerformance, loadDeferredScripts, optimizeCriticalRendering, addResourceHints } from "@/lib/performance";
 import { optimizeFontLoading, loadOptimizedFonts } from "@/lib/font-optimization";
+import { initGA } from "@/lib/analytics";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 // Lazy load tracking scripts and other non-critical components
 const TrackingScripts = lazy(() => 
@@ -78,6 +80,9 @@ import WhatsAppButton from "@/components/ui/whatsapp-button";
 
 function Router() {
   const [location] = useLocation();
+  
+  // Track page views when location changes
+  useAnalytics();
   
   // Check if current route is an admin route
   const isAdminRoute = location && location.startsWith('/admin');
@@ -149,8 +154,15 @@ function Router() {
 }
 
 function App() {
-  // Initialize performance optimizations
+  // Initialize performance optimizations and analytics
   useEffect(() => {
+    // Initialize Google Analytics
+    if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+      initGA();
+    } else {
+      console.warn('Missing Google Analytics Measurement ID');
+    }
+    
     // Start performance tracking
     trackPagePerformance();
     
@@ -174,7 +186,9 @@ function App() {
       preconnect: [
         'https://fonts.googleapis.com',
         'https://fonts.gstatic.com',
-        'https://images.unsplash.com'
+        'https://images.unsplash.com',
+        'https://www.googletagmanager.com',
+        'https://www.google-analytics.com'
       ],
       prefetch: [
         // Prefetch URLs for next navigation (like important pages)
