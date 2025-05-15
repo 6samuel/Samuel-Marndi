@@ -18,6 +18,13 @@ const TrackingScripts = lazy(() =>
   }))
 );
 
+// Google Ads tracking
+const GoogleAdsClickTracking = lazy(() => 
+  import("@/components/tracking/google-ads-click-tracking").then(module => ({
+    default: module.default
+  }))
+);
+
 // Pages
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
@@ -178,6 +185,7 @@ function App() {
               <Toaster />
               <Suspense fallback={null}>
                 <TrackingScripts />
+                <GoogleAdsClickTracking />
               </Suspense>
               <Router />
             </TooltipProvider>
