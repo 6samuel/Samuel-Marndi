@@ -1372,6 +1372,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Record a hit for a tracker (public endpoint)
+  app.post(`${apiRoute}/ad-trackers/:trackerId/hit`, async (req, res) => {
+    await recordTrackerHit(req, res);
+  });
+  
+  // Record a conversion for a tracker (public endpoint)
+  app.post(`${apiRoute}/ad-trackers/:trackerId/conversion`, async (req, res) => {
+    await recordConversion(req, res);
+  });
+  
+  // Generate tracking URL for marketing campaigns
+  app.post(`${apiRoute}/generate-tracking-url`, isAuthenticated, isAdmin, async (req, res) => {
+    await generateTrackingUrl(req, res);
+  });
+  
   // Get tracker analytics
   app.get(`${apiRoute}/ad-trackers/:id/analytics`, isAuthenticated, isAdmin, async (req, res) => {
     try {

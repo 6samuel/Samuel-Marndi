@@ -122,6 +122,7 @@ export interface IStorage {
   
   // Ad Tracker Hits operations
   getAdTrackerHits(trackerId: number): Promise<AdTrackerHit[]>;
+  getAdTrackerHitsBySessionId(sessionId: string, trackerId: number): Promise<AdTrackerHit[]>;
   createAdTrackerHit(hit: InsertAdTrackerHit): Promise<AdTrackerHit>;
   updateAdTrackerHitConversion(id: number, converted: boolean, conversionType?: string): Promise<AdTrackerHit | undefined>;
   getAdTrackerHitsCount(trackerId: number): Promise<number>;
@@ -800,6 +801,12 @@ export class MemStorage implements IStorage {
   async getAdTrackerHits(trackerId: number): Promise<AdTrackerHit[]> {
     return Array.from(this.adTrackerHits.values())
       .filter(hit => hit.trackerId === trackerId)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }
+  
+  async getAdTrackerHitsBySessionId(sessionId: string, trackerId: number): Promise<AdTrackerHit[]> {
+    return Array.from(this.adTrackerHits.values())
+      .filter(hit => hit.trackerId === trackerId && hit.sessionId === sessionId)
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }
 
