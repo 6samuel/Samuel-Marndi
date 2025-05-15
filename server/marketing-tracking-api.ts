@@ -48,16 +48,21 @@ export const recordTrackerHit = async (req: Request, res: Response) => {
     const hit = await storage.createAdTrackerHit({
       trackerId,
       sessionId: hitData.sessionId,
-      source: hitData.source || 'direct',
-      campaign: hitData.campaign || 'none',
-      medium: hitData.medium || 'website',
-      content: hitData.content || '',
-      term: hitData.term || '',
-      referrer: hitData.referrer || '',
-      device: hitData.device || '',
-      ip: req.ip || '',
-      timestamp: new Date(),
-      converted: false
+      sourcePlatform: hitData.source || 'direct',
+      pageUrl: hitData.referrer || req.headers.referer || '',
+      sourceUrl: hitData.referrer,
+      deviceType: hitData.device,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      converted: false,
+      conversionType: null,
+      extraData: {
+        utm_source: hitData.source,
+        utm_campaign: hitData.campaign,
+        utm_medium: hitData.medium,
+        utm_content: hitData.content,
+        utm_term: hitData.term
+      }
     });
 
     res.status(200).json(hit);
@@ -87,12 +92,18 @@ export const recordConversion = async (req: Request, res: Response) => {
     const { sessionId, conversionType } = validationResult.data;
 
     // Find the hit by session ID and update its conversion status
+    // First, find the hit with the matching session ID
+    const hits = await storage.getAdTrackerHitsBySessionId(sessionId, trackerId);
+    if (!hits || hits.length === 0) {
+      return res.status(404).json({ error: 'No hit found for this session ID' });
+    }
+    
+    // Update the first hit found
+    const hitId = hits[0].id;
     const hit = await storage.updateAdTrackerHitConversion(
-      0, // This will be replaced by the actual hit ID in the storage implementation
+      hitId,
       true,
-      conversionType || 'lead',
-      sessionId,
-      trackerId
+      conversionType || 'lead'
     );
 
     if (!hit) {
