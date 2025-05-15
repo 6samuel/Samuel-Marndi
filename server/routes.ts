@@ -37,7 +37,8 @@ import {
 
 // Import sitemap generator functions
 import { generateSitemap, generateRobotsTxt } from './sitemap-generator';
-import { getAnalyticsOverview, getTrackerAnalytics, getAnalyticsDashboardData, getConversionAnalytics } from './analytics';
+import { getAnalyticsOverview, getTrackerAnalytics as getGeneralTrackerAnalytics, getAnalyticsDashboardData, getConversionAnalytics } from './analytics';
+import { recordTrackerHit, recordConversion, getTrackerAnalytics, generateTrackingUrl } from './marketing-tracking-api';
 
 // Import payment gateway handlers
 import {
