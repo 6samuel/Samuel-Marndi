@@ -1,133 +1,177 @@
-import { useEffect, useState, cloneElement, isValidElement, ReactNode, ReactElement, MouseEvent } from 'react';
-import { recordTrackerHit, getUtmParams, getTrackingSessionId } from '@/lib/campaign-tracking';
+import { useEffect, useRef } from 'react';
+import { useLocation } from 'wouter';
 
 interface CampaignTrackerProps {
-  trackerId?: number;
-  recordHitOnMount?: boolean;
-  debug?: boolean;
+  trackerId: string | number;
 }
 
 /**
- * Component to track marketing campaign visits
- * Automatically records tracker hits and provides session information
+ * Campaign Tracker Component for tracking marketing campaign visits and conversions
+ * 
+ * This component automatically tracks user visits from marketing campaigns by:
+ * 1. Detecting UTM parameters in the URL
+ * 2. Sending tracking data to the backend API
+ * 3. Setting up local storage to track return visits and conversions
+ * 
+ * @param trackerId - The tracker ID to associate hits with
  */
-export default function CampaignTracker({
-  trackerId = 1,
-  recordHitOnMount = true,
-  debug = false
-}: CampaignTrackerProps) {
-  const [isTracked, setIsTracked] = useState(false);
+export default function CampaignTracker({ trackerId }: CampaignTrackerProps) {
+  const hasTrackedRef = useRef(false);
+  const [location] = useLocation();
   
   useEffect(() => {
-    // Only record hit if enabled and not already tracked in this session
-    if (recordHitOnMount && !isTracked) {
-      // Record page visit for the tracker
-      recordTrackerHit(trackerId)
-        .then(success => {
-          setIsTracked(success);
-          if (debug && success) {
-            console.log('Campaign visit recorded successfully');
+    // Only track once per page view
+    if (hasTrackedRef.current) return;
+    hasTrackedRef.current = true;
+
+    // Get campaign parameters from UTM tags
+    const trackVisit = async () => {
+      try {
+        // Create a unique session ID if one doesn't exist
+        let sessionId = localStorage.getItem('campaign_session_id');
+        if (!sessionId) {
+          sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+          localStorage.setItem('campaign_session_id', sessionId);
+        }
+
+        // Get UTM parameters from URL
+        const url = new URL(window.location.href);
+        const utmSource = url.searchParams.get('utm_source') || null;
+        const utmMedium = url.searchParams.get('utm_medium') || null;
+        const utmCampaign = url.searchParams.get('utm_campaign') || null;
+        const utmTerm = url.searchParams.get('utm_term') || null;
+        const utmContent = url.searchParams.get('utm_content') || null;
+
+        // Get referrer and device info
+        const referrer = document.referrer || null;
+        const userAgent = navigator.userAgent;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        const isTablet = /iPad|Android/i.test(userAgent) && !/Mobile/i.test(userAgent);
+        
+        let deviceType = 'desktop';
+        if (isMobile) deviceType = 'mobile';
+        if (isTablet) deviceType = 'tablet';
+
+        // Determine source platform
+        let sourcePlatform = 'direct';
+        if (utmSource) {
+          sourcePlatform = utmSource;
+        } else if (referrer) {
+          const referrerDomain = new URL(referrer).hostname;
+          // Check if referrer is a search engine
+          if (/google|bing|yahoo|duckduckgo/.test(referrerDomain)) {
+            sourcePlatform = 'organic';
+          } else if (/facebook|instagram|twitter|linkedin|youtube/.test(referrerDomain)) {
+            sourcePlatform = 'social';
+          } else {
+            sourcePlatform = 'referral';
           }
-        })
-        .catch(error => {
-          if (debug) {
-            console.error('Error recording campaign visit:', error);
-          }
+        }
+
+        // Prepare tracking data
+        const trackingData = {
+          trackerId,
+          sessionId,
+          pageUrl: window.location.href,
+          sourcePlatform,
+          sourceUrl: referrer,
+          utmSource,
+          utmMedium,
+          utmCampaign,
+          utmTerm,
+          utmContent,
+          deviceType,
+          ipAddress: null, // Will be determined on the server side
+        };
+
+        // Track UTM parameters in local storage for conversion tracking
+        if (utmSource || utmMedium || utmCampaign) {
+          localStorage.setItem('utm_source', utmSource || '');
+          localStorage.setItem('utm_medium', utmMedium || '');
+          localStorage.setItem('utm_campaign', utmCampaign || '');
+          localStorage.setItem('utm_term', utmTerm || '');
+          localStorage.setItem('utm_content', utmContent || '');
+        }
+
+        // Send tracking data to your backend API
+        const response = await fetch(`/api/ad-trackers/${trackerId}/hit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(trackingData)
         });
-    }
-    
-    // Debug information if enabled
-    if (debug) {
-      const utmParams = getUtmParams();
-      const sessionId = getTrackingSessionId();
-      console.log('UTM Parameters:', utmParams);
-      console.log('Tracking Session ID:', sessionId);
-      console.log('Tracking URL Example:', generateExampleTrackingUrl());
-    }
-  }, [trackerId, recordHitOnMount, debug, isTracked]);
-  
-  // Doesn't render anything visible in the UI
+
+        if (!response.ok) {
+          throw new Error(`Failed to track campaign visit: ${response.statusText}`);
+        }
+
+        console.log('Campaign visit tracked successfully');
+      } catch (error) {
+        console.error('Error tracking campaign visit:', error);
+      }
+    };
+
+    // Execute the tracking function
+    trackVisit();
+  }, [trackerId, location]);
+
+  // This component doesn't render anything visible
   return null;
 }
 
 /**
- * Component that wraps conversion action elements and tracks their interactions
+ * Record a conversion for a tracked marketing campaign
+ * 
+ * @param trackerId - The ID of the tracker to associate the conversion with
+ * @param conversionType - Optional type of conversion (e.g., 'purchase', 'signup', 'contact')
+ * @returns Promise resolving to success or failure
  */
-export function TrackConversion({
-  trackerId = 1,
-  conversionType = 'lead',
-  children,
-  debug = false
-}: {
-  trackerId?: number;
-  conversionType?: string;
-  children: ReactNode;
-  debug?: boolean;
-}) {
-  const handleConversion = async () => {
-    try {
-      const result = await fetch(`/api/ad-trackers/${trackerId}/conversion`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sessionId: getTrackingSessionId(),
-          conversionType,
-        }),
-      });
-      
-      if (debug) {
-        if (result.ok) {
-          console.log(`Conversion "${conversionType}" recorded successfully`);
-        } else {
-          console.error('Error recording conversion:', await result.text());
-        }
-      }
-    } catch (error) {
-      if (debug) {
-        console.error('Failed to record conversion:', error);
-      }
+export async function recordConversion(
+  trackerId: number | string,
+  conversionType: string = 'default'
+): Promise<boolean> {
+  try {
+    // Get stored session ID or exit if none exists
+    const sessionId = localStorage.getItem('campaign_session_id');
+    if (!sessionId) {
+      console.warn('No campaign session found for conversion tracking');
+      return false;
     }
-  };
-  
-  // Handle the click and record conversion
-  const handleClick = async (e: MouseEvent, originalOnClick?: Function) => {
-    // Call the original onClick if it exists
-    if (originalOnClick) {
-      originalOnClick(e);
-    }
-    
-    // Record the conversion
-    await handleConversion();
-  };
-  
-  // Clone the child element and add the onClick handler
-  if (isValidElement(children)) {
-    const childElement = children as ReactElement;
-    const originalOnClick = childElement.props.onClick;
-    
-    return cloneElement(
-      childElement,
-      {
-        ...childElement.props,
-        onClick: (e: MouseEvent) => handleClick(e, originalOnClick)
-      }
-    );
-  }
-  
-  // If children isn't a valid element, just return it
-  return <>{children}</>;
-}
 
-/**
- * Generate an example tracking URL for a marketing campaign
- */
-function generateExampleTrackingUrl(): string {
-  const trackingUrl = new URL(window.location.href);
-  trackingUrl.searchParams.append('utm_id', '1');
-  trackingUrl.searchParams.append('utm_source', 'google');
-  trackingUrl.searchParams.append('utm_campaign', 'leads_2025');
-  trackingUrl.searchParams.append('utm_session', 'session_' + Math.random().toString(36).substring(2, 12));
-  return trackingUrl.toString();
+    // Get any stored UTM parameters
+    const utmSource = localStorage.getItem('utm_source') || null;
+    const utmMedium = localStorage.getItem('utm_medium') || null;
+    const utmCampaign = localStorage.getItem('utm_campaign') || null;
+
+    // Prepare conversion data
+    const conversionData = {
+      trackerId,
+      sessionId,
+      conversionType,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      pageUrl: window.location.href,
+    };
+
+    // Send conversion data to backend
+    const response = await fetch(`/api/ad-trackers/${trackerId}/conversion`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(conversionData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to record conversion: ${response.statusText}`);
+    }
+
+    console.log('Conversion tracked successfully:', conversionType);
+    return true;
+  } catch (error) {
+    console.error('Error recording conversion:', error);
+    return false;
+  }
 }

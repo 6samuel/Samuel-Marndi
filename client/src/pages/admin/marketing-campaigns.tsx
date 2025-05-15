@@ -1,189 +1,309 @@
-import { ProtectedRoute } from "@/lib/protected-route";
+import React, { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Helmet } from "react-helmet-async";
+import { useQuery } from "@tanstack/react-query";
 import AdminLayout from "@/components/layouts/admin-layout";
-import CampaignUrlGenerator from "@/components/marketing/campaign-url-generator";
-import CampaignDashboard from "@/components/marketing/campaign-dashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DownloadCloud, Share2 } from "lucide-react";
-import { Link } from "wouter";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Loader2, Plus, RefreshCw, Search, Target, Link as LinkIcon } from "lucide-react";
+import CampaignDashboard from "@/components/marketing/campaign-dashboard";
+import CampaignUrlGenerator from "@/components/marketing/campaign-url-generator";
+import { adTrackers } from "@shared/schema";
 
 function AdminMarketingCampaigns() {
-  const { user } = useAuth();
+  const [activeTrackerId, setActiveTrackerId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("analytics");
 
-  if (!user) {
-    return null;
-  }
+  // Fetch ad trackers
+  const { data: trackers, isLoading } = useQuery({
+    queryKey: ["/api/ad-trackers"],
+    queryFn: async () => {
+      const response = await fetch("/api/ad-trackers");
+      if (!response.ok) {
+        throw new Error("Failed to fetch ad trackers");
+      }
+      return response.json();
+    }
+  });
+
+  // Filter trackers based on search query
+  const filteredTrackers = trackers?.filter((tracker: any) => {
+    if (!searchQuery) return true;
+    
+    const query = searchQuery.toLowerCase();
+    return (
+      tracker.name.toLowerCase().includes(query) ||
+      tracker.platform.toLowerCase().includes(query) ||
+      tracker.campaignId.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <>
       <Helmet>
         <title>Marketing Campaigns | Admin Dashboard</title>
-        <meta name="description" content="Manage and track marketing campaigns, UTM parameters, and conversion tracking" />
       </Helmet>
 
-      <AdminLayout>
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Marketing Campaigns</h1>
-              <p className="text-muted-foreground">
-                Create, manage, and analyze your marketing campaigns and tracking
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href="/admin/ad-trackers">
-                <Button variant="outline" size="sm">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Ad Trackers
-                </Button>
-              </Link>
-              <Button variant="outline" size="sm">
-                <DownloadCloud className="mr-2 h-4 w-4" />
-                Export Data
-              </Button>
-            </div>
+      <div className="flex flex-col space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Marketing Campaigns</h1>
+            <p className="text-muted-foreground">
+              Track, analyze, and manage your marketing campaigns and conversions
+            </p>
           </div>
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh
+            </Button>
+            <Button size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              New Campaign
+            </Button>
+          </div>
+        </div>
 
-          <Tabs defaultValue="dashboard" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              <TabsTrigger value="url-generator">URL Generator</TabsTrigger>
-              <TabsTrigger value="guide">Implementation Guide</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="dashboard" className="space-y-4">
-              <CampaignDashboard trackerId={1} />
-            </TabsContent>
-            
-            <TabsContent value="url-generator" className="space-y-4">
-              <CampaignUrlGenerator />
-            </TabsContent>
-            
-            <TabsContent value="guide" className="space-y-4">
+        <Tabs 
+          defaultValue="analytics" 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="space-y-4"
+        >
+          <TabsList>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+            <TabsTrigger value="url-generator">URL Generator</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Visits
+                  </CardTitle>
+                  <Target className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">1,324</div>
+                  <p className="text-xs text-muted-foreground">
+                    +12.5% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Conversions
+                  </CardTitle>
+                  <Target className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">87</div>
+                  <p className="text-xs text-muted-foreground">
+                    +4.3% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Conversion Rate
+                  </CardTitle>
+                  <Target className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">6.57%</div>
+                  <p className="text-xs text-muted-foreground">
+                    -0.2% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Active Campaigns
+                  </CardTitle>
+                  <Target className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">4</div>
+                  <p className="text-xs text-muted-foreground">
+                    +1 from last month
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {activeTrackerId ? (
+              <CampaignDashboard trackerId={activeTrackerId} />
+            ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>Campaign Tracking Implementation Guide</CardTitle>
+                  <CardTitle>Campaign Analytics</CardTitle>
                   <CardDescription>
-                    Learn how to implement campaign tracking in your marketing efforts
+                    Select a campaign from the list below to view detailed analytics
                   </CardDescription>
                 </CardHeader>
-                
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium">What is Campaign Tracking?</h3>
-                    <p className="text-muted-foreground">
-                      Campaign tracking allows you to measure the effectiveness of your marketing campaigns
-                      by tracking visitors from different sources and monitoring their conversions on your
-                      website.
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium">Implementation Steps</h3>
-                    <ol className="list-decimal list-inside space-y-3">
-                      <li>
-                        <strong>Generate tracking URLs</strong> - Use the URL Generator tab to create URLs with 
-                        UTM parameters for each marketing channel (Google Ads, Facebook, Email, etc.)
-                      </li>
-                      <li>
-                        <strong>Use these URLs in your campaigns</strong> - Replace your regular website URLs 
-                        with these tracking URLs in your ads, social media posts, emails, etc.
-                      </li>
-                      <li>
-                        <strong>Track visitor actions</strong> - When visitors come to your website through these 
-                        URLs, their source information will be automatically tracked.
-                      </li>
-                      <li>
-                        <strong>Record conversions</strong> - Implement conversion tracking in your thank-you pages, 
-                        checkout confirmation, or after form submissions.
-                      </li>
-                    </ol>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium">UTM Parameters Explained</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="border rounded-md p-3">
-                        <h4 className="font-medium mb-1">utm_source</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Identifies which site sent the traffic (e.g., google, facebook, newsletter)
-                        </p>
-                      </div>
-                      <div className="border rounded-md p-3">
-                        <h4 className="font-medium mb-1">utm_medium</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Identifies what type of link was used (e.g., cpc, email, social)
-                        </p>
-                      </div>
-                      <div className="border rounded-md p-3">
-                        <h4 className="font-medium mb-1">utm_campaign</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Identifies a specific campaign (e.g., summer_sale, product_launch)
-                        </p>
-                      </div>
-                      <div className="border rounded-md p-3">
-                        <h4 className="font-medium mb-1">utm_content</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Identifies what specifically was clicked (e.g., banner_ad, text_link)
-                        </p>
-                      </div>
-                      <div className="border rounded-md p-3">
-                        <h4 className="font-medium mb-1">utm_term</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Identifies search terms (e.g., marketing+digital, web+development)
-                        </p>
-                      </div>
-                      <div className="border rounded-md p-3">
-                        <h4 className="font-medium mb-1">utm_session</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Unique identifier for tracking user sessions (automatically generated)
-                        </p>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="flex-1 relative">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search campaigns..."
+                          className="pl-8"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium">Code Snippet for Tracking Conversions</h3>
-                    <pre className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
-                      <code>
-{`// Add this code to your thank-you pages or conversion confirmation
-import { recordConversion } from '@/lib/campaign-tracking';
 
-// Example usage in a form submission handler
-const handleSubmit = async (formData) => {
-  // Process the form submission
-  const result = await submitForm(formData);
-  
-  if (result.success) {
-    // Record the conversion
-    await recordConversion(1, 'lead');
-    
-    // Show success message
-    showSuccessMessage();
-  }
-};`}
-                      </code>
-                    </pre>
+                    {isLoading ? (
+                      <div className="flex justify-center my-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      </div>
+                    ) : (
+                      <div className="border rounded-md">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Campaign</TableHead>
+                              <TableHead>Platform</TableHead>
+                              <TableHead>Visits</TableHead>
+                              <TableHead>Conv. Rate</TableHead>
+                              <TableHead>Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {filteredTrackers?.length > 0 ? (
+                              filteredTrackers.map((tracker: any) => (
+                                <TableRow 
+                                  key={tracker.id}
+                                  className="cursor-pointer hover:bg-muted/50"
+                                  onClick={() => setActiveTrackerId(tracker.id)}
+                                >
+                                  <TableCell className="font-medium">{tracker.name}</TableCell>
+                                  <TableCell>{tracker.platform}</TableCell>
+                                  <TableCell>-</TableCell>
+                                  <TableCell>-</TableCell>
+                                  <TableCell>
+                                    <span className={`px-2 py-1 rounded-full text-xs ${
+                                      tracker.active 
+                                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
+                                        : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
+                                    }`}>
+                                      {tracker.active ? "Active" : "Inactive"}
+                                    </span>
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell colSpan={5} className="h-24 text-center">
+                                  {searchQuery 
+                                    ? "No campaigns matching your search" 
+                                    : "No campaigns found. Create your first campaign."}
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </AdminLayout>
+            )}
+          </TabsContent>
+
+          <TabsContent value="campaigns" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Campaign Management</CardTitle>
+                <CardDescription>
+                  Create and manage your marketing campaigns
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="border rounded-md">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Campaign</TableHead>
+                          <TableHead>Platform</TableHead>
+                          <TableHead>Campaign ID</TableHead>
+                          <TableHead>Conversion Goal</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredTrackers?.length > 0 ? (
+                          filteredTrackers.map((tracker: any) => (
+                            <TableRow key={tracker.id}>
+                              <TableCell className="font-medium">{tracker.name}</TableCell>
+                              <TableCell>{tracker.platform}</TableCell>
+                              <TableCell>{tracker.campaignId}</TableCell>
+                              <TableCell>{tracker.conversionGoal}</TableCell>
+                              <TableCell>
+                                <span className={`px-2 py-1 rounded-full text-xs ${
+                                  tracker.active 
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
+                                    : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
+                                }`}>
+                                  {tracker.active ? "Active" : "Inactive"}
+                                </span>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={5} className="h-24 text-center">
+                              {searchQuery 
+                                ? "No campaigns matching your search" 
+                                : "No campaigns found. Create your first campaign."}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="url-generator" className="space-y-4">
+            <CampaignUrlGenerator />
+          </TabsContent>
+        </Tabs>
+      </div>
     </>
   );
 }
 
+// Wrap component in admin layout
 export default function AdminMarketingCampaignsRoute() {
   return (
-    <ProtectedRoute
-      path="/admin/marketing-campaigns"
-      component={AdminMarketingCampaigns}
-      adminOnly={true}
-    />
+    <AdminLayout title="Marketing Campaigns" description="Track, analyze, and manage your marketing campaigns">
+      <AdminMarketingCampaigns />
+    </AdminLayout>
   );
 }
