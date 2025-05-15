@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Code, BarChart2, BrainCircuit, Globe, Database } from "lucide-react";
 import QuickQuoteForm from "@/components/forms/quick-quote-form";
+import GoogleAdsConversion from "@/components/tracking/google-ads-conversion";
 
 // Import the image directly
 import samuelImage from "../../../public/samuel-transparent.png";
@@ -15,6 +16,9 @@ const QuickQuoteFormWrapper = () => {
   if (isSubmitted) {
     return (
       <div className="w-full p-6">
+        {/* Google Ads Conversion Tracking */}
+        <GoogleAdsConversion />
+        
         <div className="glass-effect relative rounded-lg p-8 text-center border border-gray-200/30 dark:border-gray-700/30">
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-300/20 rounded-full blur-2xl"></div>
           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-300/20 rounded-full blur-2xl"></div>

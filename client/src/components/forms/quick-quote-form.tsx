@@ -71,6 +71,11 @@ export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps 
       // Reset form
       form.reset();
       
+      // Track conversion with Google Ads
+      if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+        (window as any).gtag_report_conversion();
+      }
+      
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ['/api/contact'] });
       
@@ -89,6 +94,11 @@ export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps 
   });
 
   function onSubmit(data: QuickQuoteFormValues) {
+    // Call Google Ads conversion tracking
+    if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+      (window as any).gtag_report_conversion();
+    }
+    
     submitQuote(data);
   }
 
