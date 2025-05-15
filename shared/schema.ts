@@ -283,6 +283,11 @@ export const adTrackerHits = pgTable("ad_tracker_hits", {
   conversionType: text("conversion_type"),
   timestamp: timestamp("timestamp").notNull().defaultNow(),
   sessionId: text("session_id"),
+  utmSource: text("utm_source"),
+  utmMedium: text("utm_medium"),
+  utmCampaign: text("utm_campaign"),
+  utmTerm: text("utm_term"),
+  utmContent: text("utm_content"),
   extraData: jsonb("extra_data"),
 });
 

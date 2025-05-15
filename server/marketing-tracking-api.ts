@@ -1,219 +1,407 @@
 import { Request, Response } from 'express';
 import { storage } from './storage';
-import { z } from 'zod';
-import { fromZodError } from 'zod-validation-error';
+import { adTrackerHits } from '@shared/schema';
 
 /**
- * Schema for validating ad tracker hit data
+ * Record a hit (visit) to an ad tracker
+ * 
+ * This function handles recording page visits from marketing campaigns.
+ * It captures UTM parameters, device info, and other tracking data.
  */
-const adTrackerHitSchema = z.object({
-  sessionId: z.string(),
-  source: z.string().optional(),
-  campaign: z.string().optional(),
-  medium: z.string().optional(),
-  content: z.string().optional(),
-  term: z.string().optional(),
-  referrer: z.string().optional(),
-  device: z.string().optional(),
-});
-
-/**
- * Schema for validating conversion data
- */
-const conversionSchema = z.object({
-  sessionId: z.string(),
-  conversionType: z.string().optional(),
-});
-
-/**
- * Record a hit for a specific ad tracker
- */
-export const recordTrackerHit = async (req: Request, res: Response) => {
+export async function recordTrackerHit(req: Request, res: Response) {
   try {
     const trackerId = parseInt(req.params.trackerId);
+    
     if (isNaN(trackerId)) {
-      return res.status(400).json({ error: 'Invalid tracker ID' });
+      return res.status(400).json({ error: "Invalid tracker ID format" });
     }
-
-    // Validate request body
-    const validationResult = adTrackerHitSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      const errorMessage = fromZodError(validationResult.error).message;
-      return res.status(400).json({ error: errorMessage });
+    
+    // Get the tracker to make sure it exists
+    const tracker = await storage.getAdTrackerById(trackerId);
+    if (!tracker) {
+      return res.status(404).json({ error: "Tracker not found" });
     }
-
-    const hitData = validationResult.data;
-
-    // Record the hit
+    
+    // Extract data from request body
+    const {
+      sessionId,
+      pageUrl,
+      sourcePlatform,
+      sourceUrl,
+      utmSource,
+      utmMedium, 
+      utmCampaign,
+      utmTerm,
+      utmContent,
+      deviceType,
+    } = req.body;
+    
+    // Validate required fields
+    if (!sessionId || !pageUrl || !sourcePlatform) {
+      return res.status(400).json({ 
+        error: "Missing required fields", 
+        required: ["sessionId", "pageUrl", "sourcePlatform"] 
+      });
+    }
+    
+    // Get the client IP address
+    const ipAddress = req.headers['x-forwarded-for'] || 
+                      req.socket.remoteAddress || 
+                      null;
+    
+    // Create the hit record
     const hit = await storage.createAdTrackerHit({
       trackerId,
-      sessionId: hitData.sessionId,
-      sourcePlatform: hitData.source || 'direct',
-      pageUrl: hitData.referrer || req.headers.referer || '',
-      sourceUrl: hitData.referrer,
-      deviceType: hitData.device,
-      ipAddress: req.ip,
-      userAgent: req.headers['user-agent'],
+      sessionId,
+      pageUrl,
+      sourcePlatform,
+      sourceUrl,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmTerm,
+      utmContent,
+      deviceType,
+      ipAddress: ipAddress as string | null,
       converted: false,
-      conversionType: null,
-      extraData: {
-        utm_source: hitData.source,
-        utm_campaign: hitData.campaign,
-        utm_medium: hitData.medium,
-        utm_content: hitData.content,
-        utm_term: hitData.term
-      }
+      timestamp: new Date(),
     });
-
+    
     res.status(200).json(hit);
   } catch (error) {
-    console.error('Error recording hit:', error);
-    res.status(500).json({ error: 'Failed to record hit' });
+    console.error("Error recording tracker hit:", error);
+    res.status(500).json({ error: "Failed to record hit" });
   }
-};
+}
 
 /**
- * Record a conversion for a specific ad tracker
+ * Record a conversion for an ad tracker
+ * 
+ * This function handles recording conversions from marketing campaigns.
+ * It updates the 'converted' status of a previous hit based on session ID.
  */
-export const recordConversion = async (req: Request, res: Response) => {
+export async function recordConversion(req: Request, res: Response) {
   try {
     const trackerId = parseInt(req.params.trackerId);
+    
     if (isNaN(trackerId)) {
-      return res.status(400).json({ error: 'Invalid tracker ID' });
+      return res.status(400).json({ error: "Invalid tracker ID format" });
     }
-
-    // Validate request body
-    const validationResult = conversionSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      const errorMessage = fromZodError(validationResult.error).message;
-      return res.status(400).json({ error: errorMessage });
+    
+    // Get the tracker to make sure it exists
+    const tracker = await storage.getAdTrackerById(trackerId);
+    if (!tracker) {
+      return res.status(404).json({ error: "Tracker not found" });
     }
-
-    const { sessionId, conversionType } = validationResult.data;
-
-    // Find the hit by session ID and update its conversion status
-    // First, find the hit with the matching session ID
+    
+    // Extract data from request body
+    const {
+      sessionId,
+      conversionType = 'default',
+      pageUrl,
+    } = req.body;
+    
+    // Validate required fields
+    if (!sessionId) {
+      return res.status(400).json({ 
+        error: "Missing required fields", 
+        required: ["sessionId"] 
+      });
+    }
+    
+    // Find existing hits for this session
     const hits = await storage.getAdTrackerHitsBySessionId(sessionId, trackerId);
-    if (!hits || hits.length === 0) {
-      return res.status(404).json({ error: 'No hit found for this session ID' });
+    
+    if (hits.length === 0) {
+      // If no previous hit found, create a new hit with conversion
+      const ipAddress = req.headers['x-forwarded-for'] || 
+                        req.socket.remoteAddress || 
+                        null;
+      
+      const hit = await storage.createAdTrackerHit({
+        trackerId,
+        sessionId,
+        pageUrl: pageUrl || req.headers.referer || '',
+        sourcePlatform: 'direct',
+        utmSource: req.body.utmSource || null,
+        utmMedium: req.body.utmMedium || null,
+        utmCampaign: req.body.utmCampaign || null,
+        converted: true,
+        conversionType,
+        timestamp: new Date(),
+        ipAddress: ipAddress as string | null,
+      });
+      
+      return res.status(200).json(hit);
     }
     
-    // Update the first hit found
-    const hitId = hits[0].id;
-    const hit = await storage.updateAdTrackerHitConversion(
-      hitId,
-      true,
-      conversionType || 'lead'
-    );
-
-    if (!hit) {
-      return res.status(404).json({ error: 'No hit found for this session ID' });
-    }
-
-    res.status(200).json(hit);
-  } catch (error) {
-    console.error('Error recording conversion:', error);
-    res.status(500).json({ error: 'Failed to record conversion' });
-  }
-};
-
-/**
- * Get analytics data for a specific ad tracker
- */
-export const getTrackerAnalytics = async (req: Request, res: Response) => {
-  try {
-    const trackerId = parseInt(req.params.trackerId);
-    if (isNaN(trackerId)) {
-      return res.status(400).json({ error: 'Invalid tracker ID' });
-    }
-
-    const timeRange = req.query.range as string || '7d';
-
-    // Get total hits count
-    const totalHits = await storage.getAdTrackerHitsCount(trackerId);
-    
-    // Get conversion rate
-    const conversionRate = await storage.getAdTrackerConversionRate(trackerId);
-    
-    // Get hits by source
-    const sourceBreakdown = await storage.getAdTrackerHitsBySources(trackerId);
-    
-    // Get hits by device type
-    const deviceBreakdown = await storage.getAdTrackerHitsByDeviceType(trackerId);
-    
-    // Calculate the top source
-    let topSource = 'direct';
-    let topSourceCount = 0;
-    for (const [source, count] of Object.entries(sourceBreakdown)) {
-      if (count > topSourceCount) {
-        topSource = source;
-        topSourceCount = count;
-      }
-    }
-    
-    // Mock data for trending values and daily stats
-    // In a real implementation, these would be calculated from historical data
-    const response = {
-      totalHits,
-      totalConversions: Math.round(totalHits * (conversionRate / 100)),
-      conversionRate: parseFloat(conversionRate.toFixed(2)),
-      hitsTrend: 5.2,
-      conversionsTrend: 3.7,
-      conversionRateTrend: 1.2,
-      topSource,
-      topSourcePercentage: Math.round((topSourceCount / totalHits) * 100) || 0,
-      trafficSources: sourceBreakdown,
-      deviceTypes: deviceBreakdown,
-      timeRange,
-      dailyStats: [
-        // This would be actual data in a real implementation
-        { date: '2025-04-15', hits: 12, conversions: 3, conversionRate: 25, topSource: 'google' },
-        { date: '2025-04-16', hits: 15, conversions: 4, conversionRate: 26.7, topSource: 'google' },
-        { date: '2025-04-17', hits: 18, conversions: 5, conversionRate: 27.8, topSource: 'facebook' },
-        { date: '2025-04-18', hits: 22, conversions: 7, conversionRate: 31.8, topSource: 'facebook' },
-        { date: '2025-04-19', hits: 19, conversions: 6, conversionRate: 31.6, topSource: 'google' },
-        { date: '2025-04-20', hits: 24, conversions: 8, conversionRate: 33.3, topSource: 'facebook' },
-        { date: '2025-04-21', hits: 28, conversions: 10, conversionRate: 35.7, topSource: 'google' },
-      ]
-    };
-    
-    res.json(response);
-  } catch (error) {
-    console.error('Error getting tracker analytics:', error);
-    res.status(500).json({ error: 'Failed to get analytics data' });
-  }
-};
-
-/**
- * Generate a tracking URL with UTM parameters
- */
-export const generateTrackingUrl = async (req: Request, res: Response) => {
-  try {
-    const { baseUrl, ...utmParams } = req.body;
-    
-    if (!baseUrl) {
-      return res.status(400).json({ error: 'baseUrl is required' });
-    }
-    
-    // Create a URL object
-    const trackingUrl = new URL(baseUrl);
-    
-    // Add any UTM parameters provided in the request
-    Object.entries(utmParams).forEach(([key, value]) => {
-      if (value) {
-        trackingUrl.searchParams.append(key, value as string);
-      }
+    // Update the most recent hit to mark it as converted
+    const mostRecentHit = hits.reduce((latest, current) => {
+      return new Date(latest.timestamp) > new Date(current.timestamp) ? latest : current;
     });
     
-    // Add a session ID if not provided
-    if (!trackingUrl.searchParams.has('utm_session')) {
-      const sessionId = 'session_' + Math.random().toString(36).substring(2, 12);
-      trackingUrl.searchParams.append('utm_session', sessionId);
+    const updatedHit = await storage.updateAdTrackerHitConversion(
+      mostRecentHit.id,
+      true,
+      conversionType
+    );
+    
+    res.status(200).json(updatedHit);
+  } catch (error) {
+    console.error("Error recording conversion:", error);
+    res.status(500).json({ error: "Failed to record conversion" });
+  }
+}
+
+/**
+ * Generate a tracking URL for marketing campaigns
+ * 
+ * This function creates and stores tracking URLs with UTM parameters.
+ */
+export async function generateTrackingUrl(req: Request, res: Response) {
+  try {
+    const {
+      baseUrl,
+      platform,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmTerm,
+      utmContent,
+      notes,
+    } = req.body;
+    
+    // Validate required fields
+    if (!baseUrl || !platform || !utmSource || !utmMedium || !utmCampaign) {
+      return res.status(400).json({ 
+        error: "Missing required fields", 
+        required: ["baseUrl", "platform", "utmSource", "utmMedium", "utmCampaign"] 
+      });
     }
     
-    res.json({ url: trackingUrl.toString() });
+    // Create URL with UTM parameters
+    const url = new URL(baseUrl);
+    url.searchParams.append('utm_source', utmSource);
+    url.searchParams.append('utm_medium', utmMedium);
+    url.searchParams.append('utm_campaign', utmCampaign);
+    
+    if (utmTerm) url.searchParams.append('utm_term', utmTerm);
+    if (utmContent) url.searchParams.append('utm_content', utmContent);
+    
+    const trackingUrl = url.toString();
+    
+    // Look for existing tracker for this campaign
+    let tracker = await storage.getAdTrackerByCampaignId(utmCampaign);
+    
+    // Create new tracker if none exists
+    if (!tracker) {
+      tracker = await storage.createAdTracker({
+        name: `${platform} - ${utmCampaign}`,
+        platform,
+        campaignId: utmCampaign,
+        conversionGoal: 'any',
+        active: true,
+        parameters: {
+          utmSource,
+          utmMedium,
+          utmCampaign,
+          utmTerm,
+          utmContent,
+          baseUrl,
+          notes,
+          trackingUrl
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    }
+    
+    res.status(200).json({
+      trackingUrl,
+      trackerId: tracker.id,
+      campaign: utmCampaign,
+    });
   } catch (error) {
-    console.error('Error generating tracking URL:', error);
-    res.status(500).json({ error: 'Failed to generate tracking URL' });
+    console.error("Error generating tracking URL:", error);
+    res.status(500).json({ error: "Failed to generate tracking URL" });
   }
-};
+}
+
+/**
+ * Get analytics data for a specific tracker
+ * 
+ * This function retrieves analytics data for a specific tracker,
+ * including hits, conversions, and conversion rates.
+ */
+export async function getTrackerAnalytics(req: Request, res: Response) {
+  try {
+    const trackerId = parseInt(req.params.trackerId);
+    
+    if (isNaN(trackerId)) {
+      return res.status(400).json({ error: "Invalid tracker ID format" });
+    }
+    
+    // Get the tracker to make sure it exists
+    const tracker = await storage.getAdTrackerById(trackerId);
+    if (!tracker) {
+      return res.status(404).json({ error: "Tracker not found" });
+    }
+    
+    // Get date range from query parameters
+    const { startDate, endDate, groupBy = 'day' } = req.query;
+    
+    // Get hits for this tracker
+    const hits = await storage.getAdTrackerHitsByTrackerId(trackerId, {
+      startDate: startDate ? new Date(startDate as string) : undefined,
+      endDate: endDate ? new Date(endDate as string) : undefined,
+    });
+    
+    // Count total hits and conversions
+    const totalHits = hits.length;
+    const conversions = hits.filter(hit => hit.converted).length;
+    const conversionRate = totalHits > 0 ? (conversions / totalHits) * 100 : 0;
+    
+    // Group data by date if requested
+    let groupedData = [];
+    if (groupBy === 'day' || groupBy === 'week' || groupBy === 'month') {
+      const grouped = new Map();
+      
+      hits.forEach(hit => {
+        const date = new Date(hit.timestamp);
+        let groupKey;
+        
+        if (groupBy === 'day') {
+          groupKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        } else if (groupBy === 'week') {
+          // Get the Monday of the week
+          const day = date.getDay();
+          const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+          const monday = new Date(date);
+          monday.setDate(diff);
+          groupKey = monday.toISOString().split('T')[0];
+        } else if (groupBy === 'month') {
+          groupKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+        
+        if (!grouped.has(groupKey)) {
+          grouped.set(groupKey, { date: groupKey, hits: 0, conversions: 0 });
+        }
+        
+        const group = grouped.get(groupKey);
+        group.hits++;
+        if (hit.converted) {
+          group.conversions++;
+        }
+      });
+      
+      // Sort by date and add conversion rate
+      groupedData = Array.from(grouped.values())
+        .map(group => ({
+          ...group,
+          conversionRate: group.hits > 0 ? (group.conversions / group.hits) * 100 : 0
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+    }
+    
+    // Get source platform analytics
+    const sourcePlatforms = hits.reduce((acc, hit) => {
+      const platform = hit.sourcePlatform || 'unknown';
+      if (!acc[platform]) {
+        acc[platform] = { hits: 0, conversions: 0 };
+      }
+      acc[platform].hits++;
+      if (hit.converted) {
+        acc[platform].conversions++;
+      }
+      return acc;
+    }, {} as Record<string, { hits: number; conversions: number }>);
+    
+    // Calculate conversion rates for each platform
+    Object.keys(sourcePlatforms).forEach(platform => {
+      const data = sourcePlatforms[platform];
+      data.conversionRate = data.hits > 0 ? (data.conversions / data.hits) * 100 : 0;
+    });
+    
+    // Get UTM parameter analytics
+    const utmAnalytics = hits.reduce((acc, hit) => {
+      // Add UTM source data
+      if (hit.utmSource) {
+        if (!acc.sources[hit.utmSource]) {
+          acc.sources[hit.utmSource] = { hits: 0, conversions: 0 };
+        }
+        acc.sources[hit.utmSource].hits++;
+        if (hit.converted) {
+          acc.sources[hit.utmSource].conversions++;
+        }
+      }
+      
+      // Add UTM medium data
+      if (hit.utmMedium) {
+        if (!acc.mediums[hit.utmMedium]) {
+          acc.mediums[hit.utmMedium] = { hits: 0, conversions: 0 };
+        }
+        acc.mediums[hit.utmMedium].hits++;
+        if (hit.converted) {
+          acc.mediums[hit.utmMedium].conversions++;
+        }
+      }
+      
+      // Add UTM campaign data
+      if (hit.utmCampaign) {
+        if (!acc.campaigns[hit.utmCampaign]) {
+          acc.campaigns[hit.utmCampaign] = { hits: 0, conversions: 0 };
+        }
+        acc.campaigns[hit.utmCampaign].hits++;
+        if (hit.converted) {
+          acc.campaigns[hit.utmCampaign].conversions++;
+        }
+      }
+      
+      return acc;
+    }, { 
+      sources: {} as Record<string, { hits: number; conversions: number }>,
+      mediums: {} as Record<string, { hits: number; conversions: number }>,
+      campaigns: {} as Record<string, { hits: number; conversions: number }>
+    });
+    
+    // Calculate conversion rates for UTM parameters
+    Object.keys(utmAnalytics.sources).forEach(source => {
+      const data = utmAnalytics.sources[source];
+      data.conversionRate = data.hits > 0 ? (data.conversions / data.hits) * 100 : 0;
+    });
+    
+    Object.keys(utmAnalytics.mediums).forEach(medium => {
+      const data = utmAnalytics.mediums[medium];
+      data.conversionRate = data.hits > 0 ? (data.conversions / data.hits) * 100 : 0;
+    });
+    
+    Object.keys(utmAnalytics.campaigns).forEach(campaign => {
+      const data = utmAnalytics.campaigns[campaign];
+      data.conversionRate = data.hits > 0 ? (data.conversions / data.hits) * 100 : 0;
+    });
+    
+    // Return analytics data
+    res.status(200).json({
+      tracker: {
+        id: tracker.id,
+        name: tracker.name,
+        platform: tracker.platform,
+        campaignId: tracker.campaignId,
+        conversionGoal: tracker.conversionGoal,
+        active: tracker.active,
+        createdAt: tracker.createdAt,
+      },
+      analytics: {
+        totalHits,
+        conversions,
+        conversionRate,
+        timeSeries: groupedData,
+        sourcePlatforms,
+        utmAnalytics,
+      }
+    });
+  } catch (error) {
+    console.error("Error retrieving tracker analytics:", error);
+    res.status(500).json({ error: "Failed to retrieve analytics data" });
+  }
+}
