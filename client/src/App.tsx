@@ -32,6 +32,9 @@ const CampaignTracker = lazy(() =>
   }))
 );
 
+// Import campaign tracking utilities
+import { getDefaultTrackerId } from "@/lib/campaign-tracking";
+
 // Pages
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
@@ -194,8 +197,8 @@ function App() {
               <Toaster />
               <Suspense fallback={null}>
                 <TrackingScripts />
-                <GoogleAdsClickTracking />
-                <CampaignTracker />
+                <GoogleAdsClickTracking conversionId="AW-11554500257" conversionLabel="ZTjnCL66spUYEKCn9ZAp" />
+                <CampaignTracker trackerId={getDefaultTrackerId()} />
               </Suspense>
               <Router />
             </TooltipProvider>
