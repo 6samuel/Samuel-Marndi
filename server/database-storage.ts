@@ -646,6 +646,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(adTrackerHits.trackerId, trackerId))
       .orderBy(desc(adTrackerHits.timestamp));
   }
+  
+  async getAdTrackerHitsBySessionId(sessionId: string, trackerId: number): Promise<AdTrackerHit[]> {
+    return await db
+      .select()
+      .from(adTrackerHits)
+      .where(and(
+        eq(adTrackerHits.sessionId, sessionId),
+        eq(adTrackerHits.trackerId, trackerId)
+      ))
+      .orderBy(desc(adTrackerHits.timestamp));
+  }
 
   async createAdTrackerHit(insertHit: InsertAdTrackerHit): Promise<AdTrackerHit> {
     const [hit] = await db
