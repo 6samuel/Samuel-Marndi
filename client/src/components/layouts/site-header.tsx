@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
+import { useGoogleAdsClickTracking } from "@/components/tracking/google-ads-click-tracking";
 import {
   Sheet,
   SheetContent,
@@ -362,6 +363,14 @@ const SiteHeader = () => {
                             ? "text-primary"
                             : "text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
                         )}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                            (window as any).gtag_report_conversion("/contact");
+                          } else {
+                            window.location.href = "/contact";
+                          }
+                        }}
                       >
                         Contact
                       </Link>
@@ -389,16 +398,47 @@ const SiteHeader = () => {
               {/* Action Buttons (Desktop) */}
               {!isMobile && (
                 <div className="flex items-center space-x-2">
-                  <Link href="/consultation" className="mr-2">
+                  <Link 
+                    href="/consultation" 
+                    className="mr-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                        (window as any).gtag_report_conversion("/consultation");
+                      } else {
+                        window.location.href = "/consultation";
+                      }
+                    }}
+                  >
                     <Button variant="outline" size="sm" className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
                       <span>Consultation</span>
                     </Button>
                   </Link>
-                  <Link href="/contact">
+                  <Link 
+                    href="/contact"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                        (window as any).gtag_report_conversion("/contact");
+                      } else {
+                        window.location.href = "/contact";
+                      }
+                    }}
+                  >
                     <Button>Get a Quote</Button>
                   </Link>
-                  <Link href="/hire">
+                  <Link 
+                    href="/hire"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                        (window as any).gtag_report_conversion("/hire");
+                      } else {
+                        window.location.href = "/hire";
+                      }
+                    }}
+                  >
                     <Button variant="default" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">Hire Me</Button>
                   </Link>
                 </div>
@@ -421,7 +461,18 @@ const SiteHeader = () => {
                         <Link
                           key={item.name}
                           href={item.href}
-                          onClick={handleLinkClick}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleLinkClick();
+                            
+                            // Only track specific important links
+                            const trackableLinks = ['/contact', '/consultation', '/hire'];
+                            if (trackableLinks.includes(item.href) && typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                              (window as any).gtag_report_conversion(item.href);
+                            } else {
+                              window.location.href = item.href;
+                            }
+                          }}
                           className={`px-2 py-1 rounded-md ${
                             location === item.href
                               ? "bg-primary/10 text-primary font-medium"
@@ -445,7 +496,16 @@ const SiteHeader = () => {
                         </Link>
                         <Link
                           href="/services/digital-marketing"
-                          onClick={handleLinkClick}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleLinkClick();
+                            // Track digital marketing clicks
+                            if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                              (window as any).gtag_report_conversion("/services/digital-marketing");
+                            } else {
+                              window.location.href = "/services/digital-marketing";
+                            }
+                          }}
                           className="flex items-center gap-2 hover:text-primary transition-colors"
                         >
                           <BarChart2 className="h-4 w-4" />
@@ -461,7 +521,16 @@ const SiteHeader = () => {
                         </Link>
                         <Link
                           href="/services/seo-optimization"
-                          onClick={handleLinkClick}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleLinkClick();
+                            // Track SEO optimization clicks
+                            if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+                              (window as any).gtag_report_conversion("/services/seo-optimization");
+                            } else {
+                              window.location.href = "/services/seo-optimization";
+                            }
+                          }}
                           className="flex items-center gap-2 hover:text-primary transition-colors"
                         >
                           <Search className="h-4 w-4" />
