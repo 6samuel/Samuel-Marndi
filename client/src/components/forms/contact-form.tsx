@@ -110,15 +110,20 @@ const ContactForm = () => {
 
   if (submitted) {
     return (
-      <div className="text-center py-10 px-6 bg-primary/5 dark:bg-primary/10 rounded-lg">
-        <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-          Thank You!
-        </h3>
-        <p className="text-gray-600 dark:text-gray-300 mb-6">
-          Your message has been received. I'll get back to you as soon as possible.
-        </p>
-        <Button onClick={() => setSubmitted(false)}>Send Another Message</Button>
-      </div>
+      <>
+        {/* Google Ads Conversion Tracking */}
+        <GoogleAdsConversion />
+        
+        <div className="text-center py-10 px-6 bg-primary/5 dark:bg-primary/10 rounded-lg">
+          <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+            Thank You!
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Your message has been received. I'll get back to you as soon as possible.
+          </p>
+          <Button onClick={() => setSubmitted(false)}>Send Another Message</Button>
+        </div>
+      </>
     );
   }
 
