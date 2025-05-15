@@ -177,6 +177,11 @@ const SiteHeader = () => {
                 <span className="hidden sm:inline">mail@samuelmarndi.com</span>
                 <span className="sm:hidden">Email</span>
               </a>
+              <a href="mailto:samuelmarandi6@gmail.com" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground whitespace-nowrap">
+                <Mail className="h-4 w-4 mr-1 flex-shrink-0" />
+                <span className="hidden sm:inline">samuelmarandi6@gmail.com</span>
+                <span className="sm:hidden">Email 2</span>
+              </a>
               <a href="https://wa.me/+918280320550" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground whitespace-nowrap">
                 <Phone className="h-4 w-4 mr-1 flex-shrink-0" />
                 <span>+91 8280320550</span>
