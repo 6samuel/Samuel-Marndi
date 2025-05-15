@@ -172,9 +172,9 @@ const SiteHeader = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center">
             <div className="flex items-center space-x-4 mb-2 md:mb-0 overflow-x-auto">
-              <a href="mailto:samuelmarandi6@gmail.com" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground whitespace-nowrap">
+              <a href="mailto:mail@samuelmarndi.com" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground whitespace-nowrap">
                 <Mail className="h-4 w-4 mr-1 flex-shrink-0" />
-                <span className="hidden sm:inline">samuelmarandi6@gmail.com</span>
+                <span className="hidden sm:inline">mail@samuelmarndi.com</span>
                 <span className="sm:hidden">Email</span>
               </a>
               <a href="https://wa.me/+918280320550" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground whitespace-nowrap">
