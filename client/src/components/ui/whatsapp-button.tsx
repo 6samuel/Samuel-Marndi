@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FaWhatsapp } from "react-icons/fa";
+import { useGoogleAdsClickTracking } from "@/components/tracking/google-ads-click-tracking";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,11 @@ const WhatsAppButton = () => {
     // Create WhatsApp URL
     const whatsappUrl = `https://wa.me/${phoneNumber.replace(/\+/g, '')}?text=${encodedMessage}`;
     
+    // Track conversion with Google Ads before opening WhatsApp
+    if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+      (window as any).gtag_report_conversion();
+    }
+    
     // Open WhatsApp in a new tab
     window.open(whatsappUrl, "_blank");
     
@@ -44,7 +50,13 @@ const WhatsAppButton = () => {
         variant="default"
         size="icon"
         className="fixed bottom-6 right-6 rounded-full h-14 w-14 shadow-lg bg-green-500 hover:bg-green-600 z-50"
-        onClick={() => setOpen(true)}
+        onClick={(e) => {
+          // Track the click as a conversion
+          if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
+            (window as any).gtag_report_conversion();
+          }
+          setOpen(true);
+        }}
       >
         <FaWhatsapp className="h-6 w-6 text-white" />
       </Button>
