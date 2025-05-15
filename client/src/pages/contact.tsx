@@ -108,12 +108,20 @@ const Contact = () => {
                         <Mail className="h-5 w-5 text-primary mt-1 mr-3" />
                         <div>
                           <h3 className="font-medium text-gray-900 dark:text-white">Email</h3>
-                          <a 
-                            href="mailto:samuelmarandi6@gmail.com" 
-                            className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground transition-colors"
-                          >
-                            samuelmarandi6@gmail.com
-                          </a>
+                          <div className="flex flex-col space-y-1">
+                            <a 
+                              href="mailto:mail@samuelmarndi.com" 
+                              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground transition-colors font-medium"
+                            >
+                              mail@samuelmarndi.com
+                            </a>
+                            <a 
+                              href="mailto:samuelmarandi6@gmail.com" 
+                              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-foreground transition-colors"
+                            >
+                              samuelmarandi6@gmail.com
+                            </a>
+                          </div>
                         </div>
                       </div>
                       
