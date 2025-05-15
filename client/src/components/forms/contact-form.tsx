@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { trackConversion } from "@/components/tracking/tracking-scripts";
 import { useConversionTracking } from "@/components/tracking/conversion-tracker";
+import GoogleAdsConversion from "@/components/tracking/google-ads-conversion";
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import {
