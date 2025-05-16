@@ -3,7 +3,8 @@ import { Link, useLocation } from "wouter";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
-import { useGoogleAdsClickTracking } from "@/components/tracking/google-ads-click-tracking";
+import GoogleAdsClickTracking from "@/components/tracking/google-ads-click-tracking";
+import QuickQuoteModal from "@/components/forms/quick-quote-modal";
 import {
   Sheet,
   SheetContent,
@@ -415,19 +416,10 @@ const SiteHeader = () => {
                       <span>Consultation</span>
                     </Button>
                   </Link>
-                  <Link 
-                    href="/contact"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
-                        (window as any).gtag_report_conversion("/contact");
-                      } else {
-                        window.location.href = "/contact";
-                      }
-                    }}
-                  >
-                    <Button>Get a Quote</Button>
-                  </Link>
+                  <QuickQuoteModal 
+                    triggerText="Get a Quote"
+                    icon={false}
+                  />
                   <Link 
                     href="/hire"
                     onClick={(e) => {
@@ -562,9 +554,13 @@ const SiteHeader = () => {
                         </Button>
                       </Link>
                       <div className="flex space-x-2">
-                        <Link href="/contact" onClick={handleLinkClick} className="flex-1">
-                          <Button className="w-full">Get a Quote</Button>
-                        </Link>
+                        <div className="flex-1">
+                          <QuickQuoteModal 
+                            triggerText="Get a Quote"
+                            icon={false}
+                            triggerClassName="w-full"
+                          />
+                        </div>
                         <Link href="/hire" onClick={handleLinkClick} className="flex-1">
                           <Button variant="default" className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">Hire Me</Button>
                         </Link>
