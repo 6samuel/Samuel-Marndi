@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { DollarSign, PhoneCall, FileText, ArrowRight, MessageSquare, ThumbsUp, Shield, CreditCard, CreditCard as CardIcon, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
+import QuickQuoteModal from '@/components/forms/quick-quote-modal';
 
 // Budget range card component
 const BudgetRangeCard = ({ 
@@ -41,11 +42,15 @@ const BudgetRangeCard = ({
         {priceRange}
       </div>
       <p className="text-sm text-gray-600 dark:text-gray-400 flex-grow mb-4">{description}</p>
-      <Button asChild size="sm" variant={isPremium ? "default" : "outline"} className={`mt-auto ${isPremium ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600" : ""}`}>
-        <Link to={ctaLink}>
-          Get Quote <ArrowRight className="ml-1 h-3 w-3" />
-        </Link>
-      </Button>
+      <div className="mt-auto">
+        <QuickQuoteModal 
+          triggerText="Get Quote"
+          icon={false}
+          buttonVariant={isPremium ? "default" : "outline"}
+          triggerClassName={`w-full justify-center text-sm h-9 rounded-md px-3 ${isPremium ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600" : ""}`}
+          selectedService={title.toLowerCase().replace(/\s+/g, '-')}
+        />
+      </div>
     </div>
   </motion.div>
 );
@@ -174,11 +179,14 @@ const BudgetReassuranceSection = () => {
               </div>
               
               <div className="pt-4 flex flex-wrap gap-3">
-                <Button asChild>
-                  <Link to="/contact">
-                    Get in Touch <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                <QuickQuoteModal 
+                  triggerText="Get in Touch"
+                  icon={false}
+                  buttonVariant="default"
+                  triggerClassName="flex items-center"
+                >
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </QuickQuoteModal>
                 
                 <Button variant="outline" asChild>
                   <a href="tel:+918280320550" className="flex items-center">
