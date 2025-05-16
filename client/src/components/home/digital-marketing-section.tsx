@@ -445,15 +445,26 @@ const DigitalMarketingSection = () => {
                   </Link>
                 </Button>
                 
-                <QuickQuoteModal 
-                  triggerText="Get a Quote"
-                  icon={true}
-                  iconPosition="right"
-                  iconComponent={<ArrowRight className="ml-2 h-4 w-4" />}
-                  buttonVariant="default"
-                  selectedService="digital-marketing"
-                  triggerClassName="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700"
-                />
+                <Button 
+                  variant="default" 
+                  className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700"
+                  onClick={() => {
+                    // Find the existing modal trigger button and click it
+                    const modalButton = document.getElementById('marketing-quote-trigger');
+                    if (modalButton) modalButton.click();
+                  }}
+                >
+                  Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <span className="hidden">
+                  <QuickQuoteModal 
+                    triggerText="Open Quote Form"
+                    icon={false}
+                    buttonVariant="default"
+                    triggerClassName="hidden"
+                    id="marketing-quote-trigger"
+                  />
+                </span>
               </div>
               
               <div className="p-4 bg-white/20 rounded-lg backdrop-blur-sm mb-4">

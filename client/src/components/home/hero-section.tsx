@@ -18,7 +18,10 @@ const QuickQuoteFormWrapper = () => {
     return (
       <div className="w-full p-6">
         {/* Google Ads Conversion Tracking */}
-        <GoogleAdsConversion />
+        <GoogleAdsConversion 
+          conversionId="AW-11484248952"
+          conversionLabel="Gyl7CJiG8YwYEJrF8aQD"
+        />
         
         <div className="glass-effect relative rounded-lg p-8 text-center border border-gray-200/30 dark:border-gray-700/30">
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-300/20 rounded-full blur-2xl"></div>
