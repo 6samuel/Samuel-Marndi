@@ -31,9 +31,10 @@ type QuickQuoteFormValues = z.infer<typeof quickQuoteSchema>;
 
 interface QuickQuoteFormProps {
   onSubmitSuccess?: () => void;
+  selectedService?: string;
 }
 
-export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps = {}) {
+export default function QuickQuoteForm({ onSubmitSuccess, selectedService }: QuickQuoteFormProps = {}) {
   const { toast } = useToast();
   
   // Form definition
@@ -43,7 +44,7 @@ export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps 
       name: '',
       email: '',
       phone: '',
-      message: '',
+      message: selectedService ? `I'm interested in your ${selectedService} service. ` : '',
     },
   });
 
@@ -56,7 +57,10 @@ export default function QuickQuoteForm({ onSubmitSuccess }: QuickQuoteFormProps 
         { 
           ...data,
           type: 'quick-quote',
-          subject: 'Quick Quote Request'
+          subject: selectedService 
+            ? `Quick Quote Request - ${selectedService}` 
+            : 'Quick Quote Request',
+          service: selectedService || undefined
         }
       );
       

@@ -46,6 +46,7 @@ export default function QuickQuoteModal({
         <Button 
           variant={buttonVariant} 
           className={triggerClassName}
+          id={id}
           onClick={() => {
             // Track the button click with Google Ads
             if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
@@ -68,7 +69,10 @@ export default function QuickQuoteModal({
         {isSubmitted ? (
           <div className="py-6">
             {/* Google Ads Conversion Tracking */}
-            <GoogleAdsConversion />
+            <GoogleAdsConversion 
+              conversionId="AW-11484248952"
+              conversionLabel="Gyl7CJiG8YwYEJrF8aQD"
+            />
             
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600 dark:text-green-400">
@@ -92,7 +96,10 @@ export default function QuickQuoteModal({
             </div>
           </div>
         ) : (
-          <QuickQuoteForm onSubmitSuccess={handleSubmitSuccess} />
+          <QuickQuoteForm 
+            onSubmitSuccess={handleSubmitSuccess}
+            selectedService={selectedService} 
+          />
         )}
       </DialogContent>
     </Dialog>
