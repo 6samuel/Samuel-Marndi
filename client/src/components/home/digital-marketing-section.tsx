@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Search, Share2, MousePointerClick, Target, Users, AreaChart, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
+import QuickQuoteModal from "@/components/forms/quick-quote-modal";
 
 // Marketing stat card component
 const MarketingStatCard = ({ 
@@ -444,11 +445,15 @@ const DigitalMarketingSection = () => {
                   </Link>
                 </Button>
                 
-                <Button asChild variant="default" className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700">
-                  <Link to="/contact?service=digital-marketing">
-                    Get a Quote <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                <QuickQuoteModal 
+                  triggerText="Get a Quote"
+                  icon={true}
+                  iconPosition="right"
+                  iconComponent={<ArrowRight className="ml-2 h-4 w-4" />}
+                  buttonVariant="default"
+                  selectedService="digital-marketing"
+                  triggerClassName="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700"
+                />
               </div>
               
               <div className="p-4 bg-white/20 rounded-lg backdrop-blur-sm mb-4">

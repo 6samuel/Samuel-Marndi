@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle } from "lucide-react";
+import QuickQuoteModal from "@/components/forms/quick-quote-modal";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const CtaSection = () => {
@@ -90,12 +91,12 @@ const CtaSection = () => {
                 className="space-y-4"
                 variants={itemVariants}
               >
-                <Link href="/contact">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    Get a Free Quote
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+                <QuickQuoteModal 
+                  triggerText="Get a Free Quote"
+                  icon={false}
+                  buttonVariant="default"
+                  triggerClassName="w-full sm:w-auto h-11 px-8"
+                />
                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">
                   No obligations. I'll respond within 24 hours.
                 </p>
