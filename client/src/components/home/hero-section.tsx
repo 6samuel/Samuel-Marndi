@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Code, BarChart2, BrainCircuit, Globe, Database } from "lucide-react";
 import QuickQuoteForm from "@/components/forms/quick-quote-form";
 import GoogleAdsConversion from "@/components/tracking/google-ads-conversion";
+import QuickQuoteModal from "@/components/forms/quick-quote-modal";
 
 // Import the image directly
 import samuelImage from "../../../public/samuel-transparent.png";
@@ -423,11 +424,12 @@ const HeroSection = () => {
                     <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </Link>
-                <Link href="/portfolio">
-                  <Button size="default" variant="outline" className="font-medium w-full sm:w-auto text-sm sm:text-base">
-                    View My Work
-                  </Button>
-                </Link>
+                <QuickQuoteModal 
+                  triggerText="Get Quote Now"
+                  buttonVariant="outline"
+                  icon={false}
+                  triggerClassName="font-medium w-full sm:w-auto text-sm sm:text-base"
+                />
               </div>
               
               <div className="space-y-3 pt-4 hidden lg:block">
