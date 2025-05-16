@@ -49,11 +49,12 @@ const QuickQuoteFormWrapper = () => {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/portfolio">
-                <Button variant="outline">
-                  View My Work
-                </Button>
-              </Link>
+              <QuickQuoteModal 
+                triggerText="Get Quote Now"
+                buttonVariant="outline"
+                icon={false}
+                triggerClassName="font-medium w-full sm:w-auto text-sm sm:text-base"
+              />
             </div>
           </div>
         </div>
