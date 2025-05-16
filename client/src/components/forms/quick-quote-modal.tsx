@@ -10,13 +10,17 @@ interface QuickQuoteModalProps {
   triggerText?: string;
   icon?: boolean;
   buttonVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | null;
+  id?: string;
+  selectedService?: string;
 }
 
 export default function QuickQuoteModal({ 
   triggerClassName, 
   triggerText = "Request a Quote", 
   icon = true,
-  buttonVariant = 'default'
+  buttonVariant = 'default',
+  id,
+  selectedService
 }: QuickQuoteModalProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [open, setOpen] = useState(false);
