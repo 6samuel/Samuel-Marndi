@@ -1216,4 +1216,60 @@ export class DatabaseStorage implements IStorage {
       .where(eq(consultations.id, id));
     return result.rowCount > 0;
   }
+  
+  // Landing Pages operations
+  async getLandingPages(): Promise<LandingPage[]> {
+    const result = await db
+      .select()
+      .from(landingPages)
+      .orderBy(desc(landingPages.updatedAt));
+    return result;
+  }
+  
+  async getLandingPage(id: number): Promise<LandingPage | undefined> {
+    const [landingPage] = await db
+      .select()
+      .from(landingPages)
+      .where(eq(landingPages.id, id));
+    return landingPage;
+  }
+  
+  async getLandingPageBySlug(slug: string): Promise<LandingPage | undefined> {
+    const [landingPage] = await db
+      .select()
+      .from(landingPages)
+      .where(eq(landingPages.slug, slug));
+    return landingPage;
+  }
+  
+  async createLandingPage(insertLandingPage: InsertLandingPage): Promise<LandingPage> {
+    const [landingPage] = await db
+      .insert(landingPages)
+      .values({
+        ...insertLandingPage,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return landingPage;
+  }
+  
+  async updateLandingPage(id: number, updateData: Partial<InsertLandingPage>): Promise<LandingPage | undefined> {
+    const [landingPage] = await db
+      .update(landingPages)
+      .set({
+        ...updateData,
+        updatedAt: new Date()
+      })
+      .where(eq(landingPages.id, id))
+      .returning();
+    return landingPage;
+  }
+  
+  async deleteLandingPage(id: number): Promise<boolean> {
+    const result = await db
+      .delete(landingPages)
+      .where(eq(landingPages.id, id));
+    return !!result.rowCount;
+  }
 }

@@ -177,6 +177,14 @@ export interface IStorage {
   updateConsultationStatus(id: number, status: string): Promise<Consultation | undefined>;
   updateConsultationPaymentStatus(id: number, paymentStatus: string, paymentId?: string, paymentMethod?: string): Promise<Consultation | undefined>;
   deleteConsultation(id: number): Promise<boolean>;
+  
+  // Landing Pages operations
+  getLandingPages(): Promise<LandingPage[]>;
+  getLandingPage(id: number): Promise<LandingPage | undefined>;
+  getLandingPageBySlug(slug: string): Promise<LandingPage | undefined>;
+  createLandingPage(landingPage: InsertLandingPage): Promise<LandingPage>;
+  updateLandingPage(id: number, landingPage: Partial<InsertLandingPage>): Promise<LandingPage | undefined>;
+  deleteLandingPage(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
