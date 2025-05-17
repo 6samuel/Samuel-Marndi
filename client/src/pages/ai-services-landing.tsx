@@ -272,7 +272,7 @@ const AIServicesLanding = () => {
             >
               <div className="relative rounded-lg overflow-hidden shadow-xl border border-border">
                 <OptimizedImage
-                  src="https://images.unsplash.com/photo-1677442135136-760c813daf39?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+                  src="https://images.unsplash.com/photo-1595476108398-47adf1e9ff2f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
                   alt="AI Integration Services"
                   width={600}
                   height={400}
