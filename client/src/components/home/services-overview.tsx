@@ -149,7 +149,7 @@ const ServicesOverview = () => {
                   </CardContent>
                   <CardFooter className="flex flex-col space-y-2">
                     <div className="flex justify-between w-full">
-                      <Link href={`/services/${service.slug}`}>
+                      <Link href={`/${service.slug}`}>
                         <Button variant="ghost" size="sm" className="text-primary dark:text-primary-foreground">
                           Learn more <ChevronRight className="ml-1 h-4 w-4" />
                         </Button>
