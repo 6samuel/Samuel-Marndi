@@ -105,27 +105,27 @@ const SiteFooter = () => {
             </h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <Link to="/services/web-development" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/web-development" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   Web Development
                 </Link>
               </li>
               <li>
-                <Link to="/services/digital-marketing" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/digital-marketing" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   Digital Marketing
                 </Link>
               </li>
               <li>
-                <Link to="/services/ui-ux-design" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/ui-ux-design" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   UI/UX Design
                 </Link>
               </li>
               <li>
-                <Link to="/services/seo-optimization" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/seo-services" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   SEO Optimization
                 </Link>
               </li>
               <li>
-                <Link to="/services/ecommerce-solutions" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
+                <Link to="/ecommerce-solutions" className="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary-foreground">
                   E-commerce Solutions
                 </Link>
               </li>

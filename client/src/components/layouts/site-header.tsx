@@ -83,66 +83,66 @@ const SiteHeader = () => {
     {
       name: "Web Development",
       description: "Custom website and web application development",
-      href: "/services/web-development",
+      href: "/web-development",
       icon: <Code className="h-5 w-5 text-blue-500" />,
       services: [
-        { name: "Full-Stack Development", href: "/services/web-development#full-stack" },
-        { name: "Front-End Development", href: "/services/web-development#front-end" },
-        { name: "Back-End Development", href: "/services/web-development#back-end" },
-        { name: "E-commerce Development", href: "/services/ecommerce-solutions" },
-        { name: "CMS Development", href: "/services/web-development#cms" },
+        { name: "Full-Stack Development", href: "/web-development" },
+        { name: "Front-End Development", href: "/web-development" },
+        { name: "Back-End Development", href: "/web-development" },
+        { name: "E-commerce Development", href: "/ecommerce-solutions" },
+        { name: "CMS Development", href: "/web-development" },
       ]
     },
     {
       name: "Digital Marketing",
       description: "Comprehensive digital marketing solutions",
-      href: "/services/digital-marketing",
+      href: "/digital-marketing",
       icon: <BarChart2 className="h-5 w-5 text-green-500" />,
       services: [
-        { name: "SEO Optimization", href: "/services/seo-optimization" },
-        { name: "Social Media Marketing", href: "/services/digital-marketing#social" },
-        { name: "Content Marketing", href: "/services/digital-marketing#content" },
-        { name: "Email Marketing", href: "/services/digital-marketing#email" },
-        { name: "PPC Campaigns", href: "/services/digital-marketing#ppc" },
+        { name: "SEO Optimization", href: "/seo-services" },
+        { name: "Social Media Marketing", href: "/social-media-optimization" },
+        { name: "Content Marketing", href: "/digital-marketing" },
+        { name: "Email Marketing", href: "/digital-marketing" },
+        { name: "PPC Campaigns", href: "/digital-marketing" },
       ]
     },
     {
       name: "App Development",
       description: "Mobile and desktop application development",
-      href: "/services/mobile-app-development",
+      href: "/app-development",
       icon: <Smartphone className="h-5 w-5 text-purple-500" />,
       services: [
-        { name: "iOS Development", href: "/services/mobile-app-development#ios" },
-        { name: "Android Development", href: "/services/mobile-app-development#android" },
-        { name: "Cross-Platform Apps", href: "/services/mobile-app-development#cross-platform" },
-        { name: "Desktop Applications", href: "/services/mobile-app-development#desktop" },
-        { name: "PWA Development", href: "/services/mobile-app-development#pwa" },
+        { name: "iOS Development", href: "/app-development" },
+        { name: "Android Development", href: "/app-development" },
+        { name: "Cross-Platform Apps", href: "/app-development" },
+        { name: "Desktop Applications", href: "/app-development" },
+        { name: "PWA Development", href: "/app-development" },
       ]
     },
     {
       name: "Design Services",
       description: "Creative design solutions for digital products",
-      href: "/services/ui-ux-design",
+      href: "/ui-ux-design",
       icon: <Palette className="h-5 w-5 text-pink-500" />,
       services: [
-        { name: "UI/UX Design", href: "/services/ui-ux-design" },
-        { name: "Brand Identity", href: "/services/ui-ux-design#brand" },
-        { name: "Logo Design", href: "/services/ui-ux-design#logo" },
-        { name: "Prototyping", href: "/services/ui-ux-design#prototype" },
-        { name: "Wireframing", href: "/services/ui-ux-design#wireframe" },
+        { name: "UI/UX Design", href: "/ui-ux-design" },
+        { name: "Brand Identity", href: "/ui-ux-design" },
+        { name: "Logo Design", href: "/ui-ux-design" },
+        { name: "Prototyping", href: "/ui-ux-design" },
+        { name: "Wireframing", href: "/ui-ux-design" },
       ]
     },
     {
       name: "AI & Cloud Services",
       description: "Advanced AI integration and cloud solutions",
-      href: "/services/ai-services",
+      href: "/ai-integration",
       icon: <BrainCircuit className="h-5 w-5 text-orange-500" />,
       services: [
-        { name: "AI Integration", href: "/services/ai-services" },
-        { name: "Cloud Architecture", href: "/services/cloud-services" },
-        { name: "DevOps Services", href: "/services/devops-services" },
-        { name: "Database Management", href: "/services/database-services" },
-        { name: "API Development", href: "/services/api-development" },
+        { name: "AI Integration", href: "/ai-integration" },
+        { name: "Cloud Architecture", href: "/ai-integration" },
+        { name: "DevOps Services", href: "/ai-integration" },
+        { name: "Database Management", href: "/api-integration" },
+        { name: "API Development", href: "/api-integration" },
       ]
     }
   ];
@@ -479,7 +479,7 @@ const SiteHeader = () => {
                       <h3 className="font-medium mb-2">Services</h3>
                       <div className="space-y-2">
                         <Link
-                          href="/services/web-development"
+                          href="/web-development"
                           onClick={handleLinkClick}
                           className="flex items-center gap-2 hover:text-primary transition-colors"
                         >
@@ -487,15 +487,15 @@ const SiteHeader = () => {
                           <span>Web Development</span>
                         </Link>
                         <Link
-                          href="/services/digital-marketing"
+                          href="/digital-marketing"
                           onClick={(e) => {
                             e.preventDefault();
                             handleLinkClick();
                             // Track digital marketing clicks
                             if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
-                              (window as any).gtag_report_conversion("/services/digital-marketing");
+                              (window as any).gtag_report_conversion("/digital-marketing");
                             } else {
-                              window.location.href = "/services/digital-marketing";
+                              window.location.href = "/digital-marketing";
                             }
                           }}
                           className="flex items-center gap-2 hover:text-primary transition-colors"
@@ -504,7 +504,7 @@ const SiteHeader = () => {
                           <span>Digital Marketing</span>
                         </Link>
                         <Link
-                          href="/services/ui-ux-design"
+                          href="/ui-ux-design"
                           onClick={handleLinkClick}
                           className="flex items-center gap-2 hover:text-primary transition-colors"
                         >
@@ -512,15 +512,15 @@ const SiteHeader = () => {
                           <span>UI/UX Design</span>
                         </Link>
                         <Link
-                          href="/services/seo-optimization"
+                          href="/seo-services"
                           onClick={(e) => {
                             e.preventDefault();
                             handleLinkClick();
                             // Track SEO optimization clicks
                             if (typeof window !== 'undefined' && (window as any).gtag_report_conversion) {
-                              (window as any).gtag_report_conversion("/services/seo-optimization");
+                              (window as any).gtag_report_conversion("/seo-services");
                             } else {
-                              window.location.href = "/services/seo-optimization";
+                              window.location.href = "/seo-services";
                             }
                           }}
                           className="flex items-center gap-2 hover:text-primary transition-colors"
@@ -529,7 +529,7 @@ const SiteHeader = () => {
                           <span>SEO Optimization</span>
                         </Link>
                         <Link
-                          href="/services/ecommerce-solutions"
+                          href="/ecommerce-solutions"
                           onClick={handleLinkClick}
                           className="flex items-center gap-2 hover:text-primary transition-colors"
                         >
@@ -537,7 +537,7 @@ const SiteHeader = () => {
                           <span>E-commerce Solutions</span>
                         </Link>
                         <Link
-                          href="/services/mobile-app-development"
+                          href="/app-development"
                           onClick={handleLinkClick}
                           className="flex items-center gap-2 hover:text-primary transition-colors"
                         >
