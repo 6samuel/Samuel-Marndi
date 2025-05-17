@@ -13,7 +13,8 @@ import {
   adTrackers, AdTracker, InsertAdTracker,
   adTrackerHits, AdTrackerHit, InsertAdTrackerHit,
   trackingSettings, TrackingSettings, InsertTrackingSettings,
-  consultations, Consultation, InsertConsultation
+  consultations, Consultation, InsertConsultation,
+  landingPages, LandingPage, InsertLandingPage
 } from "@shared/schema";
 import { sampleData } from "./sample-data";
 
