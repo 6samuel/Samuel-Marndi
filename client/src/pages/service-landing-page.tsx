@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useRoute, useLocation } from 'wouter';
+import { useRoute, useLocation, Link } from 'wouter';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight, Check, Star } from 'lucide-react';
@@ -17,7 +17,7 @@ const ServiceLandingPage = () => {
 
   // Fetch service details based on the slug
   const { data: service, isLoading, error } = useQuery<Service>({
-    queryKey: [`/api/services/by-slug/${serviceSlug}`],
+    queryKey: [`/api/services/${serviceSlug}`],
     enabled: !!serviceSlug,
   });
 
@@ -242,8 +242,8 @@ const ServiceLandingPage = () => {
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Check out my portfolio section to see examples of my {service.title.toLowerCase()} work.
                   </p>
-                  <Button asChild variant="outline" size="sm">
-                    <Link to="/portfolio">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/portfolio">
                       View Portfolio <ArrowRight className="ml-1 h-4 w-4" />
                     </Link>
                   </Button>
@@ -316,7 +316,7 @@ const ServiceLandingPage = () => {
                   selectedService={service.slug}
                 />
                 <Button variant="outline" size="lg" asChild>
-                  <Link to="/contact">
+                  <Link href="/contact">
                     Contact Me
                   </Link>
                 </Button>
