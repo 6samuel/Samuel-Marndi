@@ -449,6 +449,28 @@ export type InsertABTestVariant = z.infer<typeof insertAbTestVariantSchema>;
 export type ABTestHit = typeof abTestHits.$inferSelect;
 export type InsertABTestHit = z.infer<typeof insertAbTestHitSchema>;
 
+// Landing Pages table for custom service landing pages
+export const landingPages = pgTable("landing_pages", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  content: text("content").notNull(),
+  isActive: boolean("is_active").default(true),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertLandingPageSchema = createInsertSchema(landingPages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type LandingPage = typeof landingPages.$inferSelect;
+export type InsertLandingPage = z.infer<typeof insertLandingPageSchema>;
+
 // Consultations
 export const consultations = pgTable("consultations", {
   id: serial("id").primaryKey(),
