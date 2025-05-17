@@ -73,6 +73,7 @@ import AdminForms from "@/pages/admin/forms";
 import AdminCampaigns from "@/pages/admin/campaigns";
 import AdminAdTrackers from "@/pages/admin/ad-trackers";
 import AdminSettings from "@/pages/admin/settings";
+import AdminLandingPages from "@/pages/admin/landing-pages";
 import AdminContentManagement from "@/pages/admin/content-management";
 import AdminMarketingCampaigns from "@/pages/admin/marketing-campaigns";
 
@@ -121,6 +122,7 @@ function Router() {
         <ProtectedRoute path="/admin/settings" component={AdminSettings} adminOnly />
         <ProtectedRoute path="/admin/content" component={AdminContentManagement} adminOnly />
         <ProtectedRoute path="/admin/marketing-campaigns" component={AdminMarketingCampaigns} adminOnly />
+        <ProtectedRoute path="/admin/landing-pages" component={AdminLandingPages} adminOnly />
         
         {/* Regular site routes - with header/footer */}
         <Route>
