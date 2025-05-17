@@ -1102,6 +1102,31 @@ export class MemStorage implements IStorage {
   async deleteConsultation(id: number): Promise<boolean> {
     return this.consultations.delete(id);
   }
+  
+  // Landing page operations
+  async getLandingPages(): Promise<LandingPage[]> {
+    return [];
+  }
+  
+  async getLandingPage(id: number): Promise<LandingPage | undefined> {
+    return undefined;
+  }
+  
+  async getLandingPageBySlug(slug: string): Promise<LandingPage | undefined> {
+    return undefined;
+  }
+  
+  async createLandingPage(landingPage: InsertLandingPage): Promise<LandingPage> {
+    throw new Error("Method not implemented.");
+  }
+  
+  async updateLandingPage(id: number, landingPage: Partial<InsertLandingPage>): Promise<LandingPage | undefined> {
+    return undefined;
+  }
+  
+  async deleteLandingPage(id: number): Promise<boolean> {
+    return false;
+  }
 }
 
 // Import database storage

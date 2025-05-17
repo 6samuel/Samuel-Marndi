@@ -1,28 +1,15 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Loader2 } from "lucide-react";
 
 interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: number;
   className?: string;
 }
 
-const SIZE_CLASSES = {
-  sm: 'h-4 w-4',
-  md: 'h-6 w-6',
-  lg: 'h-8 w-8',
-};
-
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', className }) => {
+export default function LoadingSpinner({ size = 24, className = "" }: LoadingSpinnerProps) {
   return (
-    <Loader2 
-      className={cn(
-        'animate-spin text-primary',
-        SIZE_CLASSES[size],
-        className
-      )} 
-    />
+    <div className={`flex items-center justify-center ${className}`}>
+      <Loader2 className={`h-${size} w-${size} animate-spin text-primary`} />
+    </div>
   );
-};
-
-export default LoadingSpinner;
+}
