@@ -50,6 +50,7 @@ const ServiceLandingPage = () => {
   const { data: service, isLoading, error } = useQuery<Service>({
     queryKey: [`/api/services/${serviceSlug}`],
     enabled: !!serviceSlug,
+    retry: 2,
   });
 
   // Track page view with specific service

@@ -124,6 +124,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch services" });
     }
   });
+  
+  // Support for direct service URLs used with the new service landing pages
+  const serviceAliases: Record<string, string> = {
+    'web-development': 'web-development',
+    'app-development': 'mobile-app-development',
+    'digital-marketing': 'digital-marketing',
+    'ui-ux-design': 'ui-ux-design',
+    'ecommerce-solutions': 'ecommerce-solutions',
+    'ai-integration': 'ai-services',
+    'seo-services': 'seo-optimization',
+    'api-integration': 'api-development',
+    'cloud-services': 'cloud-services',
+    'social-media-optimization': 'social-media-optimization'
+  };
 
   app.get(`${apiRoute}/services/featured`, async (_req, res) => {
     try {
@@ -137,7 +151,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(`${apiRoute}/services/:slug`, async (req, res) => {
     try {
-      const service = await storage.getServiceBySlug(req.params.slug);
+      // Check if the requested slug is a direct service slug alias
+      const actualSlug = serviceAliases[req.params.slug] || req.params.slug;
+      
+      const service = await storage.getServiceBySlug(actualSlug);
       if (!service) {
         return res.status(404).json({ message: "Service not found" });
       }
