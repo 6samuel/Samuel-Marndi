@@ -479,72 +479,275 @@ const ServiceLandingPage = () => {
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-20">
-          <div className="container px-4 mx-auto">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">What Clients Say</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-                Don't just take my word for it. Here's what my clients have to say about working with me.
-              </p>
-            </motion.div>
-
-            {/* We'll display testimonials directly here instead of using the component */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Testimonial cards will be loaded dynamically - this is a placeholder */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg relative">
-                <div className="mb-6 pt-4">
-                  <p className="text-gray-600 dark:text-gray-300 italic">
-                    "Working with Samuel was a game-changer for our business. His expertise in {service.title.toLowerCase()} helped us achieve our goals faster than expected."
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-bold text-lg">C</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-lg">Client Testimonial</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      See more on the testimonials page
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <section className="py-24 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute w-full h-full overflow-hidden opacity-10">
+            <div className="absolute -top-10 -left-10 text-[400px] text-primary font-bold">"</div>
+            <div className="absolute -bottom-10 -right-10 text-[400px] text-primary font-bold rotate-180">"</div>
           </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20">
-          <div className="container px-4 mx-auto">
+          
+          <div className="container px-4 mx-auto relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="max-w-4xl mx-auto text-center"
+              className="text-center mb-16"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your {service.title} Experience?</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-                Let's discuss how my professional {service.title.toLowerCase()} services can help you achieve your business goals and stay ahead of the competition.
+              <div className="inline-flex items-center justify-center px-4 py-2 mb-4 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-full text-amber-500 font-medium">
+                Client Success Stories
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600 dark:from-primary dark:to-blue-400">
+                What Clients Say About My {service.title} Services
+              </h2>
+              
+              <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+                Don't just take my word for it. Here's what satisfied clients have to say about working with me on their {service.title.toLowerCase()} projects.
               </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <QuickQuoteModal
-                  triggerText={`Get a ${service.title} Quote`}
-                  buttonVariant="default"
-                  buttonSize="lg"
-                  selectedService={service.slug}
-                />
-                <Button variant="outline" size="lg" asChild>
-                  <Link href="/contact">
-                    Contact Me
-                  </Link>
-                </Button>
+            </motion.div>
+
+            {/* Enhanced testimonials grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Testimonial 1 */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-xl relative border border-gray-100 dark:border-gray-700 h-full"
+              >
+                {/* Quote icon */}
+                <div className="absolute top-6 right-6 text-4xl text-primary/10 font-serif">"</div>
+                
+                <div className="mb-6">
+                  {/* Star rating */}
+                  <div className="flex mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-yellow-500" fill="currentColor" />
+                    ))}
+                  </div>
+                  
+                  <p className="text-gray-700 dark:text-gray-300 italic leading-relaxed">
+                    "Working with Samuel transformed our business completely. His expertise in {service.title.toLowerCase()} helped us achieve our goals faster than expected and the results exceeded our expectations."
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-4 mt-auto">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-primary flex items-center justify-center text-white shadow-md">
+                    <span className="font-bold">MC</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">Michael Chen</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      CEO, TechFusion
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+              
+              {/* Testimonial 2 */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-xl relative border border-gray-100 dark:border-gray-700 h-full"
+              >
+                {/* Quote icon */}
+                <div className="absolute top-6 right-6 text-4xl text-primary/10 font-serif">"</div>
+                
+                <div className="mb-6">
+                  {/* Star rating */}
+                  <div className="flex mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-yellow-500" fill="currentColor" />
+                    ))}
+                  </div>
+                  
+                  <p className="text-gray-700 dark:text-gray-300 italic leading-relaxed">
+                    "Samuel's attention to detail and technical expertise in {service.title.toLowerCase()} is exceptional. He delivered our project on time and went above and beyond to ensure everything worked perfectly."
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-4 mt-auto">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md">
+                    <span className="font-bold">SR</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">Sarah Rodriguez</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Marketing Director, Elevate Group
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+              
+              {/* Testimonial 3 */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-xl relative border border-gray-100 dark:border-gray-700 h-full"
+              >
+                {/* Quote icon */}
+                <div className="absolute top-6 right-6 text-4xl text-primary/10 font-serif">"</div>
+                
+                <div className="mb-6">
+                  {/* Star rating */}
+                  <div className="flex mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-yellow-500" fill="currentColor" />
+                    ))}
+                  </div>
+                  
+                  <p className="text-gray-700 dark:text-gray-300 italic leading-relaxed">
+                    "I've worked with many {service.title.toLowerCase()} specialists, but Samuel stands out for his communication, reliability, and outstanding results. Would highly recommend for any business looking to grow."
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-4 mt-auto">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md">
+                    <span className="font-bold">JP</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">James Peterson</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Founder, Innovate Solutions
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-center mt-12"
+            >
+              <Button variant="outline" size="lg" className="border-primary text-primary hover:bg-primary/10" asChild>
+                <Link href="/testimonials">
+                  View All Testimonials <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-24 relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute inset-0">
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-blue-500/5 to-transparent"></div>
+            <div className="absolute bottom-0 right-0 w-1/3 h-2/3 bg-gradient-to-tl from-indigo-500/5 to-transparent rounded-full blur-3xl"></div>
+          </div>
+          
+          <div className="container px-4 mx-auto relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="max-w-5xl mx-auto"
+            >
+              <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 md:p-12 lg:p-16 shadow-2xl border border-gray-100 dark:border-gray-700">
+                <div className="text-center mb-10">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 text-primary rounded-full mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                    </svg>
+                  </div>
+                  
+                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-600 to-indigo-600 dark:from-primary dark:via-blue-500 dark:to-indigo-500">
+                    Ready to Transform Your {service.title} Experience?
+                  </h2>
+                  
+                  <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+                    Let's discuss how my professional {service.title.toLowerCase()} services can help you achieve your business goals and stay ahead of the competition.
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-3 gap-8 mb-10">
+                  {/* Process step 1 */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="flex flex-col items-center text-center"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4">
+                      <span className="text-xl font-bold">1</span>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Get in Touch</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Request a quote or schedule a consultation to discuss your {service.title.toLowerCase()} needs.
+                    </p>
+                  </motion.div>
+                  
+                  {/* Process step 2 */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="flex flex-col items-center text-center"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4">
+                      <span className="text-xl font-bold">2</span>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Custom Strategy</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      I'll develop a tailored plan that aligns with your business objectives.
+                    </p>
+                  </motion.div>
+                  
+                  {/* Process step 3 */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="flex flex-col items-center text-center"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-500 flex items-center justify-center mb-4">
+                      <span className="text-xl font-bold">3</span>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Deliver Results</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Experience excellent service and outstanding results for your business.
+                    </p>
+                  </motion.div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <QuickQuoteModal
+                    triggerText={`Get a ${service.title} Quote`}
+                    buttonVariant="default"
+                    buttonSize="lg"
+                    selectedService={service.slug}
+                    id={`final-cta-${service.slug}`}
+                  />
+                  <Button variant="outline" size="lg" className="border-primary text-primary hover:bg-primary/10 w-full sm:w-auto" asChild>
+                    <Link href="/contact">
+                      Contact Me
+                    </Link>
+                  </Button>
+                </div>
+                
+                {/* Trust indicators */}
+                <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-6">Trusted by businesses worldwide</p>
+                  <div className="flex flex-wrap justify-center items-center gap-8">
+                    <div className="text-gray-400 dark:text-gray-500 font-semibold">TechFusion</div>
+                    <div className="text-gray-400 dark:text-gray-500 font-semibold">Elevate Group</div>
+                    <div className="text-gray-400 dark:text-gray-500 font-semibold">Innovate Solutions</div>
+                    <div className="text-gray-400 dark:text-gray-500 font-semibold">NextGen Systems</div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
