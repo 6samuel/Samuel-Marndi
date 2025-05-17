@@ -13,8 +13,7 @@ import {
   adTrackers, AdTracker, InsertAdTracker,
   adTrackerHits, AdTrackerHit, InsertAdTrackerHit,
   trackingSettings, TrackingSettings, InsertTrackingSettings,
-  consultations, Consultation, InsertConsultation,
-  landingPages, LandingPage, InsertLandingPage
+  consultations, Consultation, InsertConsultation
 } from "@shared/schema";
 import { sampleData } from "./sample-data";
 
@@ -177,14 +176,6 @@ export interface IStorage {
   updateConsultationStatus(id: number, status: string): Promise<Consultation | undefined>;
   updateConsultationPaymentStatus(id: number, paymentStatus: string, paymentId?: string, paymentMethod?: string): Promise<Consultation | undefined>;
   deleteConsultation(id: number): Promise<boolean>;
-  
-  // Landing Pages operations
-  getLandingPages(): Promise<LandingPage[]>;
-  getLandingPage(id: number): Promise<LandingPage | undefined>;
-  getLandingPageBySlug(slug: string): Promise<LandingPage | undefined>;
-  createLandingPage(landingPage: InsertLandingPage): Promise<LandingPage>;
-  updateLandingPage(id: number, landingPage: Partial<InsertLandingPage>): Promise<LandingPage | undefined>;
-  deleteLandingPage(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -1109,31 +1100,6 @@ export class MemStorage implements IStorage {
 
   async deleteConsultation(id: number): Promise<boolean> {
     return this.consultations.delete(id);
-  }
-  
-  // Landing page operations
-  async getLandingPages(): Promise<LandingPage[]> {
-    return [];
-  }
-  
-  async getLandingPage(id: number): Promise<LandingPage | undefined> {
-    return undefined;
-  }
-  
-  async getLandingPageBySlug(slug: string): Promise<LandingPage | undefined> {
-    return undefined;
-  }
-  
-  async createLandingPage(landingPage: InsertLandingPage): Promise<LandingPage> {
-    throw new Error("Method not implemented.");
-  }
-  
-  async updateLandingPage(id: number, landingPage: Partial<InsertLandingPage>): Promise<LandingPage | undefined> {
-    return undefined;
-  }
-  
-  async deleteLandingPage(id: number): Promise<boolean> {
-    return false;
   }
 }
 

@@ -44,8 +44,6 @@ import About from "@/pages/about";
 import Services from "@/pages/services";
 import ServiceDetail from "@/pages/service-detail";
 import ServiceLandingPage from "@/pages/service-landing-page";
-import AIServicesLanding from "@/pages/ai-services-landing";
-import CloudServicesLanding from "@/pages/cloud-services-landing";
 import Portfolio from "@/pages/portfolio";
 import PortfolioItem from "@/pages/portfolio-item";
 import Partners from "@/pages/partners";
@@ -73,7 +71,6 @@ import AdminForms from "@/pages/admin/forms";
 import AdminCampaigns from "@/pages/admin/campaigns";
 import AdminAdTrackers from "@/pages/admin/ad-trackers";
 import AdminSettings from "@/pages/admin/settings";
-import AdminLandingPages from "@/pages/admin/landing-pages";
 import AdminContentManagement from "@/pages/admin/content-management";
 import AdminMarketingCampaigns from "@/pages/admin/marketing-campaigns";
 
@@ -122,7 +119,6 @@ function Router() {
         <ProtectedRoute path="/admin/settings" component={AdminSettings} adminOnly />
         <ProtectedRoute path="/admin/content" component={AdminContentManagement} adminOnly />
         <ProtectedRoute path="/admin/marketing-campaigns" component={AdminMarketingCampaigns} adminOnly />
-        <ProtectedRoute path="/admin/landing-pages" component={AdminLandingPages} adminOnly />
         
         {/* Regular site routes - with header/footer */}
         <Route>
@@ -147,11 +143,7 @@ function Router() {
               <Route path="/refund-policy" component={RefundPolicy} />
               <Route path="/cookie-policy" component={CookiePolicy} />
               <Route path="/services/digital-marketing" component={DigitalMarketing} />
-              {/* Specialized service landing pages */}
-              <Route path="/ai-integration" component={AIServicesLanding} />
-              <Route path="/cloud-services" component={CloudServicesLanding} />
-              
-              {/* Generic service landing pages accessible from root domain */}
+              {/* Direct service landing pages accessible from root domain */}
               <Route path="/:serviceSlug" component={ServiceLandingPage} />
               <Route component={NotFound} />
             </Switch>
