@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Service } from "@shared/schema";
 import { Button } from "@/components/ui/button";
+import QuickQuoteModal from "@/components/forms/quick-quote-modal";
 import {
   Card,
   CardContent,
@@ -179,7 +180,7 @@ const Services = () => {
                       </p>
                     </CardContent>
                     <CardFooter className="flex flex-col gap-3">
-                      <Link href={`/services/${service.slug}`}>
+                      <Link href={`/${service.slug}`}>
                         <Button className="w-full">
                           Learn More
                           <ArrowRight className="ml-2 h-4 w-4" />
@@ -331,12 +332,12 @@ const Services = () => {
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
               Let's discuss how I can help you achieve your digital goals and create a solution tailored to your business needs.
             </p>
-            <Link href="/contact">
+            <QuickQuoteModal id="services-cta">
               <Button size="lg">
                 Get a Free Quote
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
+            </QuickQuoteModal>
           </motion.div>
         </section>
       </div>
