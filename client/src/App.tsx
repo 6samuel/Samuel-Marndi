@@ -44,6 +44,8 @@ import About from "@/pages/about";
 import Services from "@/pages/services";
 import ServiceDetail from "@/pages/service-detail";
 import ServiceLandingPage from "@/pages/service-landing-page";
+import AIServicesLanding from "@/pages/ai-services-landing";
+import CloudServicesLanding from "@/pages/cloud-services-landing";
 import Portfolio from "@/pages/portfolio";
 import PortfolioItem from "@/pages/portfolio-item";
 import Partners from "@/pages/partners";
@@ -143,7 +145,11 @@ function Router() {
               <Route path="/refund-policy" component={RefundPolicy} />
               <Route path="/cookie-policy" component={CookiePolicy} />
               <Route path="/services/digital-marketing" component={DigitalMarketing} />
-              {/* Direct service landing pages accessible from root domain */}
+              {/* Specialized service landing pages */}
+              <Route path="/ai-integration" component={AIServicesLanding} />
+              <Route path="/cloud-services" component={CloudServicesLanding} />
+              
+              {/* Generic service landing pages accessible from root domain */}
               <Route path="/:serviceSlug" component={ServiceLandingPage} />
               <Route component={NotFound} />
             </Switch>
