@@ -3,12 +3,43 @@ import { useQuery } from '@tanstack/react-query';
 import { useRoute, useLocation, Link } from 'wouter';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowRight, Check, Star } from 'lucide-react';
+import { Loader2, ArrowRight, Check, Star, Award, Zap, TrendingUp, Clock } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import QuickQuoteModal from '@/components/forms/quick-quote-modal';
 import { motion } from 'framer-motion';
 import { trackEvent } from '@/lib/analytics';
 import { Service } from '@shared/schema';
+import { AnimatedServiceIcons, IconWrapper, TechStackGrid } from '@/components/ui/service-icons';
+
+// Helper function to get technology stack based on service type
+const getTechStack = (serviceSlug: string): string[] => {
+  switch (serviceSlug) {
+    case 'web-development':
+      return ['React', 'Angular', 'Vue.js', 'Next.js', 'Node.js', 'Express', 'Laravel', 'WordPress', 'MongoDB', 'PostgreSQL', 'GraphQL', 'TypeScript'];
+    case 'app-development':
+      return ['React Native', 'Flutter', 'Swift', 'Kotlin', 'Firebase', 'AWS Amplify', 'Redux', 'RESTful APIs', 'GraphQL', 'MongoDB', 'SQLite'];
+    case 'digital-marketing':
+      return ['Google Ads', 'Facebook Ads', 'Instagram', 'SEO', 'Email Marketing', 'Content Marketing', 'Analytics', 'A/B Testing', 'Social Media', 'SEM'];
+    case 'ui-ux-design':
+      return ['Figma', 'Adobe XD', 'Sketch', 'Photoshop', 'Illustrator', 'User Research', 'Wireframing', 'Prototyping', 'Design Systems', 'Accessibility'];
+    case 'ecommerce-solutions':
+      return ['Shopify', 'WooCommerce', 'Magento', 'BigCommerce', 'Stripe', 'PayPal', 'Inventory Management', 'CRM Integration', 'Order Fulfillment'];
+    case 'ai-integration':
+      return ['TensorFlow', 'PyTorch', 'OpenAI', 'NLP', 'Machine Learning', 'Computer Vision', 'Chatbots', 'Recommendation Systems', 'Data Analysis'];
+    case 'seo-services':
+      return ['On-Page SEO', 'Off-Page SEO', 'Technical SEO', 'Keyword Research', 'Content Strategy', 'Link Building', 'Google Analytics', 'SEO Audits'];
+    case 'website-maintenance':
+      return ['Performance Optimization', 'Security Updates', 'Backup Solutions', 'Bug Fixes', 'Content Updates', 'Speed Optimization', 'Monitoring'];
+    case 'landing-page-design':
+      return ['Conversion Optimization', 'A/B Testing', 'Mobile Responsive', 'Lead Generation', 'Call-to-Action', 'User Experience', 'Speed Optimization'];
+    case 'api-integration':
+      return ['RESTful APIs', 'GraphQL', 'OAuth', 'JWT', 'Third-party Services', 'Webhooks', 'Microservices', 'Payment Gateways', 'CRM Integration'];
+    case 'social-media-optimization':
+      return ['Content Strategy', 'Community Management', 'Hashtag Strategy', 'Analytics', 'Engagement Tactics', 'Paid Campaigns', 'Platform-specific Tools'];
+    default:
+      return ['JavaScript', 'HTML5', 'CSS3', 'React', 'Node.js', 'API Integration', 'Responsive Design', 'Database Management', 'Cloud Services'];
+  }
+};
 
 const ServiceLandingPage = () => {
   const [match, params] = useRoute('/:serviceSlug');
@@ -92,8 +123,9 @@ const ServiceLandingPage = () => {
                 transition={{ duration: 0.5 }}
                 className="flex flex-col relative z-10"
               >
-                <div className="inline-block px-4 py-1.5 bg-primary/10 rounded-full text-primary font-medium mb-6">
-                  Expert {service.title} Solutions
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 rounded-full text-primary font-medium mb-6">
+                  <Award className="h-4 w-4" />
+                  <span>Expert {service.title} Solutions</span>
                 </div>
                 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-600 to-indigo-700 dark:from-primary dark:via-blue-400 dark:to-indigo-500">
@@ -108,6 +140,31 @@ const ServiceLandingPage = () => {
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                     {introText}
                   </p>
+                  
+                  {/* Expert positioning */}
+                  <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <h4 className="font-semibold text-primary flex items-center gap-2">
+                      <Zap className="h-4 w-4" /> Why Choose My {service.title} Services:
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm">Years of Experience</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm">Certified Professional</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm">Custom Solutions</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm">Competitive Pricing</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="flex flex-wrap gap-4 mt-2">
@@ -126,15 +183,21 @@ const ServiceLandingPage = () => {
                 </div>
                 
                 {/* Trust indicators */}
-                <div className="flex items-center gap-2 mt-8 text-sm text-gray-600 dark:text-gray-400">
-                  <Check className="h-4 w-4 text-green-500" />
-                  <span>Fast turnaround</span>
-                  <span className="mx-2 text-gray-300 dark:text-gray-600">•</span>
-                  <Check className="h-4 w-4 text-green-500" />
-                  <span>Quality guaranteed</span>
-                  <span className="mx-2 text-gray-300 dark:text-gray-600">•</span>
-                  <Check className="h-4 w-4 text-green-500" />
-                  <span>Ongoing support</span>
+                <div className="flex flex-wrap items-center gap-3 mt-8 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span>Fast turnaround</span>
+                  </div>
+                  <span className="text-gray-300 dark:text-gray-600">•</span>
+                  <div className="flex items-center gap-1.5">
+                    <Award className="h-4 w-4 text-primary" />
+                    <span>Quality guaranteed</span>
+                  </div>
+                  <span className="text-gray-300 dark:text-gray-600">•</span>
+                  <div className="flex items-center gap-1.5">
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                    <span>Ongoing support</span>
+                  </div>
                 </div>
               </motion.div>
               
@@ -161,6 +224,11 @@ const ServiceLandingPage = () => {
                     priority={true}
                   />
                   
+                  {/* Animated service icons overlay */}
+                  <div className="absolute bottom-4 right-4 z-20">
+                    <AnimatedServiceIcons serviceType={service.slug} />
+                  </div>
+                  
                   {/* Decorative badges */}
                   <div className="absolute -top-3 -right-3 w-16 h-16 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center z-20 border-4 border-white dark:border-gray-800">
                     <Star className="w-8 h-8 text-yellow-500" fill="currentColor" />
@@ -173,6 +241,23 @@ const ServiceLandingPage = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Technology stack badges */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="mt-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50"
+                >
+                  <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                    <IconWrapper name="Layers" className="text-primary h-4 w-4" />
+                    <span>Technologies & Tools</span>
+                  </h4>
+                  <TechStackGrid 
+                    tech={getTechStack(serviceSlug)} 
+                    className="text-xs"
+                  />
+                </motion.div>
               </motion.div>
             </div>
           </div>
