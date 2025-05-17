@@ -10,8 +10,10 @@ interface QuickQuoteModalProps {
   triggerText?: string;
   icon?: boolean;
   buttonVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | null;
+  buttonSize?: 'default' | 'sm' | 'lg' | 'icon' | null;
   id?: string;
   selectedService?: string;
+  children?: React.ReactNode;
 }
 
 export default function QuickQuoteModal({ 
@@ -19,8 +21,10 @@ export default function QuickQuoteModal({
   triggerText = "Request a Quote", 
   icon = true,
   buttonVariant = 'default',
+  buttonSize = 'default',
   id,
-  selectedService
+  selectedService,
+  children
 }: QuickQuoteModalProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -44,7 +48,8 @@ export default function QuickQuoteModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button 
-          variant={buttonVariant} 
+          variant={buttonVariant}
+          size={buttonSize}
           className={triggerClassName}
           id={id}
           onClick={() => {
@@ -56,6 +61,7 @@ export default function QuickQuoteModal({
         >
           {icon && <MessageSquare className="mr-2 h-5 w-5" />}
           {triggerText}
+          {children}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[550px]">
