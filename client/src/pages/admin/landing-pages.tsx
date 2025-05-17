@@ -76,7 +76,6 @@ const AdminLandingPages = () => {
       toast({
         title: 'Landing page created',
         description: 'The landing page has been created successfully.',
-        variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/landing-pages'] });
       setIsCreateModalOpen(false);
@@ -108,7 +107,6 @@ const AdminLandingPages = () => {
       toast({
         title: 'Landing page updated',
         description: 'The landing page has been updated successfully.',
-        variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/landing-pages'] });
       setIsEditModalOpen(false);
@@ -131,7 +129,6 @@ const AdminLandingPages = () => {
       toast({
         title: 'Landing page deleted',
         description: 'The landing page has been deleted successfully.',
-        variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/landing-pages'] });
       setIsDeleteModalOpen(false);
