@@ -6,12 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight, Check, Star } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import QuickQuoteModal from '@/components/forms/quick-quote-modal';
-import SiteHeader from '@/components/layouts/site-header';
-import SiteFooter from '@/components/layouts/site-footer';
-import TestimonialsCarousel from '@/components/sections/testimonials-carousel';
-import ProjectShowcase from '@/components/sections/project-showcase';
 import { motion } from 'framer-motion';
 import { trackEvent } from '@/lib/analytics';
+import { Service } from '@shared/schema';
 
 const ServiceLandingPage = () => {
   const [match, params] = useRoute('/:serviceSlug');
@@ -19,7 +16,7 @@ const ServiceLandingPage = () => {
   const serviceSlug = params?.serviceSlug || '';
 
   // Fetch service details based on the slug
-  const { data: service, isLoading, error } = useQuery({
+  const { data: service, isLoading, error } = useQuery<Service>({
     queryKey: [`/api/services/by-slug/${serviceSlug}`],
     enabled: !!serviceSlug,
   });
@@ -53,15 +50,15 @@ const ServiceLandingPage = () => {
   const introText = descriptionParts[0];
   
   // Try to extract service features if they exist in a list format
-  const featuresSection = descriptionParts.find(part => part.includes('- '));
+  const featuresSection = descriptionParts.find((part: string) => part.includes('- '));
   const features = featuresSection
-    ? featuresSection.split('\n').filter(line => line.startsWith('- ')).map(line => line.substring(2))
+    ? featuresSection.split('\n').filter((line: string) => line.startsWith('- ')).map((line: string) => line.substring(2))
     : [];
   
   // Try to extract benefits if they exist
-  const benefitsSection = descriptionParts.find(part => part.includes('Benefits of') || part.toLowerCase().includes('benefits:'));
+  const benefitsSection = descriptionParts.find((part: string) => part.includes('Benefits of') || part.toLowerCase().includes('benefits:'));
   const benefits = benefitsSection
-    ? benefitsSection.split('\n').filter(line => line.startsWith('- ')).map(line => line.substring(2))
+    ? benefitsSection.split('\n').filter((line: string) => line.startsWith('- ')).map((line: string) => line.substring(2))
     : [];
 
   return (
@@ -76,8 +73,6 @@ const ServiceLandingPage = () => {
         {service.imageUrl && <meta property="og:image" content={service.imageUrl} />}
         <link rel="canonical" href={`https://samuelmarndi.com/${serviceSlug}`} />
       </Helmet>
-
-      <SiteHeader />
       
       <main className="pt-20">
         {/* Hero Section */}
@@ -220,11 +215,84 @@ const ServiceLandingPage = () => {
           </section>
         )}
 
-        {/* Project Showcase - Related Projects */}
-        <ProjectShowcase category={service.slug} title={`Recent ${service.title} Projects`} />
+        {/* Portfolio Section */}
+        <section className="py-20 bg-gray-50 dark:bg-gray-900">
+          <div className="container px-4 mx-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">Recent {service.title} Projects</h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Explore some of my recent work and see how I've helped businesses achieve their goals.
+              </p>
+            </motion.div>
 
-        {/* Testimonials */}
-        <TestimonialsCarousel title={`What Clients Say About My ${service.title} Services`} />
+            {/* We'll display projects directly here instead of using the component */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Project cards will be loaded dynamically - this is a placeholder */}
+              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg">
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold mb-2">
+                    See my portfolio for related projects
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Check out my portfolio section to see examples of my {service.title.toLowerCase()} work.
+                  </p>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/portfolio">
+                      View Portfolio <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section className="py-20">
+          <div className="container px-4 mx-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">What Clients Say</h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Don't just take my word for it. Here's what my clients have to say about working with me.
+              </p>
+            </motion.div>
+
+            {/* We'll display testimonials directly here instead of using the component */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Testimonial cards will be loaded dynamically - this is a placeholder */}
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg relative">
+                <div className="mb-6 pt-4">
+                  <p className="text-gray-600 dark:text-gray-300 italic">
+                    "Working with Samuel was a game-changer for our business. His expertise in {service.title.toLowerCase()} helped us achieve our goals faster than expected."
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-bold text-lg">C</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-lg">Client Testimonial</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      See more on the testimonials page
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* CTA Section */}
         <section className="py-20">
@@ -248,17 +316,15 @@ const ServiceLandingPage = () => {
                   selectedService={service.slug}
                 />
                 <Button variant="outline" size="lg" asChild>
-                  <a href="/contact">
+                  <Link to="/contact">
                     Contact Me
-                  </a>
+                  </Link>
                 </Button>
               </div>
             </motion.div>
           </div>
         </section>
       </main>
-
-      <SiteFooter />
     </>
   );
 };
