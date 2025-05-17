@@ -10,7 +10,8 @@ import {
   insertRecipientSchema,
   insertAdTrackerSchema,
   insertAdTrackerHitSchema,
-  insertConsultationSchema
+  insertConsultationSchema,
+  insertLandingPageSchema
 } from "@shared/schema";
 import { ZodError, z } from "zod";
 import { fromZodError } from "zod-validation-error";
