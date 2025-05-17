@@ -14,6 +14,7 @@ interface QuickQuoteModalProps {
   id?: string;
   selectedService?: string;
   children?: React.ReactNode;
+  className?: string;
 }
 
 export default function QuickQuoteModal({ 
@@ -24,7 +25,8 @@ export default function QuickQuoteModal({
   buttonSize = 'default',
   id,
   selectedService,
-  children
+  children,
+  className
 }: QuickQuoteModalProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [open, setOpen] = useState(false);
