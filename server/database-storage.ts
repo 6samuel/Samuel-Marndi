@@ -20,7 +20,8 @@ import {
   abTests, InsertABTest, ABTest,
   abTestVariants, InsertABTestVariant, ABTestVariant,
   abTestHits, InsertABTestHit, ABTestHit,
-  consultations, Consultation, InsertConsultation
+  consultations, Consultation, InsertConsultation,
+  landingPages, LandingPage, InsertLandingPage
 } from "@shared/schema";
 import { IStorage } from "./storage";
 
