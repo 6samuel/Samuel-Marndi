@@ -10,8 +10,7 @@ import {
   insertRecipientSchema,
   insertAdTrackerSchema,
   insertAdTrackerHitSchema,
-  insertConsultationSchema,
-  insertLandingPageSchema
+  insertConsultationSchema
 } from "@shared/schema";
 import { ZodError, z } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -2035,101 +2034,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Client-facing consultation payment endpoint
   app.post(`${apiRoute}/consultations/:id/process-payment`, processConsultationPayment);
-
-  // Landing Pages Management API
-  app.get(`${apiRoute}/admin/landing-pages`, isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const landingPages = await storage.getLandingPages();
-      res.json(landingPages);
-    } catch (error) {
-      console.error("Error fetching landing pages:", error);
-      res.status(500).json({ message: "Failed to fetch landing pages" });
-    }
-  });
-  
-  app.get(`${apiRoute}/admin/landing-pages/:id`, isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid ID format" });
-      }
-      
-      const landingPage = await storage.getLandingPage(id);
-      if (!landingPage) {
-        return res.status(404).json({ message: "Landing page not found" });
-      }
-      
-      res.json(landingPage);
-    } catch (error) {
-      console.error("Error fetching landing page:", error);
-      res.status(500).json({ message: "Failed to fetch landing page" });
-    }
-  });
-  
-  app.post(`${apiRoute}/admin/landing-pages`, isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const landingPage = await storage.createLandingPage(req.body);
-      res.status(201).json(landingPage);
-    } catch (error) {
-      console.error("Error creating landing page:", error);
-      res.status(500).json({ message: "Failed to create landing page" });
-    }
-  });
-  
-  app.put(`${apiRoute}/admin/landing-pages/:id`, isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid ID format" });
-      }
-      
-      const updatedLandingPage = await storage.updateLandingPage(id, req.body);
-      if (!updatedLandingPage) {
-        return res.status(404).json({ message: "Landing page not found" });
-      }
-      
-      res.json(updatedLandingPage);
-    } catch (error) {
-      console.error("Error updating landing page:", error);
-      res.status(500).json({ message: "Failed to update landing page" });
-    }
-  });
-  
-  app.delete(`${apiRoute}/admin/landing-pages/:id`, isAuthenticated, isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid ID format" });
-      }
-      
-      const success = await storage.deleteLandingPage(id);
-      if (!success) {
-        return res.status(404).json({ message: "Landing page not found" });
-      }
-      
-      res.status(204).end();
-    } catch (error) {
-      console.error("Error deleting landing page:", error);
-      res.status(500).json({ message: "Failed to delete landing page" });
-    }
-  });
-  
-  // Public landing page route
-  app.get(`${apiRoute}/landing-pages/:slug`, async (req, res) => {
-    try {
-      const slug = req.params.slug;
-      const landingPage = await storage.getLandingPageBySlug(slug);
-      
-      if (!landingPage) {
-        return res.status(404).json({ message: "Landing page not found" });
-      }
-      
-      res.json(landingPage);
-    } catch (error) {
-      console.error("Error fetching landing page:", error);
-      res.status(500).json({ message: "Failed to fetch landing page" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
