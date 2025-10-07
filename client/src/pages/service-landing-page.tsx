@@ -44,12 +44,17 @@ const getTechStack = (serviceSlug: string): string[] => {
 const ServiceLandingPage = () => {
   const [match, params] = useRoute('/:serviceSlug');
   const [_, setLocation] = useLocation();
+  
   const serviceSlug = params?.serviceSlug || '';
+
+  // If no serviceSlug or it matches a known route, return null to avoid conflicts
+  const knownRoutes = ['admin', 'services', 'portfolio', 'blog', 'about', 'contact', 'hire', 'partners', 'payment', 'consultation', 'privacy-policy', 'terms-conditions', 'refund-policy', 'cookie-policy'];
+  const shouldRender = match && serviceSlug && !knownRoutes.includes(serviceSlug);
 
   // Fetch service details based on the slug
   const { data: service, isLoading, error } = useQuery<Service>({
     queryKey: [`/api/services/${serviceSlug}`],
-    enabled: !!serviceSlug,
+    enabled: shouldRender && !!serviceSlug,
     retry: 2,
   });
 
@@ -62,10 +67,15 @@ const ServiceLandingPage = () => {
 
   // Redirect to services page if service not found
   useEffect(() => {
-    if (!isLoading && !service && !error) {
+    if (shouldRender && !isLoading && !service && serviceSlug) {
       setLocation('/services');
     }
-  }, [isLoading, service, error, setLocation]);
+  }, [shouldRender, isLoading, service, error, setLocation, serviceSlug]);
+  
+  // Early returns AFTER all hooks
+  if (!shouldRender) {
+    return null;
+  }
 
   if (isLoading) {
     return (
@@ -75,22 +85,22 @@ const ServiceLandingPage = () => {
     );
   }
 
-  if (!service) return null;
+  if (!service || !service.fullDescription) return null;
 
   // Parse service description to display as formatted sections
   const descriptionParts = service.fullDescription.split('\n\n');
-  const introText = descriptionParts[0];
+  const introText = descriptionParts[0] || '';
   
   // Try to extract service features if they exist in a list format
-  const featuresSection = descriptionParts.find((part: string) => part.includes('- '));
+  const featuresSection = descriptionParts.find((part: string) => part && part.includes('- '));
   const features = featuresSection
-    ? featuresSection.split('\n').filter((line: string) => line.startsWith('- ')).map((line: string) => line.substring(2))
+    ? featuresSection.split('\n').filter((line: string) => line && line.startsWith('- ')).map((line: string) => line.substring(2))
     : [];
   
   // Try to extract benefits if they exist
-  const benefitsSection = descriptionParts.find((part: string) => part.includes('Benefits of') || part.toLowerCase().includes('benefits:'));
+  const benefitsSection = descriptionParts.find((part: string) => part && (part.includes('Benefits of') || part.toLowerCase().includes('benefits:')));
   const benefits = benefitsSection
-    ? benefitsSection.split('\n').filter((line: string) => line.startsWith('- ')).map((line: string) => line.substring(2))
+    ? benefitsSection.split('\n').filter((line: string) => line && line.startsWith('- ')).map((line: string) => line.substring(2))
     : [];
 
   return (

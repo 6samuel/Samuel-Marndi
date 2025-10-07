@@ -1,12 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+// import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal"; // DISABLED
 
 export default defineConfig({
   plugins: [
     react(),
-    runtimeErrorOverlay(),
+    // runtimeErrorOverlay(), // DISABLED - This was causing the error overlay
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
@@ -28,4 +28,9 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
   },
+  server: {
+    hmr: {
+      overlay: false  // Disable Vite's built-in error overlay too
+    }
+  }
 });
