@@ -37,6 +37,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Example Express route
+app.post('/api/login', (req, res) => {
+  // ...login logic...
+});
+
 (async () => {
   const server = await registerRoutes(app);
 
